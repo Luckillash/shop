@@ -14,6 +14,10 @@ estado: "vigente"
 Formato: `## AAAA-MM-DD` → una viñeta por cambio, con el área entre corchetes: `[código]`, `[bd]`, `[diseño]`, `[docs]`, `[config]`.
 
 ## 2026-10-25
+- [config] **Primer despliegue en Vercel**: proyecto `shop` (`prj_B1J18wYtEqSEEY8dwFGpAziwU62q`, equipo `lucas-projects-d43692ba`) vinculado a `Luckillash/shop` (rama `main`), dominio `audazia.dev` y `www.audazia.dev` → 308 a `audazia.dev`. Variables de producción y preview cargadas desde `.env.local`, salvo `REDIS_URL` (sin Redis: rate limiting fail-open) y con `NEXT_PUBLIC_SITE_URL=https://audazia.dev` y un `CRON_SECRET` nuevo. Pagos siguen en integración/sandbox y `RESEND_API_KEY` es la llave local.
+- [config] **La cuenta de Vercel sigue en Hobby** (no Pro, como se había anotado): el cron de `vercel.json` pasa a diario (`0 9 * * *`) hasta mejorar el plan (D-021).
+- [config] **MCP `github`** (HTTP, servidor remoto oficial `https://api.githubcopilot.com/mcp/`) agregado a `.mcp.json` y habilitado en `.claude/settings.local.json`. Token leído de `GITHUB_PERSONAL_ACCESS_TOKEN` (no queda en el repositorio). Verificado: `get_me` → `Luckillash`; `Luckillash/shop` es público, rama `main`, sin issues abiertos.
+- [docs] MCP `github` en entorno local (tabla y uso), recursos externos, visión general (servicios externos), variables de entorno, estructura de carpetas y avance.
 - [config] **MCP `vercel`** (HTTP, `https://mcp.vercel.com`) agregado a `.mcp.json` y habilitado en `.claude/settings.local.json`. Verificado: la cuenta no tiene equipos y su único proyecto es `portafolio`; la tienda sigue sin proyecto en Vercel.
 - [docs] MCP `vercel` en entorno local, recursos externos, visión general (servicios externos), estructura de carpetas y avance.
 - [config] **Proyecto movido de `MCPS/Shop/shop` a `MCPS/shop`**, y las carpetas de las pasarelas pasaron a `MCPS/flow` y `MCPS/transbank` (minúscula). Las rutas relativas bajan un nivel (`../../flow/…` → `../flow/…`); `.mcp.json` apunta a las rutas absolutas nuevas.

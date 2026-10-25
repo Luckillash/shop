@@ -1,7 +1,7 @@
 ---
 title: "Recursos externos: artifacts de diseño, documentación de pasarelas, MCP y Next.js"
 description: "Enlaces y rutas a todo lo que está fuera de esta carpeta: los artifacts del diseño Almacén, la documentación de Flow y Transbank del workspace, los servidores MCP y la documentación de Next.js incluida en node_modules."
-keywords: ["recursos", "enlaces", "artifacts", "claude.ai", "flow", "transbank", "mcp", "supabase", "vercel", "next docs", "node_modules"]
+keywords: ["recursos", "enlaces", "artifacts", "claude.ai", "flow", "transbank", "mcp", "supabase", "vercel", "github", "next docs", "node_modules"]
 related: ["01-fundamentos/entorno-local.md", "04-diseno/principios-voz-y-accesibilidad.md"]
 source: [".mcp.json", "_archivo/diseno-almacen.md §1, §6"]
 estado: "vigente"
@@ -40,6 +40,7 @@ También están disponibles como recursos MCP: `flow-docs://<ruta>` y `tbk-docs:
 |---|---|---|
 | `supabase` | Consultar y migrar la BD, generar tipos, ver logs y advisors, buscar documentación | `search_docs` antes de usar una API de Supabase que no conozcas |
 | `vercel` | Desplegar y operar la tienda: proyecto, variables de entorno, dominios/DNS, logs de build y de runtime, cron | `search_vercel_documentation` antes de usar una función de Vercel que no conozcas; `list_projects` para confirmar el proyecto (no adivines IDs) |
+| `github` | Issues, pull requests, ramas y Actions del repositorio `Luckillash/shop` | Confirma el dueño y el repositorio (`Luckillash/shop`) antes de escribir; todo lo que publiques notifica a quien menciones |
 | `flow` | Probar la API de Flow en sandbox | `flow-docs://README.md`, `flow-docs://07-referencia/trampas-conocidas.md` |
 | `transbank` | Probar Webpay en integración | `tbk-docs://README.md`, `tbk-docs://07-referencia/trampas-conocidas.md` |
 

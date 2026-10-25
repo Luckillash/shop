@@ -14,9 +14,9 @@ La fase 6 (pagos) quedó implementada y probada en los ambientes de prueba: Webp
 |---|---|---|---|---|
 | 1 | ~~Crear la cuenta de Resend y pasar la llave~~ ✅ Hecho en local (25-10-2026) | 🔴 Alta | — | Falta la llave de producción en Vercel |
 | 2 | ~~Confirmar los textos propuestos sin diseño~~ ✅ Aprobados (25-10-2026) | 🟠 Media | — | Nada |
-| 3 | ~~Elegir el plan de Vercel o cambiar a `pg_cron`~~ ✅ Vercel Pro (25-10-2026) | 🔴 Alta | — | Falta `CRON_SECRET` en Vercel al desplegar |
+| 3 | Elegir el plan de Vercel o cambiar a `pg_cron` ⚠️ La cuenta sigue en Hobby: cron diario (25-10-2026) | 🔴 Alta | 5 min | Cron cada 10 min |
 | 4 | ~~Pasar los datos bancarios reales~~ ✅ Hecho (25-10-2026) | 🔴 Alta | — | Falta copiarlos a Vercel al desplegar |
-| 5 | Probar la confirmación de Flow con un túnel o con el sitio desplegado | 🟠 Media | 15 min | Confiar en Flow cuando el cliente cierra el navegador |
+| 5 | Probar la confirmación de Flow con el sitio desplegado (ya está en `audazia.dev`) | 🟠 Media | 15 min | Confiar en Flow cuando el cliente cierra el navegador |
 | 6 | ~~Decidir qué hacer con los datos de prueba~~ ✅ Se quedan hasta producción (25-10-2026) | 🟢 Baja | — | Borrarlos antes de publicar |
 
 ---
@@ -77,7 +77,9 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 
 > **Decisión (25-10-2026):** opción **a)**. Pasaste tu cuenta de Vercel a **Pro**, así que el cron cada 10 minutos de `vercel.json` funciona tal cual; no hace falta `pg_cron`.
 >
-> **Queda al desplegar** (el proyecto aún no está creado ni vinculado en Vercel): cargar `CRON_SECRET` en *Settings → Environment Variables* (Production) con un valor **distinto** al de `.env.local`. **Pendiente para producción:** el agente lo genera en ese momento (`crypto.randomBytes(32)`), sin mostrarlo en el chat. Después del primer despliegue, comprobar en *Settings → Cron Jobs* que aparece `/api/cron/expirar-pedidos` y que las ejecuciones responden 200 (no 401).
+> **Corrección (25-10-2026, al desplegar):** Vercel reporta la cuenta en plan **Hobby**, no Pro. El primer despliegue dejó el cron **diario** (`0 9 * * *`) y `CRON_SECRET` de producción ya cargado. Para volver a cada 10 min: pasar a Pro o usar `pg_cron` (tarea 6 de [pendientes del despliegue](pendientes-del-despliegue.md)).
+>
+> **Lo que se había anotado antes de desplegar:** cargar `CRON_SECRET` en *Settings → Environment Variables* (Production) con un valor **distinto** al de `.env.local`. **Pendiente para producción:** el agente lo genera en ese momento (`crypto.randomBytes(32)`), sin mostrarlo en el chat. Después del primer despliegue, comprobar en *Settings → Cron Jobs* que aparece `/api/cron/expirar-pedidos` y que las ejecuciones responden 200 (no 401).
 
 **Por qué:** elegiste Vercel Cron cada 10 minutos (D-021) y `vercel.json` ya lo programa. Pero **el plan Hobby (gratis) de Vercel solo permite crons diarios.** Con un cron diario, un pedido abandonado retiene el stock hasta 24 horas, no 30 minutos.
 
@@ -115,6 +117,8 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 ---
 
 ## 5. Probar la confirmación de Flow con un túnel o con el sitio desplegado 🟠
+
+> **Estado (25-10-2026):** el sitio ya está en `https://audazia.dev`, así que no hace falta túnel. La prueba la hace el agente (tarea 8 de [pendientes del despliegue](pendientes-del-despliegue.md)).
 
 **Por qué:** cuando alguien paga en Flow, Flow avisa a la tienda por dos caminos: el navegador del cliente (`urlReturn`) y un aviso directo de su servidor (`urlConfirmation`). El segundo cubre al cliente que cierra el navegador después de pagar. **Ese aviso no puede llegar a `localhost`**, así que en esta fase se probó simulándolo (decisión D-024). Sin él, el pago igual se registra cuando el cliente vuelve, o cuando el cron revisa el pedido antes de anularlo.
 

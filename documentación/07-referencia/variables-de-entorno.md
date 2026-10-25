@@ -31,6 +31,8 @@ estado: "vigente"
 | `RESEND_API_KEY` | ✅ en uso (desde el 25-10-2026) | **No** | Llave `almacen-local` de Resend (`re_…`, *Sending access*, solo `mail.audazia.dev`). Vacía: los correos se omiten con un aviso `[email] Sin RESEND_API_KEY…` | `src/lib/email/send.ts` (D-022). En producción, otra llave (`almacen-produccion`) |
 | `EMAIL_FROM` | ✅ en uso | No | `Almacén <pedidos@mail.audazia.dev>` | Remitente; el dominio (`mail.audazia.dev`) está verificado en Resend |
 
+`GITHUB_PERSONAL_ACCESS_TOKEN` no es de la app: la usa el MCP `github` y vive como variable de entorno del usuario de Windows (no en `.env.local`). Token *fine-grained* limitado al repositorio `Luckillash/shop`.
+
 Las credenciales que usan los MCP `flow` y `transbank` viven en `../flow/.env` y `../transbank/.env`. Esos archivos **no** los lee la app: las de Flow sandbox se copiaron a `.env.local` el 2026-10-25.
 
 ## Reglas

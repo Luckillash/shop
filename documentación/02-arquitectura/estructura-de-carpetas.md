@@ -16,7 +16,7 @@ estado: "actual: vigente · objetivo: propuesta"
 ```
 shop/
 ├── AGENTS.md                 ← lo regenera `next dev`. Pide leer node_modules/next/dist/docs
-├── .mcp.json                 ← servidores MCP: supabase, vercel, flow, transbank
+├── .mcp.json                 ← servidores MCP: supabase, vercel, github, flow, transbank
 ├── .env.example · .env.local ← Redis y Supabase (.gitignore ignora `.env*` salvo `.env.example`)
 ├── next.config.ts            ← cacheComponents + partialPrefetching
 ├── vitest.config.mts         ← tests: jsdom, React, alias @/ nativo, setup en src/test/setup.ts

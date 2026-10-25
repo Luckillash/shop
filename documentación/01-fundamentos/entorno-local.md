@@ -1,7 +1,7 @@
 ---
 title: "Entorno local: instalación, ejecución y servidores MCP"
 description: "Cómo levantar el proyecto (Redis, npm run dev), qué scripts existen, cómo verificar que funciona y qué servidores MCP tiene disponibles un agente."
-keywords: ["instalación", "npm run dev", "build", "lint", "redis", "docker", "health", "mcp", "supabase", "vercel", "flow", "transbank", ".mcp.json"]
+keywords: ["instalación", "npm run dev", "build", "lint", "redis", "docker", "health", "mcp", "supabase", "vercel", "github", "flow", "transbank", ".mcp.json"]
 related: ["07-referencia/variables-de-entorno.md", "07-referencia/recursos-externos.md", "02-arquitectura/vision-de-arquitectura.md"]
 source: ["_archivo/avance-del-proyecto.md §5", "package.json", ".mcp.json", ".claude/settings.local.json"]
 estado: "vigente"
@@ -66,12 +66,15 @@ Están en `.mcp.json` y habilitados en `.claude/settings.local.json`.
 |---|---|---|---|
 | `supabase` | HTTP (`mcp.supabase.com`) | `docs`, `account`, `database`, `debugging`, `development`, `functions`, `branching` sobre el proyecto `nswchmyzgcutyehhuche` | Pide autenticación la primera vez. Con él puedes aplicar el SQL, listar tablas y revisar logs y advisors |
 | `vercel` | HTTP (`mcp.vercel.com`) | Proyectos, despliegues y logs de build, variables de entorno, dominios y DNS, runtime logs y errores, cron, firewall, `search_vercel_documentation`… | Pide autenticación (OAuth) la primera vez. La cuenta es personal (sin equipos) y hoy solo tiene el proyecto `portafolio`: **la tienda aún no tiene proyecto en Vercel** (25-10-2026). No pidas ni imprimas secretos; no descifres variables salvo que te lo pidan |
+| `github` | HTTP (`api.githubcopilot.com/mcp/`) | Repositorio `Luckillash/shop`: issues, pull requests, ramas, commits, archivos, Actions, búsqueda de código | Se autentica con un token personal leído de la variable de entorno `GITHUB_PERSONAL_ACCESS_TOKEN` (`.mcp.json` lo expande; **nunca** escribas el token en el archivo: está versionado). Sin la variable, el servidor no conecta. Verificado el 25-10-2026: `get_me` → `Luckillash`; el repositorio es **público**. Pide confirmación antes de crear PRs, comentar, hacer merge o cerrar issues |
 | `flow` | stdio (`../flow/mcp/server.js`) | Una herramienta por endpoint: `flow_payment_create`, `flow_payment_getStatus`, `flow_refund_create`… | **Sandbox**. Firma y `apiKey` se añaden solos. Recursos `flow-docs://` |
 | `transbank` | stdio (`../transbank/mcp/server.js`) | `tbk_webpay_plus_create`, `tbk_webpay_plus_commit`, `tbk_webpay_plus_status`, `tbk_webpay_plus_refund`… | Ambiente de **integración**. Recursos `tbk-docs://` |
 
 > Los MCP de pagos sirven para **probar y explorar** las APIs. La tienda debe llamar a Flow y Transbank desde su propio código de servidor ([06-implementacion/](../06-implementacion/)), no a través del MCP.
 >
 > El MCP `vercel` sirve para **operar el despliegue**: crear y vincular el proyecto, cargar las variables de producción (`create_project_env`; ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)), revisar builds fallidos (`get_deployment`, `list_deployment_events`) y errores en producción (`get_runtime_errors`, luego `get_runtime_logs`). Escribe en la cuenta real del dueño: pide confirmación antes de crear, promover, revertir o cambiar DNS.
+
+> El MCP `github` sirve para **colaborar en el repositorio**: leer y abrir issues, preparar ramas y pull requests, revisar commits y buscar código. Llama a `get_me` primero para confirmar la cuenta. Antes de abrir un PR, busca una plantilla (`pull_request_template.md` o `.github/PULL_REQUEST_TEMPLATE/`); hoy no hay. Todo lo que publiques es visible (el repositorio es público) y notifica a quien menciones con `@`. Los commits siguen haciéndose con `git` en local; el MCP no reemplaza al repositorio local.
 
 ## Datos de prueba de pagos
 

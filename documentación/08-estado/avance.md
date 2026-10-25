@@ -78,7 +78,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 | **Fase 6:** revisión visual | Confirmación, Pago rechazado, Flow no completado, Transferencia pendiente, confirmando, vencido, reembolsado | Capturas a 1280 px (oscuro) y 390 px reales (iframe desde localhost:3311): sin desborde horizontal, sin errores de consola, sin *resumable* en el log de `next start` |
 | Tests | `*.test.ts(x)` | 169 OK (+41 de la fase 6: retornos de Webpay, firma y estados de Flow, lock, pantallas, textos, correos) (25-10-2026); antes 128 OK (+3 de la cookie de la comuna); antes 125 OK (+2 de contraseña, +2 de express, +1 de STORE desde el cierre); antes 120 OK (33 nuevos en la fase 5); `npm run lint` y `npm run build` (sin `.next`) OK (24-10-2026) |
 | Design system, 40 templates y flujo de compra (artifacts) | [04-diseno/](../04-diseno/) | — |
-| Servidores MCP `supabase`, `vercel`, `flow` y `transbank` configurados | `.mcp.json` | `vercel` agregado el 25-10-2026: autenticado, `list_projects` responde (solo `portafolio`) |
+| Servidores MCP `supabase`, `vercel`, `github`, `flow` y `transbank` configurados | `.mcp.json` | `vercel` agregado el 25-10-2026: autenticado, `list_projects` responde (solo `portafolio`). `github` agregado el 25-10-2026: autenticado como `Luckillash`, `Luckillash/shop` responde (público, `main`) |
 | Documentación orientada a agentes | `documentación/` | 23-10-2026 |
 
 ## Por fase (ver la [hoja de ruta](../06-implementacion/hoja-de-ruta.md))

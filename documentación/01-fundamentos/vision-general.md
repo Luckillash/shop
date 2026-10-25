@@ -1,7 +1,7 @@
 ---
 title: "Visión general del proyecto Shop (tienda Almacén)"
 description: "Qué es el proyecto, qué vende, qué partes existen hoy en código, cuáles solo en diseño o SQL, y qué servicios externos usa."
-keywords: ["visión", "alcance", "almacén", "e-commerce", "módulos", "estado", "supabase", "redis", "webpay", "flow"]
+keywords: ["visión", "alcance", "almacén", "e-commerce", "módulos", "estado", "supabase", "vercel", "github", "redis", "webpay", "flow"]
 related: ["01-fundamentos/stack-y-versiones.md", "02-arquitectura/vision-de-arquitectura.md", "08-estado/avance.md"]
 source: ["_archivo/avance-del-proyecto.md §1-§4", "_archivo/diseno-almacen.md §1", "package.json", ".mcp.json"]
 estado: "vigente"
@@ -57,6 +57,7 @@ Leyenda: ✅ implementado · 📐 definido (en diseño o SQL) pero sin código �
 |---|---|---|
 | **Supabase** (PostgreSQL, Auth, Storage) | Base de datos, usuarios, imágenes | MCP `supabase` (proyecto `nswchmyzgcutyehhuche`, ver `.mcp.json`) |
 | **Vercel** | Hosting, Vercel Cron (`vercel.json`), DNS de `audazia.dev` | MCP `vercel` (plan Pro; la tienda aún no tiene proyecto creado) |
+| **GitHub** | Repositorio `Luckillash/shop` (público, rama `main`) | MCP `github` (issues, PRs, ramas, commits) |
 | **Redis** | Uso por definir. Hoy solo se usa en `/api/health` | `REDIS_URL` |
 | **Transbank Webpay Plus** | Pago con tarjeta | MCP `transbank` (ambiente de integración) + documentación en `../transbank/documentación/` |
 | **Flow** | Pago con otros medios | MCP `flow` (sandbox) + documentación en `../flow/documentación/` |

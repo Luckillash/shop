@@ -3,7 +3,7 @@ title: "Pendientes antes de producción"
 description: "Lista única de todo lo que falta para publicar la tienda Almacén: desarrollo (fases 6 y 7), datos y decisiones del dueño, configuración de Supabase y de la infraestructura, legal y verificación final. Consolida el checklist de producción, el avance, la hoja de ruta, las decisiones y las brechas abiertas."
 generated: "2026-10-24"
 estado: "vigente"
-related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-implementacion/hoja-de-ruta.md", "07-referencia/brechas-diseno-vs-datos.md", "_archivo/pendientes-del-dueno-fase-5.md", "_archivo/pendientes-del-dueno-fase-6.md"]
+related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-implementacion/hoja-de-ruta.md", "07-referencia/brechas-diseno-vs-datos.md", "_archivo/pendientes-del-dueno-fase-5.md", "_archivo/pendientes-del-dueno-fase-6.md", "_archivo/pendientes-del-despliegue.md"]
 ---
 
 # Pendientes antes de producción
@@ -11,6 +11,8 @@ related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-im
 Estado al **25 de octubre de 2026**: las fases 0 a 6 están terminadas. **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
 
 Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-del-dueno-fase-6.md](pendientes-del-dueno-fase-6.md).
+
+**Desplegada el 25-10-2026 en https://audazia.dev** (Vercel, plan Hobby), con los pagos todavía en integración/sandbox. Lo que quedó de ese despliegue, con sus pasos, está en [pendientes-del-despliegue.md](pendientes-del-despliegue.md).
 
 **Quién:** 👤 tú (datos, decisiones, cuentas o paneles) · 🤖 el agente (código y base de datos) · 👥 los dos.
 **Bloquea:** 🔴 sin esto no se puede publicar · 🟠 importante, publicar sin esto es un riesgo · 🟢 mejora, puede ir después.
@@ -23,9 +25,9 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 2 | 4 | 6 |
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 |
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 5 (✅ 1) | 2 (✅ 1) | 1 |
-| [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 1 | 1 |
+| [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
 | [6. Supabase](#6-supabase) | 5 | 3 | 0 |
-| [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 6 | 2 | 0 |
+| [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 1) | 4 | 1 |
 | [8. Verificación final](#8-verificación-final) | 7 | 2 | 0 |
 
 **Ruta mínima para publicar:** ~~fase 6 completa (bloque 1)~~ ✅ → páginas legales y de ayuda (3) → datos reales (4) → proveedores en producción (5) → Supabase y servidor de producción (6 y 7) → verificación con una compra real (8).
@@ -97,13 +99,13 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [ ] 🔴 👤 **Flow:** cuenta de producción, medios de pago contratados, `apiKey` y `secretKey` de producción.
 - [x] 🔴 👤 ✅ 25-10-2026 · **Resend** (D-022): cuenta, `RESEND_API_KEY` en local y el dominio `mail.audazia.dev` verificado (SPF, DKIM y DMARC). Falta la llave de producción en Vercel (bloque 7). También sirve para los correos de Supabase Auth: el SMTP por defecto de Supabase tiene un límite muy bajo.
 - [ ] 🔴 👤 **Boleta y factura electrónica:** proveedor autorizado por el SII (D-012). Hoy el pedido guarda el tipo de documento y los datos de la factura, pero no se emite nada.
-- [ ] 🟠 👤 **Dominio** (por ejemplo, `almacen.cl`) y su DNS.
+- [x] 🟠 👤 ✅ 25-10-2026 · **Dominio:** `audazia.dev` (DNS en Vercel), con `www` → 308 a `audazia.dev`.
 - [ ] 🟢 👤 Integración con **Starken** para el seguimiento (hoy solo se guarda un código de seguimiento a mano).
 
 ## 6. Supabase
 
 - [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1035 están pagados en integración/sandbox, anulados o reembolsados.
-- [ ] 🔴 👤 **Site URL y Redirect URLs** con el dominio real (hoy apuntan a `localhost`), y **probar la confirmación de correo** con un correo real (no hay ninguna cuenta creada desde `/ingresar`).
+- [ ] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` (hoy apuntan a `localhost`), y **probar la confirmación de correo** con un correo real (no hay ninguna cuenta creada desde `/ingresar`). Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
 - [ ] 🔴 👤 **Respaldos** (según el plan de Supabase) y revisar el plan en general (límites de Auth, base de datos y almacenamiento).
@@ -113,14 +115,17 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 ## 7. Infraestructura y despliegue
 
-- [ ] 🔴 👥 **Hosting de Next.js** (por ejemplo Vercel, o un servidor propio con `next start`). No está decidido.
-- [ ] 🔴 👥 **Variables de entorno de producción** (ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)): Supabase, `SUPABASE_SECRET_KEY`, Webpay, Flow, `CRON_SECRET`, `REDIS_URL`, `NEXT_PUBLIC_SITE_URL`. Las secretas nunca con `NEXT_PUBLIC_`.
+- [x] 🔴 👥 ✅ 25-10-2026 · **Hosting:** Vercel, proyecto `shop` vinculado a `Luckillash/shop` (cada push a `main` despliega). Plan **Hobby** (ver el cron).
+- [ ] 🔴 👥 **Variables de entorno de producción** (ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)): ✅ cargadas en Vercel el 25-10-2026 (19, con `NEXT_PUBLIC_SITE_URL=https://audazia.dev` y un `CRON_SECRET` nuevo). Faltan `REDIS_URL`, las credenciales de producción de Webpay y Flow y la llave `almacen-produccion` de Resend (hoy la local). Tareas 1, 3 y 4 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👥 **Redis en producción** (por ejemplo Upstash o Redis Cloud). Sin Redis, el rate limiting del login, el cupón, los invitados, los pedidos y los reintentos **deja pasar todo** (fail-open, D-005). Los locks de pago siguen protegidos por el lock de la BD.
-- [ ] 🔴 👥 **HTTPS** en todo el sitio (Transbank lo exige) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** (en local solo se simuló, D-024).
-- [ ] 🔴 👥 **Cron** de vencimiento: `vercel.json` ya lo programa cada 10 min (D-021). Plan de Vercel ✅ **Pro** (25-10-2026). Falta `CRON_SECRET` de producción en las variables del proyecto y comprobar las ejecuciones tras el primer despliegue.
-- [ ] 🔴 🤖 Que el proxy o la plataforma **sobrescriba `x-forwarded-for`**: el rate limiting usa esa IP, y si el cliente la puede inventar, puede saltarse el límite.
+- [ ] 🔴 👥 **HTTPS** en todo el sitio ✅ (certificado de Vercel, 25-10-2026) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** (en local solo se simuló, D-024; ya se puede con el sitio desplegado, tarea 8 de [despliegue](pendientes-del-despliegue.md)).
+- [ ] 🔴 👥 **Cron** de vencimiento: la cuenta sigue en **Hobby** (no Pro, como se había anotado), así que `vercel.json` quedó **diario** (`0 9 * * *`) desde el 25-10-2026. `CRON_SECRET` ✅ cargado. Falta pasar a Pro y volver a `*/10 * * * *`, y comprobar la primera ejecución (26-10-2026). Tareas 6 y 7 de [despliegue](pendientes-del-despliegue.md).
+- [ ] 🔴 🤖 Que el proxy o la plataforma **sobrescriba `x-forwarded-for`**: el rate limiting usa esa IP (`clientIp` toma la primera), y si el cliente la puede inventar, puede saltarse el límite. En Vercel la plataforma lo sobrescribe: falta comprobarlo enviando un `x-forwarded-for` inventado a `audazia.dev` cuando haya Redis.
 - [ ] 🟠 👥 `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` fija si hay más de una instancia (guía de Server Actions de Next).
-- [ ] 🟠 👥 Monitoreo: `/api/health` (Redis) en un servicio de uptime y alertas de errores.
+- [ ] 🟠 👥 Monitoreo: `/api/health` (Redis) en un servicio de uptime y alertas de errores. Hoy responde 503 en producción porque no hay Redis.
+- [ ] 🟠 👥 **Base de datos compartida:** desarrollo y `audazia.dev` usan el mismo proyecto de Supabase. Decidir si producción tiene un proyecto propio (tarea 5 de [despliegue](pendientes-del-despliegue.md)).
+- [ ] 🟠 🤖 **Región de las funciones** (`iad1`) frente a la de Supabase (tarea 9 de [despliegue](pendientes-del-despliegue.md)).
+- [ ] 🟢 🤖 `NEXT_PUBLIC_SITE_URL` de Preview apunta a producción (tarea 10 de [despliegue](pendientes-del-despliegue.md)).
 
 ## 8. Verificación final
 
