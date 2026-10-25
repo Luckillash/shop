@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { expireOrders } from "@/lib/payments/expire";
 
-// Cron de vencimiento (Vercel Cron cada 10 min, vercel.json). Vercel envía
+// Cron de vencimiento (Vercel Cron, vercel.json: diario en Hobby; cada 10 min con Pro). Vercel envía
 // Authorization: Bearer ${CRON_SECRET}. En local: curl -H "Authorization: Bearer …".
 
 function authorized(request: NextRequest): boolean {

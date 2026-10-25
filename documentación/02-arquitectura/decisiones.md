@@ -131,7 +131,7 @@ Estados: ✅ tomada · 💡 propuesta (recomendada, falta confirmarla) · ❓ pe
 
 ### D-021 · Cron de vencimiento en Vercel Cron ✅ (dueño, 2026-10-25)
 - **Decisión:** `vercel.json` → `/api/cron/expirar-pedidos` cada 10 min (`*/10 * * * *`). Protegido con `Authorization: Bearer ${CRON_SECRET}` (comparación en tiempo constante).
-- **Plan de Vercel (2026-10-25): Pro** ✅. El dueño mejoró el plan, así que el cron cada 10 min funciona sin cambios. Antes: *el plan Hobby solo permite crons diarios; si el despliegue queda en Hobby, cambiar a `pg_cron` + `pg_net` llamando a la URL con el secreto, o a un cron externo.* En local se dispara con `curl -H "Authorization: Bearer …"`.
+- **Plan de Vercel (2026-10-25): sigue en Hobby** ⚠️. Para el primer despliegue el cron quedó **diario** (`0 9 * * *`, 06:00 de Chile): un pedido abandonado puede tardar hasta un día en vencer. **Al pasar a Pro, volver a `*/10 * * * *` en `vercel.json`.** Antes: *el plan Hobby solo permite crons diarios; si el despliegue queda en Hobby, cambiar a `pg_cron` + `pg_net` llamando a la URL con el secreto, o a un cron externo.* En local se dispara con `curl -H "Authorization: Bearer …"`.
 
 ### D-022 · Correos con Resend ✅ (dueño, 2026-10-25) · ✅ llave en local
 - **Decisión:** Resend por API REST (sin SDK) en `src/lib/email/send.ts`, dentro de `after()` para no demorar la respuesta. Correos de la fase 6: confirmación del pago, datos para transferir y pago devuelto (B13). Los textos están en `src/lib/email/templates.ts`.
