@@ -1,7 +1,7 @@
 ---
 title: "Entorno local: instalación, ejecución y servidores MCP"
 description: "Cómo levantar el proyecto (Redis, npm run dev), qué scripts existen, cómo verificar que funciona y qué servidores MCP tiene disponibles un agente."
-keywords: ["instalación", "npm run dev", "build", "lint", "redis", "docker", "health", "mcp", "supabase", "flow", "transbank", ".mcp.json"]
+keywords: ["instalación", "npm run dev", "build", "lint", "redis", "docker", "health", "mcp", "supabase", "vercel", "flow", "transbank", ".mcp.json"]
 related: ["07-referencia/variables-de-entorno.md", "07-referencia/recursos-externos.md", "02-arquitectura/vision-de-arquitectura.md"]
 source: ["_archivo/avance-del-proyecto.md §5", "package.json", ".mcp.json", ".claude/settings.local.json"]
 estado: "vigente"
@@ -65,10 +65,13 @@ Están en `.mcp.json` y habilitados en `.claude/settings.local.json`.
 | Servidor | Tipo | Qué ofrece | Notas |
 |---|---|---|---|
 | `supabase` | HTTP (`mcp.supabase.com`) | `docs`, `account`, `database`, `debugging`, `development`, `functions`, `branching` sobre el proyecto `nswchmyzgcutyehhuche` | Pide autenticación la primera vez. Con él puedes aplicar el SQL, listar tablas y revisar logs y advisors |
+| `vercel` | HTTP (`mcp.vercel.com`) | Proyectos, despliegues y logs de build, variables de entorno, dominios y DNS, runtime logs y errores, cron, firewall, `search_vercel_documentation`… | Pide autenticación (OAuth) la primera vez. La cuenta es personal (sin equipos) y hoy solo tiene el proyecto `portafolio`: **la tienda aún no tiene proyecto en Vercel** (25-10-2026). No pidas ni imprimas secretos; no descifres variables salvo que te lo pidan |
 | `flow` | stdio (`../flow/mcp/server.js`) | Una herramienta por endpoint: `flow_payment_create`, `flow_payment_getStatus`, `flow_refund_create`… | **Sandbox**. Firma y `apiKey` se añaden solos. Recursos `flow-docs://` |
 | `transbank` | stdio (`../transbank/mcp/server.js`) | `tbk_webpay_plus_create`, `tbk_webpay_plus_commit`, `tbk_webpay_plus_status`, `tbk_webpay_plus_refund`… | Ambiente de **integración**. Recursos `tbk-docs://` |
 
 > Los MCP de pagos sirven para **probar y explorar** las APIs. La tienda debe llamar a Flow y Transbank desde su propio código de servidor ([06-implementacion/](../06-implementacion/)), no a través del MCP.
+>
+> El MCP `vercel` sirve para **operar el despliegue**: crear y vincular el proyecto, cargar las variables de producción (`create_project_env`; ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)), revisar builds fallidos (`get_deployment`, `list_deployment_events`) y errores en producción (`get_runtime_errors`, luego `get_runtime_logs`). Escribe en la cuenta real del dueño: pide confirmación antes de crear, promover, revertir o cambiar DNS.
 
 ## Datos de prueba de pagos
 

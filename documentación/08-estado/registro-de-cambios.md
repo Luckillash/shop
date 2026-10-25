@@ -14,6 +14,8 @@ estado: "vigente"
 Formato: `## AAAA-MM-DD` → una viñeta por cambio, con el área entre corchetes: `[código]`, `[bd]`, `[diseño]`, `[docs]`, `[config]`.
 
 ## 2026-10-25
+- [config] **MCP `vercel`** (HTTP, `https://mcp.vercel.com`) agregado a `.mcp.json` y habilitado en `.claude/settings.local.json`. Verificado: la cuenta no tiene equipos y su único proyecto es `portafolio`; la tienda sigue sin proyecto en Vercel.
+- [docs] MCP `vercel` en entorno local, recursos externos, visión general (servicios externos), estructura de carpetas y avance.
 - [config] **Proyecto movido de `MCPS/Shop/shop` a `MCPS/shop`**, y las carpetas de las pasarelas pasaron a `MCPS/flow` y `MCPS/transbank` (minúscula). Las rutas relativas bajan un nivel (`../../flow/…` → `../flow/…`); `.mcp.json` apunta a las rutas absolutas nuevas.
 - [config] **Vercel Pro** (tarea 3 del dueño, fase 6): el dueño mejoró el plan, así que el cron cada 10 min de `vercel.json` funciona sin `pg_cron`. El `CRON_SECRET` de producción queda como pendiente para el despliegue (se generará entonces, distinto del local). El proyecto aún no está vinculado a Vercel.
 - [docs] Tarea 3 cerrada en `_archivo/pendientes-del-dueno-fase-6.md`; D-021, checklist de producción, pendientes antes de producción, variables de entorno y avance.
