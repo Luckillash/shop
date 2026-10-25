@@ -1,0 +1,30 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.item a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.item [aria-current="page"] {
+  color: var(--ink);
+}
+
+.separator {
+  color: var(--line-strong);
+}

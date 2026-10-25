@@ -1,0 +1,59 @@
+.price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.now {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.sale .now {
+  color: var(--sale);
+}
+
+.was {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+.unit {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.sm .now {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.sm .was {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.lg .now {
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+}
+
+.lg .was {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.badge {
+  align-self: center;
+}

@@ -1,0 +1,113 @@
+.picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.current {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+}
+
+.option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.size {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  height: var(--control-md);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.size:hover {
+  border-color: var(--ink);
+}
+
+.option input:checked + .size {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  font-weight: 600;
+}
+
+.option input:disabled + .size {
+  border-style: dashed;
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.swatch {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.swatch:hover {
+  border-color: var(--line-strong);
+}
+
+.dot {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+}
+
+.option input:checked + .swatch {
+  border-color: var(--ink);
+}
+
+.option input:disabled + .swatch {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.option input:focus-visible + span {
+  box-shadow: var(--focus-ring);
+}
+
+.option input:checked:focus-visible + .size {
+  box-shadow:
+    inset 0 0 0 1px var(--ink),
+    var(--focus-ring);
+}

@@ -1,0 +1,232 @@
+/* Drawer del carro y página /carro (templates CarroDrawer, Carro, CarroVacio) */
+
+.lines {
+  list-style: none;
+}
+
+.lines li:last-child > * {
+  border-bottom: 0;
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+/* ----- Drawer: 440px desde la derecha en 250 ms, sobre scrim ----- */
+
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: var(--z-drawer);
+  width: min(440px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-lg);
+  color: var(--ink);
+  transform: translateX(100%);
+  transition:
+    transform 250ms ease-out,
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
+}
+
+.drawer[open] {
+  transform: translateX(0);
+}
+
+/* Con el drawer abierto, la página de fondo no se desplaza */
+:global(html):has(.drawer[open]) {
+  overflow: hidden;
+}
+
+@starting-style {
+  .drawer[open] {
+    transform: translateX(100%);
+  }
+}
+
+.drawer::backdrop {
+  background: var(--scrim);
+  opacity: 0;
+  transition:
+    opacity 250ms ease-out,
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
+}
+
+.drawer[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* A todo el ancho (móvil) no lleva esquinas redondeadas */
+@media (max-width: 439px) {
+  .drawer {
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer::backdrop {
+    transition: none;
+  }
+}
+
+.drawerPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+/* heading-sm */
+.drawerTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.drawerBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.drawerFoot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.subtotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.note {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* ----- Página /carro ----- */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.count {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.aside > section {
+  max-width: none;
+}
+
+.coupon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.coupon > :first-child {
+  flex: 1 1 220px;
+}
+
+/* El botón se alinea con el campo, debajo de la etiqueta */
+.couponButton {
+  margin-top: 26px;
+}
+
+.applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.skeleton {
+  min-height: 320px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+@media (min-width: 960px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--space-12);
+  }
+
+  .aside {
+    position: sticky;
+    top: var(--space-6);
+  }
+}

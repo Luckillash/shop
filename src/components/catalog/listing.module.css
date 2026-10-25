@@ -1,0 +1,139 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Filtros arriba en móvil, columna izquierda desde 1024px */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4) var(--space-6);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  border: 0;
+}
+
+.groupTitle {
+  margin-bottom: var(--space-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.clear {
+  align-self: flex-start;
+}
+
+.results {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.results[data-pending] {
+  opacity: 0.6;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sort {
+  max-width: 220px;
+}
+
+.count {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-4);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-lg);
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.emptyTitle {
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.progress {
+  width: 100%;
+  max-width: 280px;
+  height: 4px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
+  appearance: none;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--surface-sunken);
+}
+
+.progress::-webkit-progress-value {
+  background: var(--ink);
+}
+
+.progress::-moz-progress-bar {
+  background: var(--ink);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    flex-direction: row;
+    gap: var(--space-8);
+  }
+
+  .filters {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 240px;
+    flex-shrink: 0;
+  }
+}

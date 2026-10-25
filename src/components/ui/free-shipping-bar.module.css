@@ -1,0 +1,46 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--promo);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.message strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.doneIcon {
+  color: var(--success);
+}
+
+.track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--line);
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+  transition: width 0.3s ease-out;
+}
+
+.done .fill {
+  background: var(--success);
+}

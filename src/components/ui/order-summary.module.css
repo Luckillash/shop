@@ -1,0 +1,84 @@
+.summary {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  font-family: var(--font-sans);
+}
+
+.title {
+  margin: 0 0 var(--space-1);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 15px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.row dt {
+  min-width: 0;
+  color: var(--ink-muted);
+}
+
+/* Los montos no se cortan: el "−" del descuento quedaba solo en una línea (también en el bundle) */
+.row dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.good dd {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.total {
+  align-items: baseline;
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.total dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.total dd {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.note {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 16px;
+}

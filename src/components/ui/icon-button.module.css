@@ -1,0 +1,56 @@
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-md);
+  height: var(--control-md);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-raised);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  border-color: var(--ink);
+}
+
+.ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.ghost:hover {
+  border-color: transparent;
+  background: var(--surface-sunken);
+}
+
+.sm {
+  width: var(--control-sm);
+  height: var(--control-sm);
+}
+
+.iconButton[aria-pressed="true"] {
+  color: var(--brand);
+}
+
+.iconButton:disabled {
+  color: var(--ink-muted);
+  cursor: not-allowed;
+}
+
+/* Área táctil mínima de 44px en móvil sin cambiar el tamaño visible */
+@media (pointer: coarse) {
+  .iconButton {
+    position: relative;
+  }
+
+  .iconButton::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    transform: translate(-50%, -50%);
+  }
+}

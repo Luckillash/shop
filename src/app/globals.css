@@ -1,0 +1,176 @@
+/* Tokens del design system Almacén (fuente: tokens.json del artifact).
+   Los nombres son los mismos que usan los componentes y templates del diseño. */
+
+:root {
+  color-scheme: light;
+
+  /* Color */
+  --surface: #f7f5f0;
+  --surface-raised: #ffffff;
+  --surface-sunken: #ece8df;
+  --line: #dcd5c9;
+  --line-strong: #857b6d;
+  --ink: #1b1a17;
+  --ink-muted: #5c564d;
+  --brand: #1f5a44;
+  --brand-hover: #174735;
+  --brand-soft: #e0ede6;
+  --on-brand: #ffffff;
+  --sale: #b9351b;
+  --sale-soft: #fbe5dd;
+  --on-sale: #ffffff;
+  --accent: #a66c00;
+  --promo: #efe4cf;
+  --success: #0b6b55;
+  --success-soft: #dcefe9;
+  --warning: #8a5a00;
+  --warning-soft: #fbefd3;
+  --danger: #b3261e;
+  --danger-soft: #fbe3e1;
+  --scrim: #1b1a1799;
+  --link: var(--brand);
+
+  /* Tipografía: --font-bricolage y --font-instrument los define next/font en layout.tsx */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Espaciado (base 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Tamaños */
+  --control-sm: 32px;
+  --control-md: 40px;
+  --control-lg: 48px;
+  --touch-target: 44px;
+  --thumb: 72px;
+  --container: 1280px;
+
+  /* Forma */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Elevación */
+  --shadow-sm: 0 1px 2px #1b1a170f, 0 1px 3px #1b1a1714;
+  --shadow-md: 0 2px 4px #1b1a170d, 0 8px 20px -4px #1b1a1724;
+  --shadow-lg: 0 8px 16px #1b1a1714, 0 24px 48px -8px #1b1a1733;
+  --focus-ring: 0 0 0 2px #f7f5f0, 0 0 0 4px #1f5a44;
+
+  /* Capas */
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-drawer: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+
+  /* Breakpoints (solo referencia: las media queries no aceptan variables)
+     bp-sm 480px · bp-md 768px · bp-lg 1024px · bp-xl 1280px */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --surface: #151513;
+    --surface-raised: #1f1e1b;
+    --surface-sunken: #0e0e0c;
+    --line: #34322d;
+    --line-strong: #7d766b;
+    --ink: #f2efe8;
+    --ink-muted: #ada699;
+    --brand: #7cc8a6;
+    --brand-hover: #9ad6bb;
+    --brand-soft: #1b3a2f;
+    --on-brand: #0f1f18;
+    --sale: #ff8a66;
+    --sale-soft: #4a1d12;
+    --on-sale: #1c0a05;
+    --accent: #f0b53d;
+    --promo: #2e2a21;
+    --success: #5fcdb0;
+    --success-soft: #123a31;
+    --warning: #f2c063;
+    --warning-soft: #3d2c0b;
+    --danger: #ff8b82;
+    --danger-soft: #4a1714;
+    --scrim: #000000b3;
+
+    --shadow-sm: 0 1px 3px #000000a6;
+    --shadow-md: 0 8px 20px -4px #000000cc;
+    --shadow-lg: 0 24px 48px -8px #000000e6;
+    --focus-ring: 0 0 0 2px #151513, 0 0 0 4px #7cc8a6;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  height: 100%;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  background: var(--surface);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Texto solo para lectores de pantalla (equivale a .al-sr del design system) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

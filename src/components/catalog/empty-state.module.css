@@ -1,0 +1,40 @@
+/* Estados vacíos centrados: 404, Sin resultados, búsqueda sin consulta */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) 0 var(--space-6);
+  text-align: center;
+}
+
+.state ul {
+  justify-content: center;
+  list-style: none;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+
+.code {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.subtitle {
+  margin-top: var(--space-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}

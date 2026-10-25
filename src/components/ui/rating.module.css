@@ -1,0 +1,40 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.star {
+  position: relative;
+  display: inline-block;
+  color: var(--line-strong);
+  line-height: 0;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  color: var(--accent);
+}
+
+.fillIcon {
+  max-width: none;
+}
+
+.value {
+  color: var(--ink);
+  font-weight: 600;
+}

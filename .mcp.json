@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=nswchmyzgcutyehhuche&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
+    },
+    "flow": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:/Users/lucas/OneDrive/Escritorio/MCPS/flow/mcp/server.js"
+      ],
+      "env": {
+        "FLOW_MCP_TOOLS": "all"
+      }
+    },
+    "transbank": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:/Users/lucas/OneDrive/Escritorio/MCPS/transbank/mcp/server.js"
+      ],
+      "env": {
+        "TBK_MCP_TOOLS": "all"
+      }
+    }
+  }
+}

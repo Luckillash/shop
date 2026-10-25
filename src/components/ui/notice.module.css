@@ -1,0 +1,52 @@
+.notice {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.success {
+  background: var(--success-soft);
+}
+
+.success .icon {
+  color: var(--success);
+}
+
+.warning {
+  background: var(--warning-soft);
+}
+
+.warning .icon {
+  color: var(--warning);
+}
+
+.danger {
+  background: var(--danger-soft);
+}
+
+.danger .icon {
+  color: var(--danger);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  display: block;
+  font-weight: 600;
+}
+
+.action {
+  flex: none;
+  margin: -6px 0;
+}

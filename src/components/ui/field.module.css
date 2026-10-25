@@ -1,0 +1,90 @@
+/* Estilos de campo compartidos: TextField, Select, buscador del header y newsletter del footer */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.label {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  height: var(--control-md);
+  margin-top: var(--space-1);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+}
+
+.input::placeholder {
+  color: var(--ink-muted);
+}
+
+.input:hover {
+  border-color: var(--ink);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: var(--focus-ring);
+}
+
+.input:disabled {
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+  cursor: not-allowed;
+}
+
+.invalid .input {
+  border-color: var(--danger);
+}
+
+.hint {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+/* Select: mismo campo con flecha propia */
+.selectWrap {
+  position: relative;
+  display: flex;
+}
+
+.select {
+  appearance: none;
+  padding-right: calc(var(--space-3) + 24px);
+  cursor: pointer;
+}
+
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  top: calc(50% + 2px);
+  transform: translateY(-50%);
+  color: var(--ink-muted);
+  pointer-events: none;
+}

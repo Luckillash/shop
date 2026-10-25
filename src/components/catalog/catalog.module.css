@@ -1,0 +1,92 @@
+/* Piezas compartidas por las páginas del catálogo: contenedor, títulos y secciones */
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-12);
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-16);
+}
+
+.overline {
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* display */
+.title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  max-width: 70ch;
+  color: var(--ink-muted);
+  font-size: 17px;
+  line-height: 26px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* heading-lg */
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.link {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  color: var(--brand-hover);
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-inline: var(--space-6);
+  }
+
+  .title {
+    font-size: 40px;
+    line-height: 44px;
+    letter-spacing: -0.015em;
+  }
+}

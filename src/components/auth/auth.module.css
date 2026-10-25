@@ -1,0 +1,149 @@
+/* Template Ingresar o crear cuenta: dos columnas (Crear cuenta sobre fondo promo) */
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4) var(--space-16);
+}
+
+.columns {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.promo {
+  border-color: transparent;
+  background: var(--promo);
+}
+
+/* display */
+.title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  color: var(--ink-muted);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 15px;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--brand);
+}
+
+.legal {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.legal a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.benefits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.benefits li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.benefits svg {
+  flex: none;
+  color: var(--brand);
+}
+
+/* Recuperar contraseña y contraseña nueva: una sola columna angosta */
+.narrow {
+  max-width: 520px;
+}
+
+.inlineLink,
+.forgot {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.forgot {
+  align-self: flex-start;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.account {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  max-width: 560px;
+}
+
+@media (min-width: 768px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+
+  .panel {
+    padding: var(--space-8);
+  }
+}
