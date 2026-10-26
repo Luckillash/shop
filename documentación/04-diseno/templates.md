@@ -1,7 +1,7 @@
 ---
-title: "Templates: las 40 pantallas y las piezas globales"
-description: "Estructura de cada template del canvas Almacén · Templates (compra, cuenta, contenido y estados del pago), en escritorio y móvil, más el header, el footer y el layout reducido del checkout."
-keywords: ["templates", "pantallas", "inicio", "listado", "ficha", "carro", "drawer", "checkout", "confirmación", "ingresar", "mis pedidos", "detalle de pedido", "404", "sin resultados", "carro vacío", "header", "footer", "pago rechazado", "transferencia pendiente"]
+title: "Templates: las 57 pantallas y las piezas globales"
+description: "Estructura de cada template del canvas Almacén · Templates (compra, cuenta, contenido, estados del pago, administración y correos), en escritorio y móvil, más el header, el footer, el layout reducido del checkout y el mapa de estados después de pagar."
+keywords: ["templates", "pantallas", "inicio", "listado", "ficha", "carro", "drawer", "checkout", "confirmación", "ingresar", "mis pedidos", "detalle de pedido", "direcciones", "favoritos", "datos personales", "opinión", "reseña", "invitado", "administración", "admin", "alertas de pago", "anular", "correos", "404", "sin resultados", "carro vacío", "header", "footer", "pago rechazado", "transferencia pendiente"]
 related: ["04-diseno/flujo-de-compra.md", "04-diseno/estados-y-mensajes.md", "02-arquitectura/rutas-y-paginas.md"]
 source: ["_archivo/diseno-almacen.md §3, §4"]
 estado: "definido"
@@ -11,7 +11,9 @@ estado: "definido"
 
 > **Úsalo cuando:** implementas una página y necesitas saber qué bloques lleva y en qué orden. La ruta de cada template está en [02-arquitectura/rutas-y-paginas.md](../02-arquitectura/rutas-y-paginas.md).
 
-Son 40 artboards en https://claude.ai/artifact/E7sfHjPteptX18QCaikCri. Escritorio fluido (referencia 1280px); móvil de 390px. La columna "Archivos" son los nombres de los artboards.
+Son 57 pantallas y un mapa de estados en https://claude.ai/artifact/E7sfHjPteptX18QCaikCri, el **único canvas de referencia**. Escritorio fluido (referencia 1280px); móvil de 390px. La columna "Archivos" son los nombres de los artboards. El canvas *Almacén — Flujo de compra* es una versión anterior guardada como archivo: no lo uses para implementar.
+
+Las pantallas de administración, de Direcciones, Favoritos y Datos personales, la opinión, la creación de cuenta del invitado y los correos se agregaron el 25-10-2026 para la fase 7. Sus patrones están en el manual del design system (secciones *Pedidos: estados*, *Cuenta*, *Administración* y *Correos*).
 
 ## Piezas globales
 
@@ -50,10 +52,13 @@ Los enlaces apuntan a las rutas de [02-arquitectura/rutas-y-paginas.md](../02-ar
 | Template | Archivos | Estructura |
 |---|---|---|
 | **Ingresar o crear cuenta** | `Ingresar` / `IngresarMovil` | Dos columnas. **Ingresar:** correo, contraseña, *¿Olvidaste tu contraseña?*, *Ingresar* (primary), enlace *comprar como invitado*. **Crear cuenta** (fondo `promo`): beneficios, nombre, correo, contraseña (mínimo 8 caracteres), opción de recibir novedades, *Crear cuenta* (secondary), aviso legal |
-| **Mis pedidos** | `MisPedidos` / `MisPedidosMovil` | Menú de cuenta (Mis pedidos, Direcciones, Favoritos, Datos personales, Cerrar sesión) · lista con número, `Badge` de estado, fecha de compra, miniaturas, fecha de entrega, resumen, total y *Ver detalle* |
+| **Mis pedidos** | `MisPedidos` / `MisPedidosMovil` | Menú de cuenta (Mis pedidos, Direcciones, Favoritos, Datos personales, Cerrar sesión) · lista con número, `Badge` de estado, fecha de compra, miniaturas, fecha de entrega, resumen, total y *Ver detalle*. Muestra los 6 estados: *Pago pendiente* (`warning`), *En preparación*, *En camino*, *Entregado*, *Reembolsado* (`neutral` + `returns`) y *Anulado* (`danger` + `close`), cada uno con una línea de qué pasó (B24) |
 | **Detalle de pedido** | `DetallePedido` / `DetallePedidoMovil` | Migas · número + `Badge` · seguimiento (*Despacha Starken*, código, *Seguir el envío*) con una línea de tiempo de 4 pasos · productos con *Volver a comprar* · dirección, pago y totales · *Descargar boleta* y *Necesito ayuda con este pedido* |
-
-Las páginas de Direcciones, Favoritos y Datos personales **no tienen template**.
+| **Direcciones** | `Direcciones` / `DireccionesMovil` | Menú de cuenta · *Agregar dirección* · tarjetas en 2 columnas (nombre *Casa*/*Oficina*, `Badge new` *Principal*, destinatario, dirección, comuna, teléfono; *Editar*, *Usar como principal*, *Eliminar*) · formulario con los campos del checkout (nombre de la dirección, teléfono, nombre, apellido, región, comuna, calle y número, depto.) y *Usar como dirección principal* · *Guardar dirección* (primary) |
+| **Favoritos** | `Favoritos` / `FavoritosMovil` | Menú de cuenta · *N productos guardados* · grilla de `ProductCard` con `wishlisted` (3 columnas; 2 en móvil), agotados con *Sin stock* · vacío (tweak `vacio`): ícono, *Todavía no guardas favoritos*, *Explorar la tienda* |
+| **Datos personales** | `DatosPersonales` / `DatosPersonalesMovil` | Menú de cuenta · *Tus datos* (nombre, apellido, teléfono, RUT opcional; correo fijo en `surface-sunken`), *Guardar cambios* (primary) y `Notice success` *Guardamos tus cambios* · *Contraseña* (nueva, mínimo 8) · *Correos de la tienda* (novedades) · nota para eliminar la cuenta |
+| **Escribe tu opinión** | `EscribirResena` | Modal sobre la Ficha: producto comprado y fecha · 5 estrellas de 44px con la calificación en palabras (*4 de 5 · Muy buena*) · título opcional · texto (mínimo 20 caracteres) · *Se publica con tu nombre y comuna* · *Publicar opinión* → `Notice success` *Gracias, publicamos tu opinión* (B36) |
+| **Confirmación · invitado crea su cuenta** | `ConfirmacionCrearCuenta` | La Confirmación con el aviso en fondo `promo`: correo fijo, contraseña, novedades, *Crear cuenta* (secondary) → `Notice success` *Listo, creamos tu cuenta* (D-008, D-024, B38) |
 
 ## Contenido y estados vacíos
 
@@ -77,11 +82,39 @@ Las páginas de Direcciones, Favoritos y Datos personales **no tienen template**
 
 Textos exactos en [estados-y-mensajes.md](estados-y-mensajes.md).
 
+## Administración
+
+Sin el header ni el footer de la tienda: usa `AdminHeader` (*Almacén* + `Badge` *Administración*, *Pedidos*, *Alertas de pago* con el número sin resolver, *Ver la tienda*, *Cerrar sesión*).
+
+| Template | Archivos | Estructura |
+|---|---|---|
+| **Pedidos** | `AdminPedidos` | *Pedidos* + fecha y cuántos necesitan una acción · buscador por N.º o correo · `Notice warning` de alertas abiertas · chips de estado con conteo (*Necesitan una acción*, *Transferencia por confirmar*, *Por preparar*, *En preparación*, *En camino*, *Entregados*, *Anulados*, *Todos*) · tabla (pedido y fecha, cliente y correo, pago y despacho, total, `Badge` + nota, botón con el siguiente paso) · *Mostrando 8 de N* + *Ver más pedidos* |
+| **Pedido** | `AdminPedido` (tweak `estado`) | Migas · N.º + `Badge` · tarjeta *Siguiente paso* con una sola acción primary según el estado: *Confirmar pago recibido* (N.º de operación opcional), *Empezar a preparar*, *Marcar como enviado* (transportista + código de seguimiento), *Marcar como entregado*, o el `Notice danger` del anulado · productos con SKU · historial (cuándo, qué, quién) · *Anular el pedido* · al lado: cliente, despacho, intentos de pago con `Badge`, totales con IVA |
+| **Anular pedido** | `AdminAnularPedido` | Modal: motivo (lo ve el cliente), *Avisar al cliente por correo*, `Notice warning` *Esto no se puede deshacer* con el monto del reembolso · *Volver al pedido* + *Anular y reembolsar* |
+| **Alertas de pago** | `AdminAlertas` | Chips *Sin resolver* / *Resueltas* · tarjetas por alerta (`payment_alerts.kind`: *Reembolso fallido* `danger`, *Pago después de anular* y *Pago doble* `warning`) con qué pasó, *Qué hacer*, pedido, pasarela, monto y referencia · *Marcar como resuelta* · *Resueltas hace poco* |
+| **Confirmar transferencia · móvil** | `AdminPedidoMovil` | El pedido con la transferencia por confirmar en una columna: monto exacto, mensaje, vencimiento, N.º de operación y *Confirmar pago recibido* |
+
+Etiquetas de estado para la administración: `pending` *Transferencia por confirmar* (o *Pago pendiente*), `paid` *Por preparar*, `processing` *En preparación*; el resto igual que en Mis pedidos.
+
+## Correos
+
+640px de artboard, tarjeta de 560px, fuentes del sistema y colores en hex (los clientes de correo no cargan variables ni Google Fonts).
+
+| Correo | Archivo | Contenido |
+|---|---|---|
+| Pedido confirmado | `CorreoConfirmacion` | N.º, *Gracias, tu pedido está confirmado*, monto y medio · fecha de entrega en `promo` · productos, despacho y total · *Ver el pedido* |
+| Pedido en camino | `CorreoDespacho` | *Tu pedido va en camino*, transportista y fecha · código de seguimiento + *Seguir el envío* · dirección · productos y total |
+| Pedido anulado | `CorreoAnulacion` (tweak `motivo`: `vencio`, `tienda`, `cliente`) | *Anulamos tu pedido N.º …*, el motivo · bloque de dinero (*No hicimos ningún cargo* o *Te devolvimos $…*) · productos · *Volver a la tienda* |
+
+## Mapa de estados
+
+`FlujoPostcompra`: una columna por `orders.status` (de `pending` a `cancelled · refunded`) y tres filas: la pantalla que ve el cliente, el correo que recibe y el botón de la administración. Marca lo que es nuevo de la fase 7.
+
 ## Sin diseño
 
 - **Toast de producto agregado:** el token `z-toast` existe, pero ninguna pantalla lo usa (el drawer cumple ese rol).
 - **Pago no completado en Flow, móvil:** `PagoRechazadoMovil` admite ambos casos, pero solo el escritorio tiene un artboard de Flow.
-- **Opiniones:** siguen con placeholders.
-- **Pago abortado en Webpay** (`TBK_TOKEN`): no tiene un texto propio. Usa *Pago rechazado* o adapta el texto de Flow.
-- **Administración** (catálogo, pedidos, confirmar transferencias): no hay diseño.
-- Direcciones, Favoritos y Datos personales.
+- **Opiniones publicadas en la Ficha:** siguen con placeholders (el formulario sí tiene diseño).
+- **Pago abortado en Webpay** (`TBK_TOKEN`): no tiene un artboard propio; sus textos están en [estados-y-mensajes.md](estados-y-mensajes.md) (B14).
+- **Administración del catálogo** (productos, stock, cupones) y la versión móvil de la lista de pedidos.
+- **Escribe tu opinión** y **Crear cuenta del invitado** en móvil.

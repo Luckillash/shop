@@ -12,7 +12,7 @@ Estado al **25 de octubre de 2026**: las fases 0 a 6 están terminadas. **Ya se 
 
 Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-del-dueno-fase-6.md](pendientes-del-dueno-fase-6.md).
 
-**Desplegada el 25-10-2026 en https://audazia.dev** (Vercel, plan Hobby), con los pagos todavía en integración/sandbox. Lo que quedó de ese despliegue, con sus pasos, está en [pendientes-del-despliegue.md](pendientes-del-despliegue.md).
+**Desplegada el 25-10-2026 en https://audazia.dev** (Vercel, plan Hobby), con los pagos todavía en integración/sandbox. Lo que quedó de ese despliegue, con sus pasos, está en [pendientes-del-despliegue.md](pendientes-del-despliegue.md). Lo que queda de las fases 5 y 6 antes de la fase 7 está en [pendientes-antes-de-la-fase-7.md](pendientes-antes-de-la-fase-7.md), y el prompt para empezarla en [prompt-inicio-fase-7.md](prompt-inicio-fase-7.md).
 
 **Quién:** 👤 tú (datos, decisiones, cuentas o paneles) · 🤖 el agente (código y base de datos) · 👥 los dos.
 **Bloquea:** 🔴 sin esto no se puede publicar · 🟠 importante, publicar sin esto es un riesgo · 🟢 mejora, puede ir después.
@@ -26,7 +26,7 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 |
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
-| [6. Supabase](#6-supabase) | 5 | 3 | 0 |
+| [6. Supabase](#6-supabase) | 5 | 4 | 0 |
 | [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 1) | 4 | 1 |
 | [8. Verificación final](#8-verificación-final) | 7 | 2 | 0 |
 
@@ -105,12 +105,13 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 ## 6. Supabase
 
 - [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1036 están pagados en integración/sandbox, anulados o reembolsados.
-- [ ] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). Falta **probar la confirmación de correo** (tarea 12 de [despliegue](pendientes-del-despliegue.md)) con un correo real (no hay ninguna cuenta creada desde `/ingresar`). Tarea 2 de [despliegue](pendientes-del-despliegue.md).
+- [x] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). **Confirmación de correo y *¿Olvidaste tu contraseña?* probadas con un correo real** ✅ (25-10-2026, tarea 12 de [despliegue](pendientes-del-despliegue.md)): la cuenta quedó confirmada en `auth.users`. Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
 - [ ] 🔴 👤 **Respaldos** (según el plan de Supabase) y revisar el plan en general (límites de Auth, base de datos y almacenamiento).
 - [ ] 🟠 👤 **Captcha** (Turnstile o hCaptcha) para crear cuentas y sesiones anónimas.
-- [ ] 🟠 👤 **Plantilla del correo *Reset password*** (Authentication → Email Templates): `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto el enlace solo funciona en el mismo navegador donde se pidió. Probarla con un correo real.
+- [ ] 🟠 👥 **Templates de los correos de Supabase Auth** (*Authentication → Email Templates*): *Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user* y *Reauthentication*, en español, con la voz y el estilo de los correos de Resend (D-022) y los enlaces a `/auth/confirm` con `token_hash` (como el de *Reset password*). Hoy salen los de Supabase por defecto, en inglés. El agente genera el HTML y los asuntos; tú los pegas en el panel. Conviene hacerlo junto con el SMTP propio (Resend), antes de la conversión de invitado en cuenta de la fase 7.
+- [ ] 🟠 👤 **Plantilla del correo *Reset password*** (Authentication → Email Templates): `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto el enlace solo funciona en el mismo navegador donde se pidió. La recuperación ya funcionó con un correo real (25-10-2026); después de cambiar la plantilla, probar abriendo el enlace en otro navegador.
 - [ ] 🟠 🤖 `get_advisors` (seguridad y rendimiento) revisado justo antes de publicar. Hoy solo quedan avisos aceptados y documentados.
 
 ## 7. Infraestructura y despliegue

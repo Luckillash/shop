@@ -17,7 +17,7 @@ estado: "propuesta"
 - [ ] Activar *Leaked password protection* en Supabase Auth (advisor `auth_leaked_password_protection`).
 - [ ] Todas las tablas nuevas tienen RLS y políticas.
 - [ ] Rate limiting en login, sesión anónima, cupón, creación de pedidos y reintentos de pago (✅ en el código desde las fases 5 y 6; necesita Redis en producción: sin Redis, deja pasar).
-- [ ] Confirmación de correo probada con un correo real (enlace → `/auth/confirm` → sesión iniciada). *Site URL* y *Redirect URLs* de Supabase con el dominio real.
+- [x] Confirmación de correo probada con un correo real (enlace → `/auth/confirm` → sesión iniciada). *Site URL* y *Redirect URLs* de Supabase con el dominio real. ✅ 25-10-2026 en `audazia.dev`, junto con *¿Olvidaste tu contraseña?*.
 - [x] `/api/cron/*` protegido con un secreto (✅ fase 6: `Authorization: Bearer CRON_SECRET`, 401 sin él). Falta cargar `CRON_SECRET` en producción.
 - [ ] `npm audit` revisado: había 5 vulnerabilidades "high" en las dependencias de la plantilla, y no se aplicó `--force`.
 - [ ] HTTPS en todo el sitio (Transbank lo exige en los endpoints del comercio).
@@ -49,6 +49,7 @@ estado: "propuesta"
 - [ ] Términos y condiciones y política de privacidad publicados (el checkout los enlaza). Las páginas `/ayuda/terminos`, `/ayuda/privacidad`, `/ayuda/despacho` y `/ayuda/contacto` **no existen todavía** (dan 404).
 - [ ] Catálogo real (productos, precios, stock, fotos 4:5) y cupones reales; BIENVENIDA10 y DESCUENTO5000 desactivados si no se usan.
 - [ ] SMTP propio en Supabase Auth y proveedor de correo transaccional con dominio verificado.
+- [ ] Templates de los correos de Supabase Auth en español y con el estilo de la tienda (*Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user*, *Reauthentication*), con enlaces a `/auth/confirm` y `token_hash`.
 - [ ] Emisión de boleta o factura electrónica resuelta (D-012).
 - [x] Dominio de `EMAIL_FROM` verificado en Resend: `mail.audazia.dev` (SPF, DKIM y DMARC `p=none`, 25-10-2026, D-022).
 - [ ] Correos transaccionales en producción: llave `almacen-produccion` de Resend y `EMAIL_FROM` en Vercel. Sin la llave, los correos se omiten.

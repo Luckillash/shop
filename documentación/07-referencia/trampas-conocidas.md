@@ -67,7 +67,7 @@ estado: "vigente"
 ## Documentación y proyecto
 
 39. **La carpeta se llama `documentación/`** (minúscula, con tilde). El avance antiguo decía `Documentación/`.
-40. **El canvas "Flujo de compra" está incompleto** (4 de 15 pantallas). La fuente es el canvas de **Templates**.
+40. **El canvas "Flujo de compra" es una versión anterior** (archivo desde el 25-10-2026: solo Inicio, Header y Footer, distintos de los vigentes). La fuente única es el canvas de **Templates**.
 41. **Los canvas de diseño tienen una versión vieja del design system instalada** (`1792708668-3de7`; la actual es `1792718261-9f4b`). Solo cambió el manual (patrones de pago), pero ten en cuenta la diferencia si comparas.
 42. **El proyecto no es un repositorio git.** No hay historial: anota los cambios en [08-estado/registro-de-cambios.md](../08-estado/registro-de-cambios.md).
 

@@ -168,7 +168,7 @@ documentación/
 │   ├── principios-voz-y-accesibilidad.md
 │   ├── tokens.md                      color, tipografía, espaciado, CSS listo para pegar
 │   ├── componentes.md                 15 componentes + formatCLP
-│   ├── templates.md                   40 pantallas y piezas globales
+│   ├── templates.md                   57 pantallas, piezas globales y correos
 │   ├── flujo-de-compra.md             recorrido y checkout en detalle
 │   └── estados-y-mensajes.md          espera, errores, resultado del pago (textos exactos)
 ├── 05-dominio/                        ← reglas del negocio

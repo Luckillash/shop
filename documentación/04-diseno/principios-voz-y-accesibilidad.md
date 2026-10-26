@@ -16,8 +16,8 @@ estado: "definido"
 | Artifact | Contenido | Enlace |
 |---|---|---|
 | Design system **Almacén** | Tokens (claro y oscuro), manual de marca, patrones de pago, 15 componentes React | https://claude.ai/artifact/8ueRvwVuopKWk3enu498tj |
-| **Almacén · Templates de la tienda** | 40 pantallas (escritorio y móvil) | https://claude.ai/artifact/E7sfHjPteptX18QCaikCri |
-| **Almacén — Flujo de compra** | Canvas de 6 pasos. **Incompleto:** solo tiene 4 de sus 15 pantallas. Usa el de Templates | https://claude.ai/artifact/9otwRsPJLSkA4HHCvjDKCV |
+| **Almacén · Templates de la tienda** | 57 pantallas (escritorio y móvil) y el mapa de estados. Única referencia | https://claude.ai/artifact/E7sfHjPteptX18QCaikCri |
+| **Almacén — Flujo de compra** | Versión anterior, archivada el 25-10-2026. No usar: el Inicio, el Header y el Footer difieren de los vigentes | https://claude.ai/artifact/9otwRsPJLSkA4HHCvjDKCV |
 
 Para leerlos, usa la herramienta Artifact (`action: "read"`). No uses WebFetch.
 

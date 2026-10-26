@@ -16,8 +16,8 @@ estado: "vigente"
 | Artifact | URL | Notas |
 |---|---|---|
 | Design system **Almacén** | https://claude.ai/artifact/8ueRvwVuopKWk3enu498tj | `tokens.json`, `components/bundle.js`, `components/bundle.css`, manual. Versión actual `1792718261-9f4b` |
-| **Almacén · Templates de la tienda** | https://claude.ai/artifact/E7sfHjPteptX18QCaikCri | 40 pantallas. **Es la fuente del flujo completo**. Tiene instalada la versión `1792708668-3de7` del design system |
-| **Almacén — Flujo de compra** | https://claude.ai/artifact/9otwRsPJLSkA4HHCvjDKCV | Incompleto (4 de 15 pantallas) |
+| **Almacén · Templates de la tienda** | https://claude.ai/artifact/E7sfHjPteptX18QCaikCri | 57 pantallas y el mapa de estados después de pagar. **Es la única fuente de diseño** (compra, pago, cuenta, administración y correos). Tiene instalada la versión `1792708668-3de7` del design system |
+| **Almacén — Flujo de compra** | https://claude.ai/artifact/9otwRsPJLSkA4HHCvjDKCV | Versión anterior, archivada el 25-10-2026 (Inicio, Header y Footer). No usar |
 
 Se leen con la herramienta Artifact (`action: "read"`, opcionalmente con `path`), no con WebFetch.
 

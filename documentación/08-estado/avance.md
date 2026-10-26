@@ -72,7 +72,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 | **Fase 6:** Flow (firma, create con `timeout` 1200, `urlConfirmation`, `urlReturn`, `getStatus`, reembolso) | `src/lib/payments/flow*.ts`, `src/app/api/pagos/flow/` | Sandbox: rechazo (`status` 3) → *Tu pago en Flow no se completó* → reintento pagado (1028, *Pagado con Webpay vía Flow*); confirmación simulada con `curl` (200 en ~1 s, repetida sin cambios, token desconocido 200); **B13**: pagado después de que el cron anuló el pedido → reembolso de $11.980 en Flow, intento `refunded`, alerta `paid_after_cancel`, stock sin doble descuento (1030). Sin túnel (D-024) |
 | **Fase 6:** transferencia (intento `pending`, *Transferencia pendiente* con *Copiar*, plazo de 48 h en hora de Chile, *Pagar con tarjeta en su lugar*) | `src/app/(checkout)/pedido/[id]/transferencia/`, `transfer-details.tsx` | Invitado (1022): rechazo → reintento anulado → transferencia (carro vaciado, *Copiado* anunciado con `role="status"`) → tarjeta aprobada. Intentos `1022-1`…`-4` con su `shop_reason` |
 | **Fase 6:** reintentar / cambiar de medio (`retryPayment`, `PAYMENT_RATE_LIMIT`), *Estamos confirmando tu pago* (consulta a Flow), pedido vencido, pago devuelto, `/pedido/no-encontrado` | `src/lib/payments/actions.ts`, `screen.ts`, `src/app/(checkout)/pedido/` | Ver arriba. El medio anterior queda preseleccionado; el botón dice *Reintentar pago*, *Pagar* o *Ver datos para transferir* |
-| **Fase 6:** cron `/api/cron/expirar-pedidos` (`CRON_SECRET`, `vercel.json` cada 10 min) | `src/lib/payments/expire.ts` | 401 sin el secreto. Anuló los pedidos abandonados de las pruebas (1007–1019 y otros) consultando antes la pasarela; recuperó el pagado (1029); una segunda pasada no hace nada |
+| **Fase 6:** cron `/api/cron/expirar-pedidos` (`CRON_SECRET`, `vercel.json` diario `0 9 * * *` mientras la cuenta siga en Hobby; cada 10 min con Pro) | `src/lib/payments/expire.ts` | 401 sin el secreto. Anuló los pedidos abandonados de las pruebas (1007–1019 y otros) consultando antes la pasarela; recuperó el pagado (1029); una segunda pasada no hace nada |
 | **Fase 6:** *Te estamos llevando a Webpay Plus/Flow para pagar $X…* y *Volver al carro* sin enlace mientras se paga; carro del navegador vaciado solo con el pago aprobado o la transferencia registrada (una vez por pedido) | `payment-step.tsx`, `back-to-cart.tsx`, `payment-settled.tsx`, `payment-ui-store.ts` | Verificado en Edge por CDP (texto exacto y `<span aria-disabled>` en el header) |
 | **Fase 6:** correos con Resend (confirmación, datos para transferir, pago devuelto) | `src/lib/email/` | Sin `RESEND_API_KEY`: se omiten con un aviso en el log (verificado). ✅ Con llave desde el 25-10-2026: envío real desde `pedidos@mail.audazia.dev` (llega a spam en Outlook por ser un dominio nuevo) |
 | **Fase 6:** revisión visual | Confirmación, Pago rechazado, Flow no completado, Transferencia pendiente, confirmando, vencido, reembolsado | Capturas a 1280 px (oscuro) y 390 px reales (iframe desde localhost:3311): sin desborde horizontal, sin errores de consola, sin *resumable* en el log de `next start` |
@@ -102,7 +102,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 - [x] `/api/health` se colgaba si Redis estaba apagado (trampa 53). Corregido en `src/lib/redis.ts` (24-10-2026): responde 503 en ~5 ms con el motivo (`connect ECONNREFUSED ::1:6379; connect ECONNREFUSED 127.0.0.1:6379`).
 - [x] El despacho gratis se compara con el subtotal **después** del cupón (dueño, 24-10-2026, D-011): `place_order`, `/carro` y `FreeShippingBar`.
 - [x] Inicios anónimos activados por el dueño (24-10-2026, D-008) y pedido completo como invitado verificado (pedido 1004).
-- [x] `/auth/confirm` agregado a *Redirect URLs* de Supabase Auth por el dueño (24-10-2026). Falta probarlo con un correo real al crear una cuenta.
+- [x] `/auth/confirm` agregado a *Redirect URLs* de Supabase Auth por el dueño (24-10-2026). Probado con un correo real en `audazia.dev` el 25-10-2026: confirmación de cuenta y *¿Olvidaste tu contraseña?* funcionan.
 - [x] Datos **reales** del retiro en tienda (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes; lunes a viernes de 10:00 a 18:00 y sábados de 10:00 a 14:00. En `src/lib/store.ts` y en `place_order`.
 - [x] El express es solo para la RM (dueño, 24-10-2026): checkout, `validateShipping` y `place_order`.
 - [x] Feriados 2026–2027 verificados (24-10-2026): se agregó el viernes 17 de septiembre de 2027 (Ley 20.983). Hay que agregar los de 2028 antes de diciembre de 2027.
@@ -121,14 +121,14 @@ El dueño cerró sus tareas de [_archivo/pendientes-del-dueno-fase-5.md](../_arc
 | # | Tarea | Estado verificado |
 |---|---|---|
 | 1 | Inicios anónimos | ✅ `anonymous_users: true`; pedido 1004 como invitado |
-| 2 | `/auth/confirm` en Redirect URLs | ✅ Configurado por el dueño. ⚠️ Sin prueba con un correo real: en `auth.users` no hay cuentas creadas desde `/ingresar` (confirmación de correo activada, `mailer_autoconfirm: false`) |
+| 2 | `/auth/confirm` en Redirect URLs | ✅ Configurado por el dueño. ✅ Probado con un correo real el 25-10-2026 en `audazia.dev` (cuenta confirmada en `auth.users`; *¿Olvidaste tu contraseña?* también) |
 | 3 | Datos del retiro en tienda | ✅ Datos reales (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes |
 | 4 | Express solo en la RM | ✅ Implementado |
 | 5 | Feriados 2026–2027 | ✅ Verificados (+ 17-09-2027) |
 | 6 | Datos de prueba | ✅ Pedidos 1001–1004 `cancelled`. ⏳ Siguen 4 usuarios de prueba en `auth.users` (`prueba.fase5@almacen.cl` y 3 anónimos): borrarlos antes de producción |
 | 7 | Historial de migraciones (opcional) | ✅ Registrada con `apply_migration` como `orders_checkout_fields_place_order_v2` (SQL idempotente, sin cambio de comportamiento). Advisors: aparecen avisos nuevos por haber activado los anónimos: `auth_allow_anonymous_sign_ins` en 19 tablas (aceptado: las políticas de dueño son para los invitados y las de admin usan `is_admin()`; revisar `reviews` en la fase 7) y `auth_leaked_password_protection` (activar antes de producción) |
 
-Quedan para antes de producción (en el [checklist](../07-referencia/checklist-produccion.md)): datos reales del retiro, borrar los usuarios de prueba, probar la confirmación de correo con un correo real y activar *Leaked password protection* en Supabase Auth.
+Quedan para antes de producción (en el [checklist](../07-referencia/checklist-produccion.md)): borrar los usuarios de prueba y activar *Leaked password protection* en Supabase Auth. Los datos reales del retiro (25-10-2026) y la prueba de la confirmación de correo con un correo real (25-10-2026) ya están hechos.
 
 ## Primer despliegue (25-10-2026)
 
@@ -142,11 +142,15 @@ Con sus pasos en [_archivo/pendientes-del-dueno-fase-6.md](../_archivo/pendiente
 |---|---|---|
 | 1 | ~~Cuenta de Resend + `RESEND_API_KEY` + dominio verificado (D-022)~~ ✅ `mail.audazia.dev` (25-10-2026). Falta la llave de producción | ✅ |
 | 2 | ~~Confirmar los textos propuestos sin diseño (B14, B37)~~ ✅ Aprobados (25-10-2026) | ✅ |
-| 3 | ~~Plan de Vercel que permita el cron cada 10 min, o `pg_cron` (D-021)~~ ✅ Vercel Pro (25-10-2026). Falta `CRON_SECRET` en Vercel | ✅ |
+| 3 | ~~Plan de Vercel que permita el cron cada 10 min, o `pg_cron` (D-021)~~ ✅ Cron **diario** (la cuenta sigue en Hobby, no Pro) con `CRON_SECRET` cargado en Vercel (25-10-2026). Falta volver a cada 10 min | ⚠️ |
 | 4 | ~~Datos bancarios reales~~ ✅ en `.env.local` (25-10-2026, D-024). Falta cargarlos en Vercel | ✅ |
 | 5 | ~~Probar `urlConfirmation` de Flow~~ ✅ en `audazia.dev` (25-10-2026, pedido 1036) | ✅ |
 | 6 | ~~Qué hacer con los pedidos de prueba~~ ✅ Se dejan; se borran al subir a producción (25-10-2026) | ✅ |
 
+## Antes de la fase 7
+
+Nada de las fases 5 y 6 la bloquea. Lo recomendado antes de empezar (cuenta con un correo real ✅ 25-10-2026; primera ejecución del cron) y lo que quedó para producción está en [_archivo/pendientes-antes-de-la-fase-7.md](../_archivo/pendientes-antes-de-la-fase-7.md).
+
 ## Decisiones que bloquean
 
-Ninguna para la fase 7. Fase 6: el dueño decidió el 25-10-2026 locks fail-open (D-005), Flow sin túnel (D-024), datos bancarios ficticios (D-024; reemplazados por los reales el mismo día), Vercel Cron cada 10 min con el plan Pro (D-021), reembolso automático + alerta (D-020), invitado → cuenta en la fase 7 y correos con Resend (D-022). Sigue abierto el proveedor de boleta electrónica (D-012). **Para el dueño:** la `RESEND_API_KEY` (y el dominio verificado). Los textos propuestos sin diseño (B14, B37) quedaron aprobados.
+Ninguna para la fase 7. Fase 6: el dueño decidió el 25-10-2026 locks fail-open (D-005), Flow sin túnel (D-024), datos bancarios ficticios (D-024; reemplazados por los reales el mismo día), Vercel Cron (D-021; diario mientras la cuenta siga en Hobby), reembolso automático + alerta (D-020), invitado → cuenta en la fase 7 y correos con Resend (D-022). Sigue abierto el proveedor de boleta electrónica (D-012). Resend ya envía desde `mail.audazia.dev`; falta la llave de producción. Los textos propuestos sin diseño (B14, B37) quedaron aprobados.

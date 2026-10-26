@@ -40,7 +40,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 | 9 | Región de las funciones (`iad1`) frente a la de Supabase | 🤖 | 🟠 | Latencia de cada consulta |
 | 10 | `NEXT_PUBLIC_SITE_URL` de Preview apunta a producción | 🤖 | 🟢 | Los retornos de pago de un preview caen en producción |
 | 11 | Monitoreo (`/api/health` y errores) | 👥 | 🟢 | Enterarse de una caída |
-| 12 | Probar la confirmación de cuenta y *¿Olvidaste tu contraseña?* con un correo real en `audazia.dev` | 👥 | 🔴 | Saber que los clientes pueden crear cuenta y recuperar la contraseña |
+| 12 | ~~Probar la confirmación de cuenta y *¿Olvidaste tu contraseña?* con un correo real en `audazia.dev`~~ ✅ (25-10-2026) | 👥 | ✅ | — |
 
 ---
 
@@ -65,7 +65,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 > | *Site URL* | `https://audazia.dev` (antes `http://localhost:3000`) |
 > | *Redirect URLs* | `http://localhost:3000/auth/confirm` · `http://localhost:3000/**` · `https://audazia.dev/**` · `http://localhost:3310/**` (el puerto de `next start`) |
 >
-> **Queda:** la prueba con un correo real, como pendiente aparte (tarea 12). El desarrollo local sigue funcionando: `src/lib/auth/actions.ts` pasa `emailRedirectTo`/`redirectTo` con el `origin` de la petición, y `localhost:3000` y `localhost:3310` están en la lista. Solo la plantilla *Reset password*, si usa `{{ .SiteURL }}`, lleva siempre a `audazia.dev`.
+> **Prueba con un correo real:** ✅ hecha el 25-10-2026 (tarea 12). El desarrollo local sigue funcionando: `src/lib/auth/actions.ts` pasa `emailRedirectTo`/`redirectTo` con el `origin` de la petición, y `localhost:3000` y `localhost:3310` están en la lista. Solo la plantilla *Reset password*, si usa `{{ .SiteURL }}`, lleva siempre a `audazia.dev`.
 
 **Por qué:** hoy apuntan a `localhost`. Los enlaces de los correos de Supabase (confirmar cuenta y recuperar contraseña) llevarían a tu equipo en vez de a la tienda.
 
@@ -159,7 +159,9 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 **Pasos (👥):** cuando haya Redis (tarea 3), poner `https://audazia.dev/api/health` en un servicio de uptime. Revisar *Observability* de Vercel (errores de las funciones) después de las primeras compras.
 
-## 12. Probar la confirmación de cuenta y la recuperación de contraseña con un correo real 🔴
+## 12. Probar la confirmación de cuenta y la recuperación de contraseña con un correo real ✅ (25-10-2026)
+
+> **Resultado (25-10-2026):** ✅ hecho por el dueño en `https://audazia.dev/ingresar`: la cuenta se creó, el enlace de confirmación funcionó y *¿Olvidaste tu contraseña?* también. Comprobado por el agente en `auth.users`: cuenta `8c328ed4-69ce-46f8-a259-9fe8f7dd2c95` (proveedor `email`), creada a las 00:45:44 UTC del 26-10 (21:45 de Chile), confirmada a las 00:49:13 UTC y con el último inicio de sesión a las 00:50:28 UTC. Es la primera cuenta creada desde `/ingresar` con un correo real. Sigue pendiente la plantilla *Reset password* con `token_hash` (paso 5; bloque 6 de la lista general) para que el enlace funcione también en otro navegador.
 
 **Por qué:** la tarea 2 dejó las URL de Supabase Auth con el dominio real, pero nunca se probó el flujo completo: no hay ninguna cuenta creada desde `/ingresar` con un correo real (bloque 6 de la lista general). Si algo falla (URL fuera de la lista, plantilla con el enlace mal armado, correo en spam), el cliente no puede crear cuenta ni recuperar la contraseña.
 

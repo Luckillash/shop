@@ -12,7 +12,7 @@ La fase 5 (cuenta y checkout) quedó implementada y probada con una cuenta. Esta
 | # | Tarea | Prioridad | Tiempo | Bloquea |
 |---|---|---|---|---|
 | 1 | ✅ Activar los inicios de sesión anónimos (24-10-2026) | Hecha | — | — |
-| 2 | ✅ Agregar `/auth/confirm` a las Redirect URLs (24-10-2026) | Hecha | — | Falta probarlo con un correo real |
+| 2 | ✅ Agregar `/auth/confirm` a las Redirect URLs (24-10-2026) | Hecha | — | ✅ Probado con un correo real (25-10-2026) |
 | 3 | ~~Confirmar la dirección del retiro en tienda~~ ✅ Datos reales (25-10-2026) | 🟠 Media | — | Nada |
 | 4 | ✅ Express solo para la RM (24-10-2026) | Hecha | — | — |
 | 5 | ✅ Verificar los feriados 2026–2027 (24-10-2026) | Hecha | — | — |
@@ -183,7 +183,7 @@ Revisado por el agente después de que diste las tareas por hechas:
 
 - ✅ Hechas: 1 (anónimos), 2 (Redirect URLs), 4 (express solo RM), 5 (feriados).
 - ⏳ **Para antes de producción**, sin apuro:
-  - **Tarea 2:** probar la confirmación con un correo real. En Supabase no aparece ninguna cuenta creada desde `/ingresar`.
+  - **Tarea 2:** ✅ confirmación y recuperación de contraseña probadas con un correo real en `audazia.dev` el 25-10-2026 (tarea 12 del [despliegue](pendientes-del-despliegue.md)).
   - **Tarea 3:** ✅ datos reales del retiro desde el 25-10-2026 (Local Tajamar, Tajamar 223, Departamento 302, Las Condes).
   - **Tarea 6:** siguen 4 usuarios de prueba en *Authentication → Users* (`prueba.fase5@almacen.cl` y 3 anónimos).
   - **Nuevo:** activar *Leaked password protection* en Supabase Auth (aviso de los advisors).

@@ -14,6 +14,8 @@ El diseño está en tres artifacts de claude.ai:
 | **Almacén · Templates de la tienda** | 40 pantallas (escritorio y móvil): compra, cuenta, contenido, estados vacíos/error y estados del pago | https://claude.ai/artifact/E7sfHjPteptX18QCaikCri |
 | **Almacén — Flujo de compra** | Canvas del flujo en 6 pasos (inicio → confirmación) | https://claude.ai/artifact/9otwRsPJLSkA4HHCvjDKCV |
 
+> **Actualización 25-10-2026:** *Templates* tiene ahora 57 pantallas y un mapa de estados (se agregaron administración, Direcciones, Favoritos, Datos personales, la opinión, la cuenta del invitado y los correos; ver [04-diseno/templates.md](../04-diseno/templates.md)) y es el único canvas de referencia. *Flujo de compra* quedó como archivo histórico: se quitaron del índice las 11 pantallas que no existían y lleva una nota que remite a *Templates*.
+
 > **Ojo con el canvas "Flujo de compra":** su índice define 15 pantallas, pero solo tiene los archivos de 4: Inicio (escritorio y móvil), Header y Footer. En esta revisión solo cambió su Footer (se agregaron los datos legales). Las pantallas de Listado, Ficha, Carro, Checkout y Confirmación siguen sin existir ahí. El flujo completo está en el canvas de **Templates**, y este documento se basa en él (sección 5).
 
 ---
@@ -439,7 +441,8 @@ Página dedicada con header y footer reducidos. El indicador de pasos muestra ca
 - **Toast de producto agregado** (`z-toast`): el token existe, pero ninguna pantalla lo muestra (el drawer cumple ese rol con su `Notice`).
 - **Pago no completado en Flow, versión móvil**: `PagoRechazadoMovil` admite los dos casos (Webpay y Flow), pero solo escritorio tiene un artboard aparte para el caso de Flow.
 - **Opiniones de clientes**: siguen con placeholders (`[Opinión del cliente…]`, `[Nombre] · [Comuna] · [Fecha]`) en la ficha.
-- **Canvas "Flujo de compra"**: le siguen faltando 11 de sus 15 pantallas (sección 1).
+- ~~**Canvas "Flujo de compra"**: le siguen faltando 11 de sus 15 pantallas (sección 1).~~ Resuelto el 25-10-2026: quedó como archivo histórico con solo sus 4 pantallas; la referencia es *Templates*.
+- Desde el 25-10-2026, la lista vigente de lo que sigue sin diseño está en [04-diseno/templates.md](../04-diseno/templates.md#sin-diseño).
 
 ---
 
