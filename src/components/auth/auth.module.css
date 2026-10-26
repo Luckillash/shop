@@ -139,3 +139,87 @@
     padding: var(--space-8);
   }
 }
+
+/* Confirmación · invitado crea su cuenta (template ConfirmacionCrearCuenta) */
+.guestAccount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--promo);
+}
+
+.guestHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.guestTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.guestFields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3) var(--space-4);
+}
+
+.fixedField,
+.guestPassword {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.fixedField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fixedLabel {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* Alineado con el campo de la contraseña, sin parecer editable */
+.fixedValue {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-md);
+  margin-top: var(--space-1);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.guestActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.noticeLine {
+  display: block;
+  margin-top: var(--space-1);
+}
+
+/* Acción debajo del texto del aviso (el botón ghost se alinea con el texto) */
+.noticeAction {
+  margin: var(--space-1) 0 0 calc(-1 * var(--space-3));
+}
+
+.noticeLink {
+  display: inline-block;
+  margin-top: var(--space-1);
+  color: var(--link);
+  font-weight: 600;
+}

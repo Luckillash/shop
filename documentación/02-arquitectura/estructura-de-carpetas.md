@@ -57,13 +57,13 @@ shop/
     │   ├── cart/                 ← drawer, lista con Deshacer, vista del carro, cupón, useHydrated
     │   ├── checkout/             ← CheckoutView, pasos, resumen, acceso, piezas (indicador, errores, opciones)
     │   ├── payment/              ← WebpayRedirect (form POST token_ws), RetryPayment / PayWithCardInstead, TransferDetails (Copiar), PaymentPending (consulta), PaymentSettled (vacía el carro), OrderAside
-    │   ├── auth/                 ← formularios de Ingresar/Crear cuenta y de contraseña, useAuthAction, Cerrar sesión
+    │   ├── auth/                 ← formularios de Ingresar/Crear cuenta y de contraseña, useAuthAction, Cerrar sesión, GuestAccountForm (invitado → cuenta, 7.2)
     │   └── account/              ← menú de la cuenta (AccountNav, enlaces con usePathname), OrderCard, TrackingSteps, account.module.css
     ├── lib/
     │   ├── catalog/              ← queries.ts ('use cache') · listing.ts · variants.ts · mappers.ts (+ *.test.ts)
     │   ├── cart/                 ← actions.ts (refreshCart, applyCoupon, syncCart) · server.ts (syncUserCart, server-only) · merge · totals · reconcile · snapshot · coupon (+ *.test.ts)
     │   ├── checkout/             ← actions.ts (saveContact, saveShipping, placeOrder) · validation · shipping · order-errors · defaults · delivery-commune (cookie de la comuna) (+ *.test.ts)
-    │   ├── auth/                 ← actions.ts (signIn, signUp, startGuestCheckout, signOut, requestPasswordReset, updatePassword) · session.ts · validation (+ *.test.ts)
+    │   ├── auth/                 ← actions.ts (signIn, signUp, startGuestCheckout, signOut, requestPasswordReset, updatePassword, createGuestAccount, resendGuestAccountEmail) · session.ts (getSessionUser, getPendingEmail, getAccountView, requireAdmin) · validation · guest-account (7.2) (+ *.test.ts)
     │   ├── chile/                ← regions.ts (16 regiones, 346 comunas) · business-days.ts (feriados, días hábiles) (+ *.test.ts)
     │   ├── format/               ← clp.ts · rut.ts · phone.ts · dates.ts (+ *.test.ts)
     │   ├── supabase/             ← config.ts · public.ts (anon) · server.ts (usuario) · admin.ts (secreta) · proxy.ts (updateSession)

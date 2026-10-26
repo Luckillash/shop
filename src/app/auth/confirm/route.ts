@@ -3,11 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeNext } from "@/lib/auth/validation";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
-// Enlace del correo de confirmación de Supabase Auth. Acepta las dos formas:
-//   ?token_hash=…&type=signup  (plantilla con {{ .TokenHash }}, recomendada para SSR)
-//   ?code=…                    (flujo PKCE de la plantilla por defecto)
-// Sirve para confirmar la cuenta (type=signup) y para recuperar la contraseña (type=recovery,
-// vuelve a /ingresar/nueva-contrasena).
+// Enlace de los correos de Supabase Auth. Acepta las dos formas:
+//   ?token_hash=…&type=…  (plantillas de supabase/templates/, funcionan en cualquier navegador)
+//   ?code=…               (flujo PKCE de las plantillas por defecto: solo en el mismo navegador)
+// Tipos: email/signup (confirmar la cuenta), recovery (vuelve a /ingresar/nueva-contrasena),
+// email_change (el invitado que crea su cuenta, 7.2), magiclink e invite.
 // La URL debe estar en Authentication → URL Configuration → Redirect URLs de Supabase.
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

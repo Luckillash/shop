@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { GuestAccountForm } from "@/components/auth/guest-account-form";
 import { NumberedSteps, OrderAside, ResultLayout } from "@/components/payment/order-parts";
 import { PaymentPending } from "@/components/payment/payment-pending";
 import { PaymentSettled } from "@/components/payment/payment-settled";
@@ -10,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Icon } from "@/components/ui/icon";
 import { Notice } from "@/components/ui/notice";
+import { orderStatusHref, type GuestAccountView } from "@/lib/auth/guest-account";
+import { getAccountView } from "@/lib/auth/session";
 import { isShippingMethod, shippingMethodLabel } from "@/lib/checkout/shipping";
 import { formatCLP } from "@/lib/format/clp";
 import { estimatedDelivery } from "@/lib/orders/order-status";
@@ -40,7 +43,10 @@ async function Order({ params }: { params: Promise<{ id: string }> }) {
 
   const screen = orderScreen(order, new Date());
   if (screen === "rejected" || screen === "transfer") redirect(screenPath(order.id, screen));
-  if (screen === "confirmed") return <Confirmation order={order} />;
+  if (screen === "confirmed") {
+    const { view, pendingEmail } = await getAccountView(order.user_id);
+    return <Confirmation order={order} account={view} pendingEmail={pendingEmail} />;
+  }
   if (screen === "confirming") return <Confirming order={order} />;
   return <Closed order={order} refunded={screen === "refunded"} />;
 }
@@ -54,7 +60,15 @@ function OrderNumber({ order, suffix }: { order: OrderView; suffix?: string }) {
   );
 }
 
-function Confirmation({ order }: { order: OrderView }) {
+function Confirmation({
+  order,
+  account,
+  pendingEmail,
+}: {
+  order: OrderView;
+  account: GuestAccountView;
+  pendingEmail: string | null;
+}) {
   const address = asAddress(order.shipping_address);
   const method = isShippingMethod(order.shipping_method) ? order.shipping_method : "standard";
   const pickup = method === "pickup";
@@ -114,10 +128,24 @@ function Confirmation({ order }: { order: OrderView }) {
         ]}
       />
 
+      {(account === "form" || account === "sent") && order.contact_email && (
+        <GuestAccountForm
+          orderId={order.id}
+          orderNumber={order.order_number}
+          email={order.contact_email}
+          pendingEmail={pendingEmail}
+        />
+      )}
+
       <div className={styles.actions}>
         <Button href="/" size="lg">
           Seguir comprando
         </Button>
+        {account === "account" && (
+          <Button href={orderStatusHref(order.order_number)} variant="secondary" size="lg">
+            Ver estado del pedido
+          </Button>
+        )}
       </div>
     </ResultLayout>
   );

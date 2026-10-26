@@ -35,7 +35,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 | 4 | Llave `almacen-produccion` de Resend | 👥 | 🔴 | Separar la llave local de la de producción |
 | 5 | Base de datos compartida entre desarrollo y producción | 👥 | 🔴 | Datos de prueba visibles en el sitio público |
 | 6 | Pasar a Pro y volver al cron cada 10 min | 👥 | 🟠 | Pedidos abandonados retienen stock hasta ~24 h |
-| 7 | Revisar la primera ejecución del cron | 🤖 | 🟠 | Saber que `CRON_SECRET` funciona en producción |
+| 7 | ~~Revisar la primera ejecución del cron~~ ✅ (26-10-2026, 09:00:47 UTC) | 🤖 | ✅ | — |
 | 8 | ~~Probar `urlConfirmation` de Flow con el sitio desplegado~~ ✅ (25-10-2026, pedido 1036) | 🤖 | ✅ | — |
 | 9 | Región de las funciones (`iad1`) frente a la de Supabase | 🤖 | 🟠 | Latencia de cada consulta |
 | 10 | `NEXT_PUBLIC_SITE_URL` de Preview apunta a producción | 🤖 | 🟢 | Los retornos de pago de un preview caen en producción |
@@ -127,13 +127,15 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 **Alternativa sin Pro:** `pg_cron` + `pg_net` en Supabase llamando a `https://audazia.dev/api/cron/expirar-pedidos` con el secreto cada 10 min (opción b de la tarea 3 de la fase 6). Necesita que el agente genere un `CRON_SECRET` nuevo, porque el actual está como *sensitive* y no se puede leer.
 
-## 7. Revisar la primera ejecución del cron 🟠
+## 7. Revisar la primera ejecución del cron ✅ (26-10-2026)
 
 **Cuándo:** después del **26-10-2026 a las 09:00 UTC** (06:00 de Chile). En Hobby la hora no es exacta: puede correr dentro de esa hora.
 
 **Cómo comprobarlo (🤖):** *Settings → Cron Jobs* muestra `/api/cron/expirar-pedidos` y la ejecución responde 200 (no 401). En los logs aparece `[cron] expirar-pedidos` con `{ checked, cancelled, recovered, skipped }`.
 
 **Revisión del 26-10 a las 01:52 UTC (22:52 del 25-10 en Chile):** todavía no le tocaba; no hay ejecuciones de `/api/cron/expirar-pedidos` en los logs de producción de los 2 días anteriores. El dueño eligió seguir con la 7.1 y revisarlo en la próxima sesión, después de las 06:00 (T1 de la [fase 7](pendientes-del-dueno-fase-7.md)).
+
+**✅ Revisión del 26-10 a las 21:41 UTC (MCP de Vercel):** corrió a las **09:00:47 UTC** (06:00 de Chile), en producción (`dpl_5gwAZ1EY8rtaAYKhKLmFzS8L3Ny7`, `iad1`), con el log `[cron] expirar-pedidos { checked: 0, cancelled: 0, recovered: 0, skipped: 0 }`. Ese log solo se escribe después de validar `CRON_SECRET` y justo antes de responder 200, así que no hubo 401. No había pedidos vencidos que anular.
 
 **Si hay que dispararlo a mano:** el valor de `CRON_SECRET` no se puede leer desde Vercel. El agente genera uno nuevo, lo carga y lo usa en el `curl`.
 

@@ -48,8 +48,8 @@ estado: "propuesta"
 - [ ] Razón social y RUT reales en el footer (el diseño usa *Almacén SpA · RUT 76.543.210-3* como ejemplo ajustable).
 - [ ] Términos y condiciones y política de privacidad publicados (el checkout los enlaza). Las páginas `/ayuda/terminos`, `/ayuda/privacidad`, `/ayuda/despacho` y `/ayuda/contacto` **no existen todavía** (dan 404).
 - [ ] Catálogo real (productos, precios, stock, fotos 4:5) y cupones reales; BIENVENIDA10 y DESCUENTO5000 desactivados si no se usan.
-- [ ] SMTP propio en Supabase Auth y proveedor de correo transaccional con dominio verificado.
-- [ ] Templates de los correos de Supabase Auth en español y con el estilo de la tienda (*Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user*, *Reauthentication*), con enlaces a `/auth/confirm` y `token_hash`.
+- [x] SMTP propio en Supabase Auth (Resend, 26-10-2026) y proveedor de correo transaccional con dominio verificado (`mail.audazia.dev`).
+- [x] (26-10-2026) Templates de los correos de Supabase Auth en español y con el estilo de la tienda (*Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user*, *Reauthentication*), con enlaces a `/auth/confirm` y `token_hash`.
 - [ ] Emisión de boleta o factura electrónica resuelta (D-012).
 - [x] Dominio de `EMAIL_FROM` verificado en Resend: `mail.audazia.dev` (SPF, DKIM y DMARC `p=none`, 25-10-2026, D-022).
 - [ ] Correos transaccionales en producción: llave `almacen-produccion` de Resend y `EMAIL_FROM` en Vercel. Sin la llave, los correos se omiten.

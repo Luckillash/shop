@@ -7,8 +7,11 @@ import { PayWithCardInstead } from "@/components/payment/retry-payment";
 import { TransferDetails } from "@/components/payment/transfer-details";
 import styles from "@/components/payment/payment.module.css";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
 import { deliveryEstimate, isShippingMethod, shippingMethodLabel } from "@/lib/checkout/shipping";
+import { orderStatusHref } from "@/lib/auth/guest-account";
+import { getAccountView } from "@/lib/auth/session";
 import { formatCLP } from "@/lib/format/clp";
 import { formatDeadline, formatDeliveryDay, formatTime } from "@/lib/format/dates";
 import { bankDetails } from "@/lib/payments/config";
@@ -47,6 +50,8 @@ async function Transfer({ params }: { params: Promise<{ id: string }> }) {
   const method = isShippingMethod(order.shipping_method) ? order.shipping_method : "standard";
   const estimate = deliveryEstimate(method, address.region ?? null, now);
   const document = order.document_type === "factura" ? "Factura electrónica" : "Boleta electrónica";
+  // *Ver estado del pedido* (B38) solo con cuenta: a un invitado, /cuenta lo mandaría a Ingresar
+  const { view } = await getAccountView(order.user_id);
 
   return (
     <ResultLayout
@@ -106,7 +111,17 @@ async function Transfer({ params }: { params: Promise<{ id: string }> }) {
         ]}
       />
 
-      <PayWithCardInstead orderId={order.id} total={total} />
+      <PayWithCardInstead
+        orderId={order.id}
+        total={total}
+        secondary={
+          view === "account" && (
+            <Button href={orderStatusHref(order.order_number)} variant="ghost" size="lg">
+              Ver estado del pedido
+            </Button>
+          )
+        }
+      />
     </ResultLayout>
   );
 }

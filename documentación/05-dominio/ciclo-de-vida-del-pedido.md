@@ -56,7 +56,7 @@ Un pedido tiene **N intentos**. Solo uno debería quedar `paid`. Antes de crear 
 
 ## Cómo se muestra (UI)
 
-✅ Implementado en la 7.1 (`src/lib/orders/customer-view.ts`, D-026). La línea de cada estado (B24) está en `orderStatusLine`; las que no tienen diseño son propuestas (`_archivo/pendientes-del-dueno-fase-7.md`).
+✅ Implementado en la 7.1 (`src/lib/orders/customer-view.ts`, D-026). La línea de cada estado (B24) está en `orderStatusLine`; las que no tienen diseño son propuestas del agente, aprobadas por el dueño el 26-10-2026 (`_archivo/pendientes-del-dueno-fase-7.md`, T2).
 
 | `orders.status` | `Badge` (Mis pedidos) | Seguimiento (4 pasos) |
 |---|---|---|

@@ -52,8 +52,8 @@ export function SignupForm({ next }: { next: string }) {
   if (state.status === "confirm-email") {
     return (
       <Notice tone="success" title="Revisa tu correo">
-        Te enviamos un enlace a {state.email} para confirmar tu cuenta. Ábrelo desde este dispositivo y vuelve a
-        ingresar.
+        Te enviamos un enlace a {state.email} para confirmar tu cuenta. Al abrirlo, quedas con tu sesión iniciada.
+        Revisa también la carpeta de spam.
       </Notice>
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useState, type FormEvent } from "react";
+import { startTransition, useActionState, useState, type FormEvent, type ReactNode } from "react";
 import { OptionGroup } from "@/components/checkout/parts";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
@@ -95,7 +95,8 @@ export function RetryPayment({ orderId, total, previous }: RetryPaymentProps) {
 }
 
 /** *Pagar con tarjeta en su lugar* (Transferencia pendiente): reintento directo con Webpay */
-export function PayWithCardInstead({ orderId, total }: { orderId: string; total: number }) {
+/** `secondary`: otra acción en la misma fila (*Ver estado del pedido*, B38) */
+export function PayWithCardInstead({ orderId, total, secondary }: { orderId: string; total: number; secondary?: ReactNode }) {
   const { state, busy, pay } = useRetry(orderId);
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -106,9 +107,12 @@ export function PayWithCardInstead({ orderId, total }: { orderId: string; total:
   return (
     <form onSubmit={submit} className={styles.inlineForm}>
       {state.status === "error" && <Notice tone="danger">{state.message}</Notice>}
-      <Button type="submit" variant="secondary" size="lg" loading={busy}>
-        {busy ? "Pagando" : "Pagar con tarjeta en su lugar"}
-      </Button>
+      <div className={styles.actions}>
+        <Button type="submit" variant="secondary" size="lg" loading={busy}>
+          {busy ? "Pagando" : "Pagar con tarjeta en su lugar"}
+        </Button>
+        {secondary}
+      </div>
       {busy && (
         <p className={styles.statusLine} role="status">
           {redirectingLine("webpay", total)}

@@ -32,8 +32,8 @@ export function ResetRequestForm() {
   if (state.status === "sent") {
     return (
       <Notice tone="success" title="Revisa tu correo">
-        Si hay una cuenta con {state.email}, te enviamos un enlace para crear una contraseña nueva. Ábrelo desde este
-        dispositivo; vence en una hora. Revisa también la carpeta de spam.
+        Si hay una cuenta con {state.email}, te enviamos un enlace para crear una contraseña nueva. Vence en una hora.
+        Revisa también la carpeta de spam.
       </Notice>
     );
   }

@@ -47,7 +47,7 @@ Reglas:
 
 | Pieza | Archivo |
 |---|---|
-| `getSessionUser()`: `{ id, email, isAnonymous }` con `getClaims()` | `src/lib/auth/session.ts` |
+| `getSessionUser()`: `{ id, email, isAnonymous }` con `getClaims()`. `getPendingEmail()` (correo que un invitado pidió y no confirma, con `getUser()`) y `getAccountView()` (qué ofrece la Confirmación sobre la cuenta), 7.2 | `src/lib/auth/session.ts` |
 | `signIn`, `signUp`, `startGuestCheckout`, `signOut` (Server Actions; rate limiting LOGIN, SIGNUP y GUEST por IP). Al entrar, fusionan el carro con `cart_items` | `src/lib/auth/actions.ts` |
 | `useAuthAction`: agrega el carro al `FormData`, reemplaza el store con el carro fusionado y navega a `?volver=` | `src/components/auth/use-auth-action.ts` |
 | `/ingresar` (Ingresar · Crear cuenta · *Comprar como invitado* si hay productos), `/cuenta` (→ `/cuenta/pedidos` desde la 7.1: Mis pedidos y Detalle; sesión no anónima, el proxy da el código HTTP del Detalle, D-026), `/auth/confirm` (enlace del correo: `token_hash` o `code`) | `src/app/` |
@@ -57,8 +57,9 @@ Reglas:
 - Confirmación de correo **activada** en el proyecto: `signUp` muestra *Revisa tu correo*. `/auth/confirm` ya está en *Redirect URLs* (dueño, 2026-10-24).
 - Inicios anónimos **activados** (dueño, 2026-10-24). Un invitado que entra a `/cuenta` va a `/ingresar?volver=/cuenta`.
 - `/cuenta` redirige a `/ingresar?volver=/cuenta` sin sesión o con una anónima. El proxy todavía no hace la redirección optimista.
-- Pendiente: convertir al invitado en cuenta (Confirmación, fase 6).
-- Plantilla recomendada para *Reset password* en Supabase (Authentication → Email Templates), que funciona aunque el enlace se abra en otro navegador: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto (`{{ .ConfirmationURL }}`) también funciona, pero solo en el mismo navegador donde se pidió (PKCE).
+- ✅ Convertir al invitado en cuenta (7.2, 2026-10-26, D-027): ver abajo.
+- ✅ **SMTP propio en Supabase Auth** (dueño, 26-10-2026): Resend, `smtp.resend.com:465`, remitente *Almacén* en `mail.audazia.dev`; límite de envíos de Auth 30 por hora (antes 2). Antes usaba el SMTP por defecto, que solo envía al equipo del proyecto (respondía 429 a cualquier otra dirección). Las plantillas siguen siendo las de Supabase, en inglés.
+- ✅ **Plantillas de los correos en español** (`supabase/templates/`, pegadas por el dueño el 26-10-2026): enlaces a `/auth/confirm` con `token_hash`, que funcionan aunque el correo se abra en otro navegador. Las de Crear cuenta, contraseña nueva y cambio de correo usan `{{ .RedirectTo }}` (que arma `confirmUrl` con `?volver=`); verificadas con correos reales y el enlace abierto en otro navegador. Las plantillas por defecto (`{{ .ConfirmationURL }}`, PKCE) solo funcionaban en el mismo navegador.
 
 ## Compra como invitado (D-008 ✅, dueño 2026-10-24)
 
@@ -69,7 +70,11 @@ Reglas:
 1. Al entrar a `/checkout` sin sesión, una Server Action crea una sesión anónima. El trigger `handle_new_user` crea su `profile` y su `cart`.
 2. El correo del paso Contacto se guarda en el pedido. **Falta la columna**: ver [brechas](../07-referencia/brechas-diseno-vs-datos.md).
 3. La dirección del paso Despacho se inserta en `addresses` del usuario anónimo. `place_order` funciona sin cambios, y RLS protege el pedido.
-4. Si después crea una cuenta (con el `Notice` de la Confirmación), se vincula la identidad (`updateUser` con email y contraseña) y conserva sus pedidos.
+4. Si después crea una cuenta (con el aviso de la Confirmación), se vincula la identidad (`updateUser` con email y contraseña) y conserva sus pedidos. ✅ 7.2 (D-027):
+   - `createGuestAccount` (Server Action): `getClaims()` con `is_anonymous`, pedido propio (`user_id`) y pagado, rate limiting `SIGNUP` por IP. El correo es `orders.contact_email`; del formulario solo se leen la contraseña (8 caracteres) y *Recibir novedades* (`user_metadata.newsletter`, decisión 7b ⏳).
+   - Una sola llamada `updateUser({ email, password, data: { full_name, newsletter } }, { emailRedirectTo: /auth/confirm?volver=/cuenta/pedidos })`: Auth no acepta la contraseña de un anónimo sin correo, pero sí las dos juntas. Guarda la contraseña y envía el correo de confirmación; **hasta abrirlo, el usuario sigue siendo anónimo**. `profiles.full_name` = destinatario del pedido (si estaba vacío).
+   - `email_exists` → aviso *Ya hay una cuenta con …* + *Ingresar*; no se fusionan pedidos.
+   - Al abrir el enlace, `/auth/confirm` crea la sesión (ya no anónima, mismo `user_id`) y lleva a Mis pedidos.
 
 Requisitos:
 

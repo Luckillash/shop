@@ -10,11 +10,13 @@ related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-est
 
 Propuesta del 25-10-2026. El dueño pidió empezar por la 7.0 el mismo día; las decisiones de abajo siguen pendientes y están también en [pendientes del dueño](pendientes-del-dueno-fase-7.md).
 
-**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026).
+**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027).
 
-## Pendiente previo: el cron
+## Pendiente previo: el cron ✅ (26-10-2026)
 
-No se pudo cerrar todavía porque el cron aún no ha corrido. La revisión fue a las 01:26 UTC del 26-10 (22:26 del 25-10 en Chile). La primera ejecución de `0 9 * * *` es el 26-10 a las 09:00 UTC, o sea a las 06:00 de Chile. En los logs de producción de las 24 horas anteriores no aparece `/api/cron/expirar-pedidos`; sí aparecen `/checkout`, `/ingresar` y la confirmación de Flow. Se volvió a revisar a las 01:52 UTC del 26-10, antes de la 7.1: seguía sin correr (aún no le tocaba). El dueño eligió seguir con la 7.1; se revisa en la próxima sesión, después de las 06:00, y ahí se cierra la tarea 7 de los [pendientes del despliegue](pendientes-del-despliegue.md).
+**Cerrado:** la primera ejecución fue el 26-10 a las 09:00:47 UTC, con 200 y `{ checked: 0, cancelled: 0, recovered: 0, skipped: 0 }`.
+
+Historial: no se pudo cerrar antes porque el cron aún no había corrido. La revisión fue a las 01:26 UTC del 26-10 (22:26 del 25-10 en Chile). La primera ejecución de `0 9 * * *` es el 26-10 a las 09:00 UTC, o sea a las 06:00 de Chile. En los logs de producción de las 24 horas anteriores no aparece `/api/cron/expirar-pedidos`; sí aparecen `/checkout`, `/ingresar` y la confirmación de Flow. Se volvió a revisar a las 01:52 UTC del 26-10, antes de la 7.1: seguía sin correr (aún no le tocaba). El dueño eligió seguir con la 7.1; se revisa en la próxima sesión, después de las 06:00, y ahí se cierra la tarea 7 de los [pendientes del despliegue](pendientes-del-despliegue.md).
 
 ## Subetapas
 
@@ -23,14 +25,36 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | # | Subetapa | Depende de | Contenido |
 |---|---|---|---|
 | **7.0** ✅ | Base | — | **Migración M8** (en el plan decía M7), idempotente y aplicada con `apply_migration`: tabla `order_events` para el historial (cuándo, qué, quién, datos), solo la lee el admin; `orders.cancel_reason` (tipo `vencio`/`tienda`/`cliente` más un texto que ve el cliente). Módulo `order-status.ts` con las etiquetas del cliente y de la administración y la tabla de transiciones permitidas. `requireAdmin()`. Fecha estimada de entrega (B25): se calcula desde `placed_at` o `paid_at` con los plazos por zona, sin columna nueva, y así coincide con la que vio el cliente |
-| **7.1** ✅ | Mis pedidos y Detalle de pedido | 7.0 | ✅ 25-10-2026 (D-026; textos propuestos en T2 de los pendientes del dueño). Layout de `/cuenta` con su menú; `/cuenta` lleva a `/cuenta/pedidos`. Los 6 estados con su `Badge` y su línea (B24). Detalle con línea de tiempo, seguimiento, *Volver a comprar* y *Necesito ayuda*. *Descargar boleta* queda oculto hasta definir D-012 |
-| **7.2** | Invitado → cuenta | 7.1 | `ConfirmacionCrearCuenta` con `updateUser` sobre la sesión anónima, conservando el `user_id` y por lo tanto sus pedidos. *Ver estado del pedido* (B38). ⚠️ Con la confirmación de correo activa, Supabase puede exigir confirmar el correo antes de que la cuenta deje de ser anónima. Si es así, el aviso tendría que decir algo como *Te enviamos un correo para confirmar* y no *Listo, creamos tu cuenta*; se le propondrá ese texto al dueño. Si el correo ya tiene una cuenta, no se fusionan los pedidos (sería un riesgo de privacidad): se le pide ingresar |
+| **7.1** ✅ | Mis pedidos y Detalle de pedido | 7.0 | ✅ 25-10-2026 (D-026; textos propuestos aprobados por el dueño el 26-10-2026, T2). Layout de `/cuenta` con su menú; `/cuenta` lleva a `/cuenta/pedidos`. Los 6 estados con su `Badge` y su línea (B24). Detalle con línea de tiempo, seguimiento, *Volver a comprar* y *Necesito ayuda*. *Descargar boleta* queda oculto hasta definir D-012 |
+| **7.2** ✅ | Invitado → cuenta | 7.1 | ✅ 26-10-2026 (D-027): con la confirmación de correo activada el aviso es *Revisa tu correo para terminar* (aprobado por el dueño); correo con cuenta → *Ingresar*; *Ver estado del pedido* solo con cuenta; SMTP propio con Resend (dueño). Plan original: `ConfirmacionCrearCuenta` con `updateUser` sobre la sesión anónima, conservando el `user_id` y por lo tanto sus pedidos. *Ver estado del pedido* (B38). ⚠️ Con la confirmación de correo activa, Supabase puede exigir confirmar el correo antes de que la cuenta deje de ser anónima. Si es así, el aviso tendría que decir algo como *Te enviamos un correo para confirmar* y no *Listo, creamos tu cuenta*; se le propondrá ese texto al dueño. Si el correo ya tiene una cuenta, no se fusionan los pedidos (sería un riesgo de privacidad): se le pide ingresar |
 | **7.3** | Correos | 7.0 | Ajustar el `layout` de `src/lib/email/templates.ts` a `CorreoConfirmacion`; correos `CorreoDespacho` y `CorreoAnulacion` con sus 3 motivos. Cada correo se prueba con un envío real desde `mail.audazia.dev` |
 | **7.4** | Administración | 7.0, 7.3 y la cuenta admin | `/admin` sin el header de la tienda (`AdminHeader`); acceso validado en el layout **y** en cada Server Action. Incluye `AdminPedidos` (chips con conteo, búsqueda por N.º o correo, *Ver más*), `AdminPedido` con sus 5 estados y el historial, confirmar transferencia con `settle_payment(…, 'paid', …)` y el N.º de operación, *Empezar a preparar*, *Marcar como enviado* (transportista y código, con correo), *Marcar como entregado*, `AdminAnularPedido` (`cancel_order` + reembolso con el código de la fase 6 + correo opcional), `AdminAlertas` (resolver) y `AdminPedidoMovil`. Las transiciones se validan en la acción |
 | **7.5** | Direcciones, Favoritos y Datos personales | 7.1 | CRUD de `addresses` con predeterminada; favoritos con estado vacío (un invitado debe ingresar, B23) y el corazón de la Ficha y de `ProductCard` conectado; datos personales, cambio de contraseña y novedades |
 | **7.6** | Reseñas (B36) | 7.1 | Modal `EscribirResena` en la Ficha. La elegibilidad se consulta al abrirlo, para que la Ficha siga siendo estática. Migración: el nombre y la comuna se copian en `reviews` con un trigger, para que el cliente no pueda inventarlos y `anon` no tenga que leer `profiles`; también se ajusta la política según la decisión 3. Las opiniones reales reemplazan los placeholders y se invalida el tag del producto |
 | **7.7** | *Los más vendidos* (B34) | — | Función `security definer` que devuelve solo los ids, cacheada con el tag `products`; si hay menos de 4, se muestran *Destacados* |
 | **7.8** | Opcionales 🟢 | 7.1, 7.4 | Redirección optimista de `/cuenta/*` y `/admin/*` en el proxy; limpieza de usuarios anónimos sin pedidos de más de 30 días, aprovechando el cron diario |
+
+### Lo que deja la 7.1 para las siguientes subetapas
+
+| Subetapa | Pendiente | Dónde |
+|---|---|---|
+| Antes de la 7.2 | Revisar la primera ejecución del cron (26-10 después de las 06:00 de Chile) y cerrar la tarea 7 del despliegue | T1 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
+| 7.2 ✅ | ~~Un invitado que entra a `/cuenta/*` va a Ingresar (D-026). Cuando convierta su sesión en cuenta, sus pedidos deben aparecer en Mis pedidos sin cambios~~ Probado el 26-10-2026 con el 1038: mismo `user_id`, pedido, dirección y carro | `src/app/(tienda)/cuenta/` |
+| 7.3 | El correo de despacho debe usar la misma fecha y el mismo texto que el seguimiento (`estimatedDelivery`, `orderStatusLine`) y enlazar a `/cuenta/pedidos/<n>` si el cliente tiene cuenta | `src/lib/orders/customer-view.ts` |
+| 7.4 | Con la decisión 2, agregar la URL de seguimiento de cada transportista en `CARRIER_TRACKING`: así aparece *Seguir el envío*. *Marcar como enviado* debe guardar `carrier` con el mismo nombre que la clave. Si se quiere fecha en el paso *Preparado*, habría que exponer la del evento `processing` al cliente (hoy solo la lee el admin) | `src/lib/orders/customer-view.ts` |
+| 7.4 | Al anular desde la administración, `cancel_note` es el texto que ve el cliente en Mis pedidos: el modal debe decirlo | `orderStatusLine` |
+| 7.5 | Agregar Direcciones, Favoritos y Datos personales al menú de la cuenta (`LINKS`) cuando existan sus páginas. El corazón del header ya enlaza a `/cuenta/favoritos` | `src/components/account/account-menu-links.tsx` |
+| 7.8 | La redirección optimista del proxy ya cubre el Detalle de pedido (redirect y 404 reales); falta el resto de `/cuenta/*` y `/admin/*` | `src/lib/supabase/proxy.ts` |
+| Dueño | ~~Textos propuestos sin diseño de la 7.1~~ ✅ aprobados sin cambios (26-10-2026) | T2 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
+
+### Lo que deja la 7.2 para las siguientes subetapas
+
+| Subetapa | Pendiente | Dónde |
+|---|---|---|
+| 7.3 | ✅ Generadas, pegadas y probadas el 26-10-2026 (`supabase/templates/`, T4) · Plantillas de los correos de Supabase Auth en español y con el estilo de la tienda (hoy *Confirm your new email address*, en inglés). La de *Change email address* conviene con `token_hash` (`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email_change&volver=/cuenta/pedidos`) para que el enlace funcione en otro navegador | Supabase → Authentication → Emails (T4 de [pendientes del dueño](pendientes-del-dueno-fase-7.md)) |
+| 7.5 | *Recibir novedades* está en `user_metadata.newsletter` (Crear cuenta y la conversión): con la decisión 7b, migrarlo a `profiles`. Datos personales puede leer el nombre que dejó la conversión (`profiles.full_name` = destinatario del pedido) | `src/lib/auth/actions.ts` |
+| 7.6 | Con la 3c, un invitado convertido ya no es anónimo y puede opinar como cualquier cuenta | Política de `reviews` |
+| Dueño | ~~Textos propuestos sin diseño de la 7.2~~ ✅ aprobados sin cambios (26-10-2026) | T3 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 
 **Orden propuesto:** 7.0 → 7.1 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 → 7.8. Si la cuenta admin (decisión 4) se define al aprobar el plan, la 7.4 no se retrasa.
 

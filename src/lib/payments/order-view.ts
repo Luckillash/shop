@@ -8,13 +8,17 @@ import type { Json } from "@/types/database";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+export function isOrderId(id: unknown): id is string {
+  return typeof id === "string" && UUID.test(id);
+}
+
 export async function getOrderView(id: string) {
-  if (!UUID.test(id)) return null;
+  if (!isOrderId(id)) return null;
   const supabase = await createSupabaseServer();
   const { data, error } = await supabase
     .from("orders")
     .select(
-      `id, order_number, status, subtotal, discount_total, shipping_total, total, contact_email,
+      `id, order_number, user_id, status, subtotal, discount_total, shipping_total, total, contact_email,
        shipping_method, payment_method, document_type, shipping_address, expires_at, placed_at, paid_at,
        items:order_items(id, product_id, product_name, variant_name, unit_price, quantity),
        payments(id, provider, status, attempt, reference, amount, raw_response, created_at)`,

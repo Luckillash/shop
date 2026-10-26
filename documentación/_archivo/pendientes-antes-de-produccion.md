@@ -8,7 +8,7 @@ related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-im
 
 # Pendientes antes de producción
 
-Estado al **25 de octubre de 2026**: las fases 0 a 6 están terminadas. **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
+Estado al **25 de octubre de 2026**: las fases 0 a 6 están terminadas, y de la fase 7 la 7.0 (base), la 7.1 (Mis pedidos y Detalle de pedido) y la 7.2 (el invitado crea su cuenta, 26-10-2026). **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
 
 Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-del-dueno-fase-6.md](pendientes-del-dueno-fase-6.md).
 
@@ -22,11 +22,11 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | Bloque | 🔴 | 🟠 | 🟢 |
 |---|---|---|---|
 | [1. Desarrollo: pagos (fase 6)](#1-desarrollo-pagos-fase-6) | 0 (✅ 8) | 0 (✅ 2) | 0 (✅ 1) |
-| [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 2 | 4 | 6 |
+| [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 2 | 2 (✅ 3) | 6 (✅ 1) |
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 |
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
-| [6. Supabase](#6-supabase) | 5 | 4 | 0 |
+| [6. Supabase](#6-supabase) | 5 | 3 (✅ 1) | 0 |
 | [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 1) | 4 | 1 |
 | [8. Verificación final](#8-verificación-final) | 7 | 2 | 0 |
 
@@ -54,23 +54,24 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 - [ ] 🔴 🤖 **Administración mínima** para confirmar transferencias (`settle_payment`), revisar las alertas de `payment_alerts` y cambiar el estado de los pedidos (`processing` → `shipped` con código de seguimiento → `delivered`). Sin diseño: hay que definirlo. Sin esto, todo se hace a mano en Supabase.
 - [ ] 🔴 👥 **Correos transaccionales:** confirmación, datos de transferencia y pago devuelto ✅ en el código con Resend (D-022); Resend ya envía en local desde `mail.audazia.dev` (25-10-2026). Falta el de despacho.
-- [ ] 🟠 🤖 **Mis pedidos** y **Detalle de pedido** (`/cuenta/pedidos`). Hoy `/cuenta` es provisoria (correo y *Cerrar sesión*).
+- [x] 🟠 🤖 ✅ 25-10-2026 (7.1, D-026) · **Mis pedidos** y **Detalle de pedido** (`/cuenta/pedidos`, `/cuenta/pedidos/[orderNumber]`). Textos propuestos aprobados por el dueño (26-10-2026, T2 de [fase 7](pendientes-del-dueno-fase-7.md)).
+- [ ] 🟠 👥 **Transportistas** (decisión 2 de la [fase 7](pendientes-del-dueno-fase-7.md)). El Detalle de pedido ya muestra *Despacha … · Código de seguimiento …*, pero *Seguir el envío* no aparece hasta que estén aprobados: el agente agrega la URL de cada uno en `CARRIER_TRACKING` (`src/lib/orders/customer-view.ts`).
 - [x] 🟠 🤖 **¿Olvidaste tu contraseña?** ✅ Hecho el 24-10-2026 (`/ingresar/recuperar` → correo → `/ingresar/nueva-contrasena`).
-- [ ] 🟠 🤖 **Convertir al invitado en cuenta** desde la Confirmación (`updateUser`), conservando sus pedidos (D-008; fase 7 por decisión del dueño, D-024). Junto con *Ver estado del pedido* (B38).
-- [ ] 🟠 🤖 Páginas de cuenta sin diseño: **Direcciones**, **Favoritos** (el header y el Carro vacío ya enlazan a `/cuenta/favoritos`, que da 404) y **Datos personales**.
-- [ ] 🟠 🤖 Redirección optimista de `/cuenta/*` a `/ingresar` en el proxy (hoy la hace cada página).
+- [x] 🟠 🤖 ✅ 26-10-2026 (7.2, D-027) · **Convertir al invitado en cuenta** desde la Confirmación (`updateUser` sobre la misma sesión, con confirmación de correo), conservando sus pedidos, dirección y carro. *Ver estado del pedido* (B38) con cuenta. Textos propuestos aprobados por el dueño (26-10-2026, T3 de [fase 7](pendientes-del-dueno-fase-7.md)).
+- [ ] 🟠 🤖 Páginas de cuenta (7.5): **Direcciones**, **Favoritos** (el header y el Carro vacío ya enlazan a `/cuenta/favoritos`, que da 404) y **Datos personales**. Al crearlas, agregarlas al menú de la cuenta (`LINKS` en `src/components/account/account-menu-links.tsx`): hoy solo muestra *Mis pedidos* y *Cerrar sesión* (D-026).
+- [ ] 🟢 🤖 Redirección optimista de `/cuenta/*` a `/ingresar` en el proxy (7.8). Desde la 7.1 el proxy ya lo hace para el Detalle de pedido (con el 404 de los pedidos ajenos, D-026); el resto lo hace cada página.
 - [ ] 🟢 🤖 **Reseñas:** formulario para publicar (B36). Decidir si un invitado puede reseñar (hoy las políticas lo permitirían; ver [seguridad-rls.md](../03-base-de-datos/seguridad-rls.md#usuarios-anónimos-fase-5-d-008)).
 - [ ] 🟢 🤖 *Los más vendidos* en el Inicio cuando haya ventas (B34; hoy *Destacados*).
-- [ ] 🟢 🤖 Badges de los estados `cancelled` y `refunded` en Mis pedidos (B24) y fecha de entrega estimada guardada (B25).
+- [x] 🟢 🤖 ✅ 25-10-2026 · Badges y línea de estado de `cancelled` y `refunded` en Mis pedidos (B24, 7.0 y 7.1) y fecha de entrega estimada (B25, calculada sin columna en la 7.0).
 - [ ] 🟢 🤖 Limpieza periódica de usuarios anónimos sin pedidos.
 - [ ] 🟢 🤖 Newsletter: *Recibir novedades* y la suscripción del footer no guardan nada (B21).
 - [ ] 🟢 🤖 RUT en `profiles` para autocompletar el checkout (B22).
 
 ## 3. Desarrollo: pendientes sueltos
 
-- [ ] 🔴 🤖 **Páginas de ayuda y legales** (`/ayuda/terminos`, `/ayuda/privacidad`, `/ayuda/despacho`, `/ayuda/contacto`). El header, el footer y el checkout (*Acepto los términos…*) ya enlazan a ellas y hoy dan **404**. El texto legal lo pones tú (bloque 4).
+- [ ] 🔴 🤖 **Páginas de ayuda y legales** (`/ayuda/terminos`, `/ayuda/privacidad`, `/ayuda/despacho`, `/ayuda/contacto`). El header, el footer y el checkout (*Acepto los términos…*) ya enlazan a ellas y hoy dan **404**. El texto legal lo pones tú (bloque 4). Cuando exista `/ayuda/contacto`, *Necesito ayuda con este pedido* (Detalle de pedido) puede enlazar ahí: hoy abre un correo a la tienda con el número del pedido en el asunto (D-026).
 - [ ] 🟠 🤖 `error.tsx` por grupo de rutas, con un `Notice` útil (hoy sale la página de error por defecto de Next).
-- [ ] 🟠 🤖 **Tests E2E** (Playwright) del flujo de compra y de los pagos. Hoy hay 169 tests unitarios y las pruebas de punta a punta (también las de pago) se hicieron con scripts de CDP.
+- [ ] 🟠 🤖 **Tests E2E** (Playwright) del flujo de compra y de los pagos. Hoy hay 202 tests unitarios (25-10-2026, 7.1) y las pruebas de punta a punta (también las de pago y de la cuenta) se hicieron con scripts de CDP (ojo con la trampa 63: una pestaña por vista).
 - [ ] 🟠 🤖 `next/image` con las fotos reales (`remotePatterns` hacia Storage, D-015). Hoy `<img>`, porque los placeholders son SVG.
 - [ ] 🟠 🤖 `npm audit`: 5 vulnerabilidades "high" heredadas de la plantilla (no se aplicó `--force`).
 - [x] 🟢 🤖 Fecha de entrega concreta en la Ficha con la comuna guardada (B35). ✅ Hecho el 25-10-2026.
@@ -97,20 +98,20 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 - [ ] 🔴 👤 **Transbank (Webpay Plus):** contrato, código de comercio de producción y **proceso de validación** aprobado por Transbank (piden evidencias de la integración). Después, llave secreta de producción y una **compra real de prueba**.
 - [ ] 🔴 👤 **Flow:** cuenta de producción, medios de pago contratados, `apiKey` y `secretKey` de producción.
-- [x] 🔴 👤 ✅ 25-10-2026 · **Resend** (D-022): cuenta, `RESEND_API_KEY` en local y el dominio `mail.audazia.dev` verificado (SPF, DKIM y DMARC). Falta la llave de producción en Vercel (bloque 7). También sirve para los correos de Supabase Auth: el SMTP por defecto de Supabase tiene un límite muy bajo.
-- [ ] 🔴 👤 **Boleta y factura electrónica:** proveedor autorizado por el SII (D-012). Hoy el pedido guarda el tipo de documento y los datos de la factura, pero no se emite nada.
+- [x] 🔴 👤 ✅ 25-10-2026 · **Resend** (D-022): cuenta, `RESEND_API_KEY` en local y el dominio `mail.audazia.dev` verificado (SPF, DKIM y DMARC). Falta la llave de producción en Vercel (bloque 7). ✅ 26-10-2026: también es el SMTP de Supabase Auth (el SMTP por defecto solo enviaba al equipo del proyecto y respondía 429; trampa 78).
+- [ ] 🔴 👤 **Boleta y factura electrónica:** proveedor autorizado por el SII (D-012). Hoy el pedido guarda el tipo de documento y los datos de la factura, pero no se emite nada. *Descargar boleta* del Detalle de pedido queda oculto hasta entonces (D-026).
 - [x] 🟠 👤 ✅ 25-10-2026 · **Dominio:** `audazia.dev` (DNS en Vercel), con `www` → 308 a `audazia.dev`.
 - [ ] 🟢 👤 Integración con **Starken** para el seguimiento (hoy solo se guarda un código de seguimiento a mano).
 
 ## 6. Supabase
 
-- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1036 están pagados en integración/sandbox, anulados o reembolsados.
+- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6, y uno sin pedido de la prueba de invitado de la 7.1) y los de la 7.2: `almacen.invitado72@mailinator.com` (cuenta convertida, pedidos 1038 y 1039) y 5 anónimos sin pedido (ver el avance). Los pedidos de prueba 1001–1039 (no hay 1037) están pagados en integración/sandbox, anulados o reembolsados.
 - [x] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). **Confirmación de correo y *¿Olvidaste tu contraseña?* probadas con un correo real** ✅ (25-10-2026, tarea 12 de [despliegue](pendientes-del-despliegue.md)): la cuenta quedó confirmada en `auth.users`. Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
 - [ ] 🔴 👤 **Respaldos** (según el plan de Supabase) y revisar el plan en general (límites de Auth, base de datos y almacenamiento).
 - [ ] 🟠 👤 **Captcha** (Turnstile o hCaptcha) para crear cuentas y sesiones anónimas.
-- [ ] 🟠 👥 **Templates de los correos de Supabase Auth** (*Authentication → Email Templates*): *Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user* y *Reauthentication*, en español, con la voz y el estilo de los correos de Resend (D-022) y los enlaces a `/auth/confirm` con `token_hash` (como el de *Reset password*). Hoy salen los de Supabase por defecto, en inglés. El agente genera el HTML y los asuntos; tú los pegas en el panel. Conviene hacerlo junto con el SMTP propio (Resend), antes de la conversión de invitado en cuenta de la fase 7.
+- [x] 🟠 👥 **Templates de los correos de Supabase Auth** (*Authentication → Email Templates*): *Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user* y *Reauthentication*, en español, con la voz y el estilo de los correos de Resend (D-022) y los enlaces a `/auth/confirm` con `token_hash` (como el de *Reset password*). Hoy salen los de Supabase por defecto, en inglés. El agente genera el HTML y los asuntos; tú los pegas en el panel. Conviene hacerlo junto con el SMTP propio (Resend), antes de la conversión de invitado en cuenta de la fase 7. El de *Change email address* es el que recibe el invitado al crear su cuenta (7.2). ✅ 26-10-2026: generadas en `supabase/templates/`, pegadas y probadas con correos reales, con sus asuntos (T4 de la [fase 7](pendientes-del-dueno-fase-7.md)).
 - [ ] 🟠 👤 **Plantilla del correo *Reset password*** (Authentication → Email Templates): `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto el enlace solo funciona en el mismo navegador donde se pidió. La recuperación ya funcionó con un correo real (25-10-2026); después de cambiar la plantilla, probar abriendo el enlace en otro navegador.
 - [ ] 🟠 🤖 `get_advisors` (seguridad y rendimiento) revisado justo antes de publicar. Hoy solo quedan avisos aceptados y documentados.
 
@@ -143,6 +144,8 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 ---
 
 ## Ya resuelto (para no repetirlo)
+
+Fase 7, 25-10-2026: 7.0 (historial del pedido, motivo de anulación, estados, `requireAdmin`, M8) · 7.1 (Mis pedidos y Detalle de pedido, B24 cerrada, 404 real de los pedidos ajenos).
 
 Fase 6, 25-10-2026: Webpay Plus, Flow y transferencia · reintentos y cambio de medio · cron de vencimiento + M4 · locks · B13 con reembolso automático · pantallas de resultado · Resend en el código (con llave en local desde el mismo día).
 
