@@ -200,5 +200,6 @@ documentación/
     ├── diseno-almacen.md
     ├── pendientes-antes-de-produccion.md   ← lista única para publicar
     ├── pendientes-del-dueno-fase-5.md
-    └── pendientes-del-dueno-fase-6.md      ← tareas del dueño tras los pagos
+    ├── pendientes-del-dueno-fase-6.md      ← tareas del dueño tras los pagos
+    └── pendientes-del-despliegue.md        ← lo que quedó del primer despliegue (audazia.dev)
 ```

@@ -80,7 +80,7 @@ export function deliveryEstimate(method: ShippingMethod, region: string | null, 
   return { date, label: `Llega el ${day(date)}` };
 }
 
-/** "Despacho a domicilio" · "Despacho express" · "Retiro en tienda Almacén Providencia" */
+/** "Despacho a domicilio" · "Despacho express" · "Retiro en tienda Local Tajamar" */
 export function shippingMethodLabel(method: ShippingMethod): string {
   switch (method) {
     case "standard":

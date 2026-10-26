@@ -33,7 +33,7 @@ Origen: **D** = diseño · **SQL** = `ecommerce_schema.sql` · **?** = falta dec
 | Regiones: **$6.990**, de 3 a 5 días hábiles | D | ✅ `place_order` (fecha: el día 5) |
 | **Gratis desde $39.990**, medido sobre el subtotal **después del cupón** (dueño, D-011) | D | ✅ `place_order`, `/carro`, `FreeShippingBar` |
 | **Express: $4.990** siempre (no aplica el gratis), **solo en la Región Metropolitana** (todas sus comunas). Llega al día hábil siguiente si se paga antes de las **14:00** de un día hábil | D + dueño | ✅ `place_order` (`hint: express_region`), `validateShipping`, `isExpressAvailable` |
-| **Retiro en tienda Almacén Providencia: gratis**, desde el día hábil siguiente (`STORE.pickup.readyInBusinessDays`). Horario e indicaciones en el checkout y en el pedido | D | ✅ `shipping_method = pickup` (D-014; datos ficticios: Av. Manuel Montt 1530, Local 4) |
+| **Retiro en tienda Local Tajamar: gratis**, desde el día hábil siguiente (`STORE.pickup.readyInBusinessDays`). Horario e indicaciones en el checkout y en el pedido | D | ✅ `shipping_method = pickup` (D-014; Tajamar 223, Departamento 302, Las Condes) |
 | Los días hábiles se cuentan **desde que se confirma el pago** | D | ✅ Fechas estimadas suponiendo el pago hoy: checkout y Ficha (`deliveryEstimate`; en la Ficha, con la comuna de la cookie `comuna_despacho`, B35) |
 | Entrega entre 9:00 y 20:00. Si no hay nadie, segundo intento al día hábil siguiente; después, 5 días hábiles en la sucursal | D | Contenido |
 | La dirección se puede cambiar mientras el pedido no haya salido (por correo a *hola@almacen.cl*) | D | Contenido |

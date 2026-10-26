@@ -577,16 +577,16 @@ begin
     if nullif(trim(p_recipient_name), '') is null or nullif(trim(p_recipient_phone), '') is null then
       raise exception 'Faltan los datos de quien retira' using hint = 'input';
     end if;
-    -- Retiro en tienda (D-014): la dirección del pedido es la de la tienda. ⚠️ Datos ficticios
-    -- (2026-10-24); deben coincidir con STORE.pickup de src/lib/store.ts
+    -- Retiro en tienda (D-014): la dirección del pedido es la de la tienda. Datos reales
+    -- (2026-10-25); deben coincidir con STORE.pickup de src/lib/store.ts
     v_ship_to := jsonb_build_object(
       'type',           'pickup',
-      'store',          'Almacén Providencia',
+      'store',          'Local Tajamar',
       'recipient_name', trim(p_recipient_name),
       'phone',          trim(p_recipient_phone),
-      'line1',          'Av. Manuel Montt 1530',
-      'line2',          'Local 4',
-      'city',           'Providencia',
+      'line1',          'Tajamar 223',
+      'line2',          'Departamento 302',
+      'city',           'Las Condes',
       'region',         c_rm,
       'postal_code',    null,
       'country',        'CL');

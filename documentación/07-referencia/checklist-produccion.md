@@ -42,7 +42,7 @@ estado: "propuesta"
 - [ ] Cron de vencimiento funcionando en producción (✅ en local): `CRON_SECRET` de producción **generado al desplegar** (distinto al local) y cargado en Vercel y, tras el primer despliegue, *Settings → Cron Jobs* con ejecuciones en 200.
 - [x] Datos bancarios reales de la transferencia en `BANK_*` de `.env.local` (25-10-2026, D-024).
 - [ ] Las seis variables `BANK_*` cargadas también en Vercel.
-- [ ] Datos reales del retiro en tienda (hoy ficticios: Av. Manuel Montt 1530, Local 4) en `src/lib/store.ts` y en `place_order` (`store.test.ts` vigila que coincidan).
+- [x] Datos reales del retiro en tienda (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes, en `src/lib/store.ts` y en `place_order` (`store.test.ts` vigila que coincidan).
 
 ## Legal y contenido
 - [ ] Razón social y RUT reales en el footer (el diseño usa *Almacén SpA · RUT 76.543.210-3* como ejemplo ajustable).

@@ -56,5 +56,5 @@ describe("deliveryEstimate", () => {
 test("isShippingMethod y etiquetas", () => {
   expect(isShippingMethod("express")).toBe(true);
   expect(isShippingMethod("drone")).toBe(false);
-  expect(shippingMethodLabel("pickup")).toBe("Retiro en tienda Almacén Providencia");
+  expect(shippingMethodLabel("pickup")).toBe("Retiro en tienda Local Tajamar");
 });

@@ -13,7 +13,7 @@ La fase 5 (cuenta y checkout) quedó implementada y probada con una cuenta. Esta
 |---|---|---|---|---|
 | 1 | ✅ Activar los inicios de sesión anónimos (24-10-2026) | Hecha | — | — |
 | 2 | ✅ Agregar `/auth/confirm` a las Redirect URLs (24-10-2026) | Hecha | — | Falta probarlo con un correo real |
-| 3 | Confirmar la dirección del retiro en tienda (hoy con datos **ficticios**) | 🟠 Media | Avisar | Publicar el retiro en tienda |
+| 3 | ~~Confirmar la dirección del retiro en tienda~~ ✅ Datos reales (25-10-2026) | 🟠 Media | — | Nada |
 | 4 | ✅ Express solo para la RM (24-10-2026) | Hecha | — | — |
 | 5 | ✅ Verificar los feriados 2026–2027 (24-10-2026) | Hecha | — | — |
 | 6 | Datos de prueba: ✅ pedidos anulados (24-10-2026); falta borrar los usuarios antes de producción | 🟢 Baja | 2 min | Nada |
@@ -69,7 +69,21 @@ La tienda acepta las dos formas (la plantilla por defecto y esta), pero esta fun
 
 ---
 
-## 3. Confirmar la dirección del retiro en tienda 🟠 (datos ficticios por ahora)
+## 3. Confirmar la dirección del retiro en tienda ✅ (25-10-2026)
+
+> **Estado (25-10-2026):** ✅ pasaste los datos reales y reemplazaron a los ficticios en `src/lib/store.ts`, en `place_order` (Supabase, migración `place_order_pickup_datos_reales`, que conserva los permisos) y en `ecommerce_schema.sql`:
+>
+> | Dato | Valor real |
+> |---|---|
+> | Tienda | Local Tajamar |
+> | Dirección | Tajamar 223, Departamento 302, Las Condes, Región Metropolitana |
+> | Listo para retirar | Desde el día hábil siguiente al pago |
+> | Horario | Lunes a viernes de 10:00 a 18:00 y sábados de 10:00 a 14:00 |
+> | Indicaciones | *Retira con tu RUT y número de pedido.* |
+>
+> Los pedidos con retiro creados antes guardan la dirección ficticia en `shipping_address` (son todos de prueba).
+
+**Lo que había antes:**
 
 > **Estado (24-10-2026):** a pedido tuyo, el agente cargó datos **inventados** para no bloquear el desarrollo:
 >
@@ -170,7 +184,7 @@ Revisado por el agente después de que diste las tareas por hechas:
 - ✅ Hechas: 1 (anónimos), 2 (Redirect URLs), 4 (express solo RM), 5 (feriados).
 - ⏳ **Para antes de producción**, sin apuro:
   - **Tarea 2:** probar la confirmación con un correo real. En Supabase no aparece ninguna cuenta creada desde `/ingresar`.
-  - **Tarea 3:** el retiro sigue con los datos ficticios (Av. Manuel Montt 1530, Local 4).
+  - **Tarea 3:** ✅ datos reales del retiro desde el 25-10-2026 (Local Tajamar, Tajamar 223, Departamento 302, Las Condes).
   - **Tarea 6:** siguen 4 usuarios de prueba en *Authentication → Users* (`prueba.fase5@almacen.cl` y 3 anónimos).
   - **Nuevo:** activar *Leaked password protection* en Supabase Auth (aviso de los advisors).
 

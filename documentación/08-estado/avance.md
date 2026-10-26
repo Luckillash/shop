@@ -103,7 +103,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 - [x] El despacho gratis se compara con el subtotal **después** del cupón (dueño, 24-10-2026, D-011): `place_order`, `/carro` y `FreeShippingBar`.
 - [x] Inicios anónimos activados por el dueño (24-10-2026, D-008) y pedido completo como invitado verificado (pedido 1004).
 - [x] `/auth/confirm` agregado a *Redirect URLs* de Supabase Auth por el dueño (24-10-2026). Falta probarlo con un correo real al crear una cuenta.
-- [ ] Reemplazar los datos **ficticios** del retiro en tienda (Av. Manuel Montt 1530, Local 4, Providencia; horario e indicaciones inventados el 24-10-2026) por los reales, en `src/lib/store.ts` y en `place_order` (el test `store.test.ts` vigila que coincidan).
+- [x] Datos **reales** del retiro en tienda (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes; lunes a viernes de 10:00 a 18:00 y sábados de 10:00 a 14:00. En `src/lib/store.ts` y en `place_order`.
 - [x] El express es solo para la RM (dueño, 24-10-2026): checkout, `validateShipping` y `place_order`.
 - [x] Feriados 2026–2027 verificados (24-10-2026): se agregó el viernes 17 de septiembre de 2027 (Ley 20.983). Hay que agregar los de 2028 antes de diciembre de 2027.
 - [x] Pedidos de prueba 1001–1004 anulados con `cancel_order` (24-10-2026): stock y cupón devueltos. Quedan el usuario `prueba.fase5@almacen.cl` y los usuarios anónimos de las pruebas (borrarlos antes de producción).
@@ -122,13 +122,17 @@ El dueño cerró sus tareas de [_archivo/pendientes-del-dueno-fase-5.md](../_arc
 |---|---|---|
 | 1 | Inicios anónimos | ✅ `anonymous_users: true`; pedido 1004 como invitado |
 | 2 | `/auth/confirm` en Redirect URLs | ✅ Configurado por el dueño. ⚠️ Sin prueba con un correo real: en `auth.users` no hay cuentas creadas desde `/ingresar` (confirmación de correo activada, `mailer_autoconfirm: false`) |
-| 3 | Datos del retiro en tienda | ✅ Por ahora con datos **ficticios** a pedido del dueño (Av. Manuel Montt 1530, Local 4). ⏳ Reemplazarlos por los reales antes de producción |
+| 3 | Datos del retiro en tienda | ✅ Datos reales (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes |
 | 4 | Express solo en la RM | ✅ Implementado |
 | 5 | Feriados 2026–2027 | ✅ Verificados (+ 17-09-2027) |
 | 6 | Datos de prueba | ✅ Pedidos 1001–1004 `cancelled`. ⏳ Siguen 4 usuarios de prueba en `auth.users` (`prueba.fase5@almacen.cl` y 3 anónimos): borrarlos antes de producción |
 | 7 | Historial de migraciones (opcional) | ✅ Registrada con `apply_migration` como `orders_checkout_fields_place_order_v2` (SQL idempotente, sin cambio de comportamiento). Advisors: aparecen avisos nuevos por haber activado los anónimos: `auth_allow_anonymous_sign_ins` en 19 tablas (aceptado: las políticas de dueño son para los invitados y las de admin usan `is_admin()`; revisar `reviews` en la fase 7) y `auth_leaked_password_protection` (activar antes de producción) |
 
 Quedan para antes de producción (en el [checklist](../07-referencia/checklist-produccion.md)): datos reales del retiro, borrar los usuarios de prueba, probar la confirmación de correo con un correo real y activar *Leaked password protection* en Supabase Auth.
+
+## Primer despliegue (25-10-2026)
+
+Publicada en https://audazia.dev (Vercel, plan Hobby, cron diario), con los pagos en integración/sandbox y sin Redis. Los pendientes, con sus pasos, en [_archivo/pendientes-del-despliegue.md](../_archivo/pendientes-del-despliegue.md).
 
 ## Tareas del dueño de la fase 6 (25-10-2026)
 

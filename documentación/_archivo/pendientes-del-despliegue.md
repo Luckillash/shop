@@ -30,7 +30,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 | # | Tarea | Quién | Prioridad | Bloquea |
 |---|---|---|---|---|
 | 1 | Pagos en integración/sandbox sobre un sitio público | 👥 | 🔴 | Que alguien "compre" con la tarjeta de prueba |
-| 2 | *Site URL* y *Redirect URLs* de Supabase Auth con `https://audazia.dev` | 👤 | 🔴 | Confirmación de cuenta y recuperar contraseña |
+| 2 | ~~*Site URL* y *Redirect URLs* de Supabase Auth con `https://audazia.dev`~~ ✅ (25-10-2026). La prueba es la tarea 12 | 👤 | ✅ | — |
 | 3 | Redis de producción (`REDIS_URL`) | 👥 | 🔴 | Rate limiting y locks de Redis |
 | 4 | Llave `almacen-produccion` de Resend | 👥 | 🔴 | Separar la llave local de la de producción |
 | 5 | Base de datos compartida entre desarrollo y producción | 👥 | 🔴 | Datos de prueba visibles en el sitio público |
@@ -40,6 +40,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 | 9 | Región de las funciones (`iad1`) frente a la de Supabase | 🤖 | 🟠 | Latencia de cada consulta |
 | 10 | `NEXT_PUBLIC_SITE_URL` de Preview apunta a producción | 🤖 | 🟢 | Los retornos de pago de un preview caen en producción |
 | 11 | Monitoreo (`/api/health` y errores) | 👥 | 🟢 | Enterarse de una caída |
+| 12 | Probar la confirmación de cuenta y *¿Olvidaste tu contraseña?* con un correo real en `audazia.dev` | 👥 | 🔴 | Saber que los clientes pueden crear cuenta y recuperar la contraseña |
 
 ---
 
@@ -55,7 +56,16 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 **Cómo comprobarlo:** compra real de $50 con Webpay y una con Flow (bloque 8 de la lista general).
 
-## 2. *Site URL* y *Redirect URLs* de Supabase Auth 🔴
+## 2. *Site URL* y *Redirect URLs* de Supabase Auth ✅ (25-10-2026)
+
+> **Estado (25-10-2026):** ✅ lo cambiaste a mano en el dashboard.
+>
+> | Qué | Cómo quedó |
+> |---|---|
+> | *Site URL* | `https://audazia.dev` (antes `http://localhost:3000`) |
+> | *Redirect URLs* | `http://localhost:3000/auth/confirm` · `http://localhost:3000/**` · `https://audazia.dev/**` · `http://localhost:3310/**` (el puerto de `next start`) |
+>
+> **Queda:** la prueba con un correo real, como pendiente aparte (tarea 12). El desarrollo local sigue funcionando: `src/lib/auth/actions.ts` pasa `emailRedirectTo`/`redirectTo` con el `origin` de la petición, y `localhost:3000` y `localhost:3310` están en la lista. Solo la plantilla *Reset password*, si usa `{{ .SiteURL }}`, lleva siempre a `audazia.dev`.
 
 **Por qué:** hoy apuntan a `localhost`. Los enlaces de los correos de Supabase (confirmar cuenta y recuperar contraseña) llevarían a tu equipo en vez de a la tienda.
 
@@ -146,6 +156,22 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 ## 11. Monitoreo 🟢
 
 **Pasos (👥):** cuando haya Redis (tarea 3), poner `https://audazia.dev/api/health` en un servicio de uptime. Revisar *Observability* de Vercel (errores de las funciones) después de las primeras compras.
+
+## 12. Probar la confirmación de cuenta y la recuperación de contraseña con un correo real 🔴
+
+**Por qué:** la tarea 2 dejó las URL de Supabase Auth con el dominio real, pero nunca se probó el flujo completo: no hay ninguna cuenta creada desde `/ingresar` con un correo real (bloque 6 de la lista general). Si algo falla (URL fuera de la lista, plantilla con el enlace mal armado, correo en spam), el cliente no puede crear cuenta ni recuperar la contraseña.
+
+**Pasos (👥: tú pones el correo y abres los enlaces; el agente puede llevar el navegador):**
+
+1. En `https://audazia.dev/ingresar`, crear una cuenta con un correo real tuyo.
+2. Abrir el correo de confirmación de Supabase: el enlace debe llevar a `https://audazia.dev/auth/confirm…` y dejar la sesión iniciada en `/cuenta`.
+3. Cerrar sesión, ir a *¿Olvidaste tu contraseña?* (`/ingresar/recuperar`) con el mismo correo.
+4. Abrir el correo: el enlace debe llevar a `/ingresar/nueva-contrasena` en `audazia.dev`, permitir cambiar la contraseña e iniciar sesión con la nueva.
+5. Revisar la plantilla *Reset password* (Authentication → Email Templates) si el enlace solo funciona en el mismo navegador donde se pidió (bloque 6 de la lista general).
+
+**Cómo comprobarlo:** las dos veces se termina con la sesión iniciada en `audazia.dev`, sin pasar por `localhost`. Anotar si los correos llegaron a spam (el SMTP por defecto de Supabase tiene un límite muy bajo; ver el SMTP propio en la lista general).
+
+**Después:** esa cuenta sirve como la del admin (bloque 6 de la lista general), o se borra junto con los usuarios de prueba.
 
 ---
 

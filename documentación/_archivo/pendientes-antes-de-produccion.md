@@ -24,7 +24,7 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | [1. Desarrollo: pagos (fase 6)](#1-desarrollo-pagos-fase-6) | 0 (✅ 8) | 0 (✅ 2) | 0 (✅ 1) |
 | [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 2 | 4 | 6 |
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 |
-| [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 5 (✅ 1) | 2 (✅ 1) | 1 |
+| [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
 | [6. Supabase](#6-supabase) | 5 | 3 | 0 |
 | [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 1) | 4 | 1 |
@@ -82,7 +82,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 ## 4. Datos y decisiones del negocio
 
-- [ ] 🔴 👤 **Retiro en tienda:** dirección, horario e indicaciones reales. Hoy son **ficticios** (Av. Manuel Montt 1530, Local 4, Providencia). El agente los cambia en `src/lib/store.ts` y en `place_order`.
+- [x] 🔴 👤 ✅ 25-10-2026 · **Retiro en tienda:** datos reales (Local Tajamar, Tajamar 223, Departamento 302, Las Condes; L–V 10:00–18:00 y sábados 10:00–14:00) en `src/lib/store.ts` y en `place_order`.
 - [x] 🔴 👤 **Datos bancarios** para la transferencia: ✅ los reales en `BANK_*` de `.env.local` (25-10-2026). Falta cargarlos en Vercel al desplegar.
 - [ ] 🔴 👤 **Razón social, RUT y correo de contacto reales** (hoy *Almacén SpA · 76.543.210-3 · hola@almacen.cl* son de ejemplo, en `src/lib/store.ts`).
 - [ ] 🔴 👤 **Términos y condiciones** y **política de privacidad** (texto). Idealmente revisados por un abogado (Ley del Consumidor, protección de datos).
@@ -105,7 +105,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 ## 6. Supabase
 
 - [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1035 están pagados en integración/sandbox, anulados o reembolsados.
-- [ ] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` (hoy apuntan a `localhost`), y **probar la confirmación de correo** con un correo real (no hay ninguna cuenta creada desde `/ingresar`). Tarea 2 de [despliegue](pendientes-del-despliegue.md).
+- [ ] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). Falta **probar la confirmación de correo** (tarea 12 de [despliegue](pendientes-del-despliegue.md)) con un correo real (no hay ninguna cuenta creada desde `/ingresar`). Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
 - [ ] 🔴 👤 **Respaldos** (según el plan de Supabase) y revisar el plan en general (límites de Auth, base de datos y almacenamiento).

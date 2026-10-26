@@ -19,7 +19,7 @@ estado: "vigente"
 - Venta a personas (boleta) y a empresas (factura).
 - Se puede comprar como invitado o con cuenta.
 - Medios de pago: **Webpay Plus** (tarjetas), **Flow** (otros medios) y **transferencia bancaria** (el pedido queda reservado 48 h).
-- Despacho con **Starken** a todo Chile continental, más retiro en la tienda Almacén Providencia.
+- Despacho con **Starken** a todo Chile continental, más retiro en el Local Tajamar (Las Condes).
 
 ## Estado por capa
 

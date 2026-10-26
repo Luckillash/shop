@@ -8,20 +8,20 @@ export const STORE = {
   /** Despacho gratis sobre este subtotal (CLP) */
   freeShippingThreshold: 39990,
   /**
-   * Retiro en tienda (D-014). ⚠️ Datos ficticios (2026-10-24) hasta que el dueño dé los reales.
+   * Retiro en tienda (D-014). Datos reales del dueño (2026-10-25).
    * place_order guarda la misma dirección en orders.shipping_address (ecommerce_schema.sql §11):
    * si cambia, hay que cambiar las dos.
    */
   pickup: {
-    name: "Almacén Providencia",
-    street: "Av. Manuel Montt 1530",
-    unit: "Local 4",
-    commune: "Providencia",
-    /** "Av. Manuel Montt 1530, Local 4, Providencia" */
-    address: "Av. Manuel Montt 1530, Local 4, Providencia",
+    name: "Local Tajamar",
+    street: "Tajamar 223",
+    unit: "Departamento 302",
+    commune: "Las Condes",
+    /** "Tajamar 223, Departamento 302, Las Condes" */
+    address: "Tajamar 223, Departamento 302, Las Condes",
     /** Días hábiles después del pago para que el pedido esté listo */
     readyInBusinessDays: 1,
-    hours: "Lunes a viernes de 10:00 a 19:00 y sábados de 10:00 a 14:00",
-    instructions: "Retira con tu RUT y el número de pedido.",
+    hours: "Lunes a viernes de 10:00 a 18:00 y sábados de 10:00 a 14:00",
+    instructions: "Retira con tu RUT y número de pedido.",
   },
 } as const;
