@@ -55,16 +55,19 @@ Si algo falla, nada se aplica. Los mensajes dicen "carrito" (trampa 17): la app 
 
 Verificado el 2026-10-24 con los pedidos 1001 (domicilio RM, Webpay, BIENVENIDA10: $52.960 − $5.296, despacho gratis, IVA $7.610, vence en 30 min) y 1002/1003 (retiro, transferencia, factura: $20.480, vence en 48 h).
 
-## `cancel_order(p_order_id uuid) → void`
+## `cancel_order(p_order_id uuid, p_reason text = null, p_note text = null) → void` (M8, fase 7)
 
-Anula un pedido y **devuelve el stock**. Es `security definer`. Pueden ejecutarla `authenticated` y `service_role`.
+Anula un pedido y **devuelve el stock**. Es `security definer`. Pueden ejecutarla `authenticated` y `service_role`. Desde la M8 (2026-10-25) recibe el motivo: la firma de un solo parámetro se borró.
 
 | Quién llama | Puede anular |
 |---|---|
-| Cliente (`auth.uid()` = dueño) | Solo sus pedidos `pending`. Si no es el dueño: *Pedido no encontrado*. Si no está pendiente: *Solo puedes cancelar pedidos pendientes de pago* |
+| Cliente (`auth.uid()` = dueño) | Solo sus pedidos `pending`. Si no es el dueño: *Pedido no encontrado*. Si no está pendiente: *Solo puedes cancelar pedidos pendientes de pago*. El motivo es siempre `cliente` (ignora `p_reason`) |
 | Admin o **`service_role`** (`auth.uid()` null) | Pedidos `pending`, `paid` o `processing`. Otros estados → *Un pedido en estado X no se puede cancelar* |
 
-Efectos: suma el stock de vuelta (`inventory_movements` con `cancellation`), borra `coupon_redemptions` y resta 1 a `used_count`, y pasa el pedido a `cancelled` (el trigger llena `cancelled_at`).
+- `p_reason`: `vencio` (el cron) · `tienda` · `cliente`, o null. Otro valor → *Motivo de anulación no válido*.
+- `p_note`: texto que ve el cliente (*Sin stock*); se guarda sin espacios a los lados, vacío = null.
+
+Efectos: suma el stock de vuelta (`inventory_movements` con `cancellation`), borra `coupon_redemptions` y resta 1 a `used_count`, y pasa el pedido a `cancelled` con `cancel_reason` y `cancel_note` (el trigger llena `cancelled_at` y registra el evento `cancelled` con el motivo).
 
 **No hace el reembolso del dinero.** Si el pedido estaba `paid`, hay que llamar a `refund` en Webpay o Flow por separado y marcar el pago como `refunded`.
 
@@ -72,7 +75,7 @@ Uso típico: el cron de vencimiento ([06-implementacion/pago-transferencia.md](.
 
 ## `is_admin() → boolean`
 
-`security definer`, `stable`. Devuelve true si `profiles.role = 'admin'` para `auth.uid()`. Se usa en todas las políticas de RLS. Úsala también en la app si necesitas saber si el usuario es admin: `rpc('is_admin')`.
+`security definer`, `stable`. Devuelve true si `profiles.role = 'admin'` para `auth.uid()`. Se usa en todas las políticas de RLS. Úsala también en la app si necesitas saber si el usuario es admin: `rpc('is_admin')`. Así lo hacen `getAdminUser()` y `requireAdmin()` (`src/lib/auth/session.ts`, fase 7).
 
 ## `search_products(q text, max_results int = 24) → setof product_catalog`
 
@@ -116,5 +119,6 @@ Las tres son `security definer`, `search_path = ''` y **solo `service_role`** (l
 | `protect_profile_role` | `before update` en `profiles` | Un no admin con sesión no puede cambiar `role` → *No tienes permiso para cambiar el rol* |
 | `ensure_single_default_address` | `before insert/update of is_default` en `addresses` | Desmarca las demás direcciones por defecto del usuario |
 | `set_order_status_timestamps` | `before update of status` en `orders` | Llena `paid_at`, `shipped_at`, `delivered_at` o `cancelled_at` (si estaban vacíos). **No** hay columna para `processing` ni `refunded` |
+| `log_order_event` (M8) | `after insert` y `after update of status` en `orders` | Escribe en `order_events`: `placed` al crear el pedido (con `payment_method`) y el nuevo estado en cada cambio (`paid` con `provider` y `reference` del pago, `shipped` con `carrier` y `tracking_number`, `cancelled` con `reason` y `note`). Actor: el de `set_config('shop.actor_id', …, true)` si se definió en la transacción, si no `auth.uid()`; `admin` o `customer` según `profiles.role`, `system` sin usuario (cron, pasarelas). Acepta cualquier estado, incluso `pending`: nunca impide un cambio de estado. Sin `EXECUTE` para los clientes |
 | `sync_order_on_payment` | `after insert/update of status` en `payments` | Si el pago pasa a `paid`, el pedido `pending` pasa a `paid`. Si el pedido ya está `cancelled`, **no cambia** (ver la trampa en [ciclo de vida](../05-dominio/ciclo-de-vida-del-pedido.md)) |
 | `guard_review_publication` | `before insert/update` en `reviews` | Un cliente no controla `is_published` |

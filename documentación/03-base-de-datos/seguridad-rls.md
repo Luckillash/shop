@@ -36,6 +36,7 @@ L = lectura · E = escritura (insert/update/delete) · "propio" = `user_id = aut
 | `order_items` | — | L de sus pedidos | L | |
 | `payments` | — | L de sus pedidos | L/E | El backend escribe con `service_role` (`start_payment_attempt`, `settle_payment`) |
 | `payment_alerts` | — | — | L / actualiza (`resolved_at`) | Fase 6. El backend inserta con `service_role` |
+| `order_events` | — | — | L | M8 (fase 7). Escribe el trigger `log_order_event` (`security definer`) o el backend con `service_role`. Verificado con la sesión de `prueba.fase5`: 0 filas |
 | `reviews` | L publicadas | L publicadas + propias · insert si compró · update/delete propias | todo | `guard_review_publication` protege `is_published` |
 
 `service_role` salta RLS en todas las tablas.
@@ -46,7 +47,7 @@ L = lectura · E = escritura (insert/update/delete) · "propio" = `user_id = aut
 - Las políticas de `cart_items`, `order_items` y `payments` usan `exists (…)` contra la tabla padre para comprobar el dueño.
 - Las funciones `security definer` llevan `set search_path = ''`.
 - **Una sola política permisiva por rol y acción.** La gestión del admin se escribe como políticas `insert`/`update`/`delete` separadas (por ejemplo, `categories: admin inserta`), no como `FOR ALL`. Si fuera `FOR ALL`, se sumaría a la política de lectura y Postgres evaluaría las dos en cada `SELECT` (aviso *multiple_permissive_policies* del advisor). En `addresses` hay una sola política de lectura (`dueño o admin lee`) y tres de escritura solo para el dueño.
-- **Permisos de funciones:** las funciones de trigger `security definer` (`handle_new_user`, `sync_order_on_payment`) no tienen `EXECUTE` para `anon` ni `authenticated`, así que no se pueden llamar como RPC. `is_admin` sí lo tiene, porque las políticas la llaman también para `anon`. `place_order` y `cancel_order` solo para `authenticated` y `service_role`. `validate_coupon` solo para `service_role` (D-019): con `EXECUTE` para `anon`, cualquiera podría probar códigos por `/rest/v1/rpc` sin el rate limiting de la app.
+- **Permisos de funciones:** las funciones de trigger `security definer` (`handle_new_user`, `sync_order_on_payment`, `log_order_event`) no tienen `EXECUTE` para `anon` ni `authenticated`, así que no se pueden llamar como RPC. `is_admin` sí lo tiene, porque las políticas la llaman también para `anon`. `place_order` y `cancel_order` solo para `authenticated` y `service_role`. `validate_coupon` solo para `service_role` (D-019): con `EXECUTE` para `anon`, cualquiera podría probar códigos por `/rest/v1/rpc` sin el rate limiting de la app.
 
 ### Avisos aceptados del advisor de seguridad
 

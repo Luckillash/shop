@@ -32,13 +32,15 @@ estado: "definido (estados en SQL) · transiciones de app: propuesta"
 | — → `pending` | Cliente | `place_order` | Stock descontado, carro vaciado, cupón usado |
 | `pending` → `paid` | Pasarela | `payments.status = 'paid'` → trigger `sync_order_on_payment` | `paid_at` |
 | `pending` → `cancelled` | Cliente (solo lo suyo), cron, admin | `cancel_order` | Stock devuelto, cupón liberado, `cancelled_at` |
-| `paid` → `processing` | Admin | `update orders set status` | — (no hay `processing_at`) |
+| `paid` → `processing` | Admin | `update orders set status` | — (no hay `processing_at`; la fecha queda en `order_events`) |
 | `processing` → `shipped` | Admin | `update` + `carrier`, `tracking_number` | `shipped_at` |
 | `shipped` → `delivered` | Admin (o webhook de Starken en el futuro) | `update` | `delivered_at` |
 | `paid`/`processing` → `cancelled` | Admin / `service_role` | `cancel_order` + **refund en la pasarela** | Stock devuelto |
 | → `refunded` | Admin | `update`, después del refund | — |
 
-No hay restricciones de transición en la BD: un admin podría pasar de `delivered` a `pending`. Valida las transiciones en la Server Action de administración.
+No hay restricciones de transición en la BD: un admin podría pasar de `delivered` a `pending`. Valida las transiciones en la Server Action de administración con `canTransition()` de `src/lib/orders/order-status.ts` (D-025).
+
+Desde la M8 (fase 7.0), cada transición queda en `order_events` (trigger `log_order_event`: cuándo, qué, quién) y `cancel_order` guarda el motivo en `orders.cancel_reason` (`vencio` el cron, `cliente` el propio cliente, `tienda` o el que indique el admin) y `cancel_note`.
 
 ## Pago (`payments.status`)
 
@@ -63,8 +65,8 @@ El diseño define tres estados de despacho más *Pago pendiente*. Lo que falta e
 | `processing` | `neutral` + `info` *En preparación* | ✓ Confirmado · ✓ Preparado |
 | `shipped` | `new` + `truck` *En camino* | ✓ Confirmado · ✓ Preparado · ✓ En camino |
 | `delivered` | `success` + `check` *Entregado* | ✓ todos |
-| `cancelled` | `danger` + `close` *Anulado* (propuesta) | — |
-| `refunded` | `neutral` *Reembolsado* (propuesta) | — |
+| `cancelled` | `danger` + `close` *Anulado* (canvas de la fase 7) | — |
+| `refunded` | `neutral` + `returns` *Reembolsado* (canvas de la fase 7) | — |
 
 ## Vencimientos (D-010 ✅, cron D-021 ✅)
 

@@ -57,7 +57,7 @@ export async function expireOrders(now = new Date()): Promise<ExpireSummary> {
     if (failError) throw failError;
 
     // service_role: auth.uid() es null = staff. Si el pedido ya cambió de estado, falla y se ignora
-    const { error: cancelError } = await admin.rpc("cancel_order", { p_order_id: order.id });
+    const { error: cancelError } = await admin.rpc("cancel_order", { p_order_id: order.id, p_reason: "vencio" });
     if (cancelError) {
       console.warn(`[cron] pedido ${order.order_number} no se anuló:`, cancelError.message);
       summary.skipped++;

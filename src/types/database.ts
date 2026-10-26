@@ -373,6 +373,51 @@ export type Database = {
           },
         ]
       }
+      order_events: {
+        Row: {
+          actor: string
+          actor_id: string | null
+          created_at: string
+          data: Json
+          id: string
+          kind: string
+          order_id: string
+        }
+        Insert: {
+          actor: string
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          kind: string
+          order_id: string
+        }
+        Update: {
+          actor?: string
+          actor_id?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          kind?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -447,6 +492,8 @@ export type Database = {
       orders: {
         Row: {
           billing_address: Json | null
+          cancel_note: string | null
+          cancel_reason: string | null
           cancelled_at: string | null
           carrier: string | null
           contact_email: string | null
@@ -479,6 +526,8 @@ export type Database = {
         }
         Insert: {
           billing_address?: Json | null
+          cancel_note?: string | null
+          cancel_reason?: string | null
           cancelled_at?: string | null
           carrier?: string | null
           contact_email?: string | null
@@ -511,6 +560,8 @@ export type Database = {
         }
         Update: {
           billing_address?: Json | null
+          cancel_note?: string | null
+          cancel_reason?: string | null
           cancelled_at?: string | null
           carrier?: string | null
           contact_email?: string | null
@@ -1000,7 +1051,10 @@ export type Database = {
       }
     }
     Functions: {
-      cancel_order: { Args: { p_order_id: string }; Returns: undefined }
+      cancel_order: {
+        Args: { p_note?: string; p_order_id: string; p_reason?: string }
+        Returns: undefined
+      }
       claim_payment: {
         Args: { p_payment_id: string; p_seconds?: number }
         Returns: boolean

@@ -339,6 +339,41 @@ create index if not exists payment_alerts_order_id_idx   on public.payment_alert
 create index if not exists payment_alerts_payment_id_idx on public.payment_alerts (payment_id);
 create index if not exists payment_alerts_open_idx       on public.payment_alerts (created_at) where resolved_at is null;
 
+-- Fase 7.0 (2026-10-25, migración order_events_m8): M8
+-- Motivo de anulación (CorreoAnulacion, tweak motivo). cancel_note es el texto que ve el cliente
+-- (*Motivo: sin stock*); lo escribe solo cancel_order.
+alter table public.orders
+  add column if not exists cancel_reason text,
+  add column if not exists cancel_note   text;
+
+do $$ begin
+  alter table public.orders add constraint orders_cancel_reason_check
+    check (cancel_reason in ('vencio', 'tienda', 'cliente'));
+exception when duplicate_object then null; end $$;
+
+-- Historial del pedido (AdminPedido: cuándo, qué, quién). Lo escribe el trigger de abajo al
+-- crear el pedido y en cada cambio de estado; el backend agrega los eventos sin cambio de estado
+-- (correos) con la llave secreta. Solo el admin lo lee. Los pedidos anteriores a esta migración
+-- no tienen eventos: su historial se arma con las fechas del pedido y los intentos de pago.
+--   kind:  placed · un order_status (incluido pending: la BD no restringe las transiciones y el
+--          historial nunca debe impedir un cambio de estado) · email
+--   actor: customer (dueño del pedido, también el invitado) · admin · system (cron, pasarelas)
+create table if not exists public.order_events (
+  id          uuid primary key default gen_random_uuid(),
+  order_id    uuid not null references public.orders (id) on delete cascade,
+  kind        text not null,
+  actor       text not null check (actor in ('customer', 'admin', 'system')),
+  actor_id    uuid references public.profiles (id) on delete set null,
+  data        jsonb not null default '{}'::jsonb,
+  created_at  timestamptz not null default now()
+);
+alter table public.order_events drop constraint if exists order_events_kind_check;
+alter table public.order_events add constraint order_events_kind_check
+  check (kind in ('placed', 'pending', 'paid', 'processing', 'shipped', 'delivered',
+                  'cancelled', 'refunded', 'email'));
+create index if not exists order_events_order_id_idx on public.order_events (order_id, created_at);
+create index if not exists order_events_actor_id_idx on public.order_events (actor_id);
+
 create table if not exists public.coupon_redemptions (
   id          uuid primary key default gen_random_uuid(),
   coupon_id   uuid not null references public.coupons (id) on delete cascade,
@@ -471,6 +506,64 @@ drop trigger if exists set_order_status_timestamps on public.orders;
 create trigger set_order_status_timestamps
   before update of status on public.orders
   for each row execute function public.set_order_status_timestamps();
+
+-- Historial del pedido (M8, fase 7.0)
+-- Quién hizo el cambio: el admin que llama con el cliente admin lo indica con
+-- set_config('shop.actor_id', <uuid>, true) en la misma transacción (funciones de la 7.4);
+-- si no, auth.uid(). Sin ninguno de los dos (cron, pasarelas) es 'system'.
+create or replace function public.log_order_event()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare
+  v_actor_id uuid := coalesce(nullif(current_setting('shop.actor_id', true), '')::uuid, auth.uid());
+  v_actor    text := 'system';
+  v_kind     text;
+  v_data     jsonb := '{}'::jsonb;
+begin
+  if tg_op = 'INSERT' then
+    v_kind := 'placed';
+    v_data := jsonb_build_object('payment_method', new.payment_method);
+  elsif new.status is distinct from old.status then
+    v_kind := new.status::text;
+    case new.status
+      when 'paid' then
+        select jsonb_build_object('provider', p.provider, 'reference', p.reference)
+          into v_data
+          from public.payments p
+         where p.order_id = new.id and p.status = 'paid'
+         order by p.updated_at desc
+         limit 1;
+      when 'shipped' then
+        v_data := jsonb_build_object('carrier', new.carrier, 'tracking_number', new.tracking_number);
+      when 'cancelled' then
+        v_data := jsonb_build_object('reason', new.cancel_reason, 'note', new.cancel_note);
+      else null;
+    end case;
+  else
+    return new;
+  end if;
+
+  if v_actor_id is not null then
+    select case when pr.role = 'admin' then 'admin' else 'customer' end
+      into v_actor
+      from public.profiles pr
+     where pr.id = v_actor_id;
+    if v_actor is null then
+      v_actor := 'system';
+      v_actor_id := null;
+    end if;
+  end if;
+
+  insert into public.order_events (order_id, kind, actor, actor_id, data)
+  values (new.id, v_kind, v_actor, v_actor_id, coalesce(v_data, '{}'::jsonb));
+  return new;
+end $$;
+
+drop trigger if exists log_order_event on public.orders;
+create trigger log_order_event
+  after insert or update of status on public.orders
+  for each row execute function public.log_order_event();
+
+revoke execute on function public.log_order_event() from public, anon, authenticated;
 
 -- Cuando un pago queda 'paid', el pedido pendiente pasa a 'paid'
 create or replace function public.sync_order_on_payment()
@@ -743,14 +836,17 @@ begin
   return v_order_id;
 end $$;
 
--- Cancela un pedido y devuelve el stock.
--- Cliente: solo sus pedidos 'pending'. Admin / service_role: 'pending', 'paid' o 'processing'
+-- cancel_order con motivo. Cliente: solo sus pedidos 'pending' y el motivo es siempre 'cliente'.
+-- Admin / service_role: 'pending', 'paid' o 'processing', con el motivo que indiquen
 -- (el reembolso del dinero se gestiona aparte con la pasarela de pago).
-create or replace function public.cancel_order(p_order_id uuid)
+drop function if exists public.cancel_order(uuid);
+
+create or replace function public.cancel_order(p_order_id uuid, p_reason text default null, p_note text default null)
 returns void language plpgsql security definer set search_path = '' as $$
 declare
   v_order    public.orders%rowtype;
   v_is_staff boolean := (auth.uid() is null) or public.is_admin();
+  v_reason   text := p_reason;
 begin
   select * into v_order from public.orders where id = p_order_id for update;
   if not found then
@@ -764,8 +860,13 @@ begin
     if v_order.status <> 'pending' then
       raise exception 'Solo puedes cancelar pedidos pendientes de pago';
     end if;
+    v_reason := 'cliente';
   elsif v_order.status not in ('pending', 'paid', 'processing') then
     raise exception 'Un pedido en estado % no se puede cancelar', v_order.status;
+  end if;
+
+  if v_reason is not null and v_reason not in ('vencio', 'tienda', 'cliente') then
+    raise exception 'Motivo de anulación no válido: %', v_reason;
   end if;
 
   update public.product_variants v
@@ -784,13 +885,18 @@ begin
      where id = v_order.coupon_id;
   end if;
 
-  update public.orders set status = 'cancelled' where id = p_order_id;
+  update public.orders
+     set status = 'cancelled',
+         cancel_reason = v_reason,
+         cancel_note = nullif(btrim(p_note), '')
+   where id = p_order_id;
+end $$;
 end $$;
 
 revoke execute on function public.place_order(text, text, text, text, uuid, text, text, text, jsonb, text, text) from public, anon;
-revoke execute on function public.cancel_order(uuid)            from public, anon;
+revoke execute on function public.cancel_order(uuid, text, text) from public, anon;
 grant  execute on function public.place_order(text, text, text, text, uuid, text, text, text, jsonb, text, text) to authenticated, service_role;
-grant  execute on function public.cancel_order(uuid)            to authenticated, service_role;
+grant  execute on function public.cancel_order(uuid, text, text) to authenticated, service_role;
 
 -- Las funciones de trigger SECURITY DEFINER no deben quedar expuestas como RPC
 -- (/rest/v1/rpc/...). Los triggers no necesitan EXECUTE del usuario que dispara el evento.
@@ -1096,6 +1202,7 @@ alter table public.payments            enable row level security;
 alter table public.coupon_redemptions  enable row level security;
 alter table public.reviews             enable row level security;
 alter table public.payment_alerts      enable row level security;
+alter table public.order_events        enable row level security;
 
 -- Perfiles
 drop policy if exists "profiles: ver el propio o admin" on public.profiles;
@@ -1260,6 +1367,11 @@ drop policy if exists "payment_alerts: admin resuelve" on public.payment_alerts;
 create policy "payment_alerts: admin resuelve" on public.payment_alerts
   for update to authenticated
   using ((select public.is_admin())) with check ((select public.is_admin()));
+
+-- Historial del pedido (M8, fase 7.0): solo el admin lo lee; lo escribe el trigger log_order_event
+drop policy if exists "order_events: admin lee" on public.order_events;
+create policy "order_events: admin lee" on public.order_events
+  for select to authenticated using ((select public.is_admin()));
 
 -- Reseñas: solo quien compró el producto puede reseñarlo
 drop policy if exists "reviews: lectura pública" on public.reviews;

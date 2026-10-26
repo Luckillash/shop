@@ -57,8 +57,8 @@ Impacto: 🔴 bloquea el flujo de compra · 🟠 se ve mal o los datos quedan in
 | B21 | *Recibir novedades* (opción al crear cuenta) y la suscripción del footer no tienen tabla | 🟢 | Tabla `newsletter_subscribers`, o un proveedor externo |
 | B22 | `profiles` sin RUT | 🟢 | Opcional: `profiles.rut` para autocompletar el checkout |
 | B23 | Los favoritos de invitados no están definidos | 🟢 | Pedir que ingrese |
-| B24 | Mis pedidos: los estados `cancelled` y `refunded` no tienen `Badge` en el diseño | 🟢 | Propuesta en [ciclo de vida](../05-dominio/ciclo-de-vida-del-pedido.md#cómo-se-muestra-ui) |
-| B25 | Las fechas de entrega estimadas no se guardan (el diseño las muestra en Mis pedidos y en Detalle) | 🟢 | Calcularlas desde `paid_at` + el plazo de la zona, o columna `estimated_delivery_date` |
+| B24 | Mis pedidos: los estados `cancelled` y `refunded` no tenían `Badge` en el diseño | 🟢 | 🔄 El canvas de la fase 7 los define (*Anulado* `danger` + `close`, *Reembolsado* `neutral` + `returns`, con el motivo en una línea). Badges en `customerStatusBadge` (`src/lib/orders/order-status.ts`, 7.0, 2026-10-25); la línea de cada estado va en la 7.1 |
+| B25 | Las fechas de entrega estimadas no se guardan (el diseño las muestra en Mis pedidos y en Detalle) | 🟢 | ✅ 2026-10-25 (7.0) · Se calculan sin columna nueva: `estimatedDelivery()` desde `paid_at` (o `placed_at`) con los plazos por zona, la misma función que usa la Confirmación (D-025). Se muestran en la 7.1 y en `AdminPedido` |
 
 ## Código vs. diseño
 

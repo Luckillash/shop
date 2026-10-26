@@ -118,7 +118,7 @@ src/
 │   ├── checkout/                    ← actions.ts (place_order + iniciar pago) · shipping.ts
 │   ├── payments/                    ← ✅ webpay.ts · flow.ts (HTTP) · *-core.ts (puro) · service.ts · start.ts · actions.ts · expire.ts · lock.ts · labels.ts · screen.ts · order-view.ts · config.ts
 │   ├── email/                       ← ✅ send.ts (Resend) · templates.ts
-│   ├── orders/                      ← queries.ts · actions.ts
+│   ├── orders/                      ← ✅ order-status.ts (estados, transiciones, entrega estimada) · queries.ts · actions.ts
 │   └── format/                      ← clp.ts · rut.ts · phone.ts · dates.ts
 ├── store/
 │   └── cart-store.ts

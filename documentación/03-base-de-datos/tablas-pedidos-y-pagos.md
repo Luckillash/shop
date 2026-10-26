@@ -38,6 +38,8 @@ Se crea **solo** con `place_order()`: el RLS no permite `insert` a los clientes.
 | `document_type` | M1. `boleta` (por defecto) · `factura`. Con factura, `invoice_details` es obligatorio (check) |
 | `invoice_details` | M1. jsonb `{ business_name, rut, activity }` |
 | `expires_at` | M1. Límite para pagar: +30 min (Webpay, Flow) o +48 h (transferencia), D-010. Lo usará el cron de la fase 6 |
+| `cancel_reason` | M8. `vencio` · `tienda` · `cliente` (check), o null en los anulados antes de la M8. Lo escribe solo `cancel_order` (el cron pasa `vencio`) |
+| `cancel_note` | M8. Texto del motivo que ve el cliente (*Sin stock*). Lo escribe solo `cancel_order` |
 | `carrier`, `tracking_number` | Despacho: *Despacha Starken*, código de seguimiento |
 | `placed_at` | Fecha de compra |
 | `paid_at`, `shipped_at`, `delivered_at`, `cancelled_at` | Las llena el trigger `set_order_status_timestamps` al cambiar el `status` |
@@ -87,6 +89,19 @@ Alertas para el admin (D-020). Las escribe el backend con `service_role`; el adm
 | `kind` | `paid_after_cancel` (B13) · `double_payment` · `amount_mismatch` · `refund_failed` (check) |
 | `detail` | jsonb: respuesta de la pasarela, estado del pedido, error del reembolso |
 | `resolved_at` | null = abierta (índice parcial `payment_alerts_open_idx`) |
+
+## `order_events` (M8, fase 7)
+
+Historial del pedido para la administración (`AdminPedido`: cuándo, qué, quién). Lo escribe el trigger `log_order_event` al crear el pedido y en cada cambio de `status`; el backend agrega con `service_role` los eventos sin cambio de estado (correos). Solo el admin lo lee. Los pedidos anteriores a la M8 (1001–1036) no tienen eventos: su historial se arma con las fechas del pedido y los intentos de pago.
+
+| Columna | Notas |
+|---|---|
+| `order_id` | `cascade`. Índice (`order_id`, `created_at`) |
+| `kind` | `placed` · un `order_status` (`pending` … `refunded`) · `email` (check) |
+| `actor` | `customer` (dueño, también el invitado) · `admin` · `system` (cron, pasarelas) |
+| `actor_id` | `set null`. null con `system` |
+| `data` | jsonb: `payment_method` (placed), `provider` y `reference` (paid), `carrier` y `tracking_number` (shipped), `reason` y `note` (cancelled) |
+| `created_at` | `now()`: los eventos de una misma transacción tienen la misma hora |
 
 ## `coupons`
 
