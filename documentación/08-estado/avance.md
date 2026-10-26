@@ -15,7 +15,7 @@ _Última actualización: 25 de octubre de 2026._
 
 ## Resumen
 
-**Las fases 0 a 6 están terminadas** (la fase 6 el 25-10-2026). Se puede pagar con Webpay Plus (integración), Flow (sandbox) y transferencia, reintentar o cambiar de medio sobre el mismo pedido, y el cron anula los pedidos vencidos (recupera los pagados y reembolsa los pagos tardíos, B13). Probado con cuenta y como invitado. Faltan para producción: la llave de Resend, el túnel o el despliegue para `urlConfirmation` de Flow, y los datos y credenciales reales. Sigue la fase 7 (postcompra y operación).
+**Las fases 0 a 6 están terminadas** (la fase 6 el 25-10-2026). Se puede pagar con Webpay Plus (integración), Flow (sandbox) y transferencia, reintentar o cambiar de medio sobre el mismo pedido, y el cron anula los pedidos vencidos (recupera los pagados y reembolsa los pagos tardíos, B13). Probado con cuenta y como invitado. Faltan para producción: la llave de Resend de producción y las credenciales reales de los pagos (la `urlConfirmation` de Flow quedó probada en `audazia.dev` el 25-10-2026). Sigue la fase 7 (postcompra y operación).
 
 Fase 5: cuenta (Ingresar, Crear cuenta, invitado con sesión anónima), sincronización del carro con `cart_items` y checkout en 3 pasos hasta `place_order` (M1 + M2).
 
@@ -91,7 +91,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 | 3 · Catálogo | ✅ Terminada (24-10-2026) | Pendientes registrados en la [hoja de ruta](../06-implementacion/hoja-de-ruta.md): fecha de entrega por comuna (B35) → fase 5; `next/image` (D-015) → cuando estén las fotos reales, antes de producción; filtros Tipo y Color (M5, B17) → cuando se definan los tipos |
 | 4 · Carro | ✅ Terminada (24-10-2026) | — |
 | 5 · Cuenta y checkout | ✅ Terminada (24-10-2026; fecha en la Ficha 25-10-2026) | — |
-| 6 · Pagos | ✅ Terminada (25-10-2026) | Pendiente fuera de la fase: `urlConfirmation` real (túnel o despliegue). Resend ✅ y datos bancarios reales ✅ (25-10-2026) |
+| 6 · Pagos | ✅ Terminada (25-10-2026) | `urlConfirmation` real ✅ probada en `audazia.dev` (25-10-2026, pedido 1036). Resend ✅ y datos bancarios reales ✅ (25-10-2026) |
 | 7 · Postcompra y operación | ⏳ **Siguiente** | Mis pedidos / Detalle, invitado → cuenta, administración mínima (confirmar transferencias, alertas de pago) |
 
 ## Pendientes heredados (del avance original)
@@ -107,7 +107,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 - [x] El express es solo para la RM (dueño, 24-10-2026): checkout, `validateShipping` y `place_order`.
 - [x] Feriados 2026–2027 verificados (24-10-2026): se agregó el viernes 17 de septiembre de 2027 (Ley 20.983). Hay que agregar los de 2028 antes de diciembre de 2027.
 - [x] Pedidos de prueba 1001–1004 anulados con `cancel_order` (24-10-2026): stock y cupón devueltos. Quedan el usuario `prueba.fase5@almacen.cl` y los usuarios anónimos de las pruebas (borrarlos antes de producción).
-- [ ] Datos de prueba de la fase 6 (25-10-2026): pedidos 1007–1035. Quedan **pagados** en integración/sandbox (sin dinero real) 1020, 1021, 1022, 1027, 1028 y 1029. El 1030 está anulado con su pago reembolsado y una alerta `paid_after_cancel`, y el resto anulados por el cron (stock devuelto: cuadra con el seed). Decisión del dueño (25-10-2026): **se dejan** hasta producción y entonces **se borran** (antes, `cancel_order` a los pagados para devolver el stock).
+- [ ] Datos de prueba de la fase 6 (25-10-2026): pedidos 1007–1036. Quedan **pagados** en integración/sandbox (sin dinero real) 1020, 1021, 1022, 1027, 1028, 1029 y 1036 (este último, la prueba de `urlConfirmation` en `audazia.dev`). El 1030 está anulado con su pago reembolsado y una alerta `paid_after_cancel`, y el resto anulados por el cron (stock devuelto: cuadra con el seed). Decisión del dueño (25-10-2026): **se dejan** hasta producción y entonces **se borran** (antes, `cancel_order` a los pagados para devolver el stock).
 - [ ] `npm audit`: 5 vulnerabilidades "high" en las dependencias de la plantilla. No se aplicó `--force`.
 - [x] Reemplazar la página de inicio de la plantilla (template Inicio implementado el 24-10-2026).
 - [x] Confirmado por el dueño (24-10-2026): umbral de stock bajo ≤ 3 (B19), textos del hero del Inicio y *Destacados* mientras no haya ventas (B34).
@@ -144,7 +144,7 @@ Con sus pasos en [_archivo/pendientes-del-dueno-fase-6.md](../_archivo/pendiente
 | 2 | ~~Confirmar los textos propuestos sin diseño (B14, B37)~~ ✅ Aprobados (25-10-2026) | ✅ |
 | 3 | ~~Plan de Vercel que permita el cron cada 10 min, o `pg_cron` (D-021)~~ ✅ Vercel Pro (25-10-2026). Falta `CRON_SECRET` en Vercel | ✅ |
 | 4 | ~~Datos bancarios reales~~ ✅ en `.env.local` (25-10-2026, D-024). Falta cargarlos en Vercel | ✅ |
-| 5 | Probar `urlConfirmation` de Flow con un túnel o el sitio desplegado | 🟠 |
+| 5 | ~~Probar `urlConfirmation` de Flow~~ ✅ en `audazia.dev` (25-10-2026, pedido 1036) | ✅ |
 | 6 | ~~Qué hacer con los pedidos de prueba~~ ✅ Se dejan; se borran al subir a producción (25-10-2026) | ✅ |
 
 ## Decisiones que bloquean

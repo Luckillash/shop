@@ -29,14 +29,14 @@ estado: "propuesta"
 - [ ] Migraciones M1–M6 aplicadas y documentadas (M1–M4 y M6 ✅; M4 con los intentos de pago como `payments_attempts_m4`, 25-10-2026; falta M5 con los filtros).
 - [ ] Seed de prueba **no** cargado en producción (o borrado). Cupones de prueba desactivados.
 - [ ] Al menos un admin creado.
-- [ ] Usuarios de prueba borrados (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas de las fases 5 y 6. Pedidos de prueba: 1001–1035 y los que se creen en la fase 7 (se dejaron a propósito hasta producción, 25-10-2026). **Borrarlos:** primero `cancel_order` a los pagados (1020–1022 y 1027–1029) para devolver el stock, y después `delete` en `orders` (borra en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`).
+- [ ] Usuarios de prueba borrados (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas de las fases 5 y 6. Pedidos de prueba: 1001–1036 y los que se creen en la fase 7 (se dejaron a propósito hasta producción, 25-10-2026). **Borrarlos:** primero `cancel_order` a los pagados (1020–1022, 1027–1029 y 1036) para devolver el stock, y después `delete` en `orders` (borra en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`).
 - [x] M1 y M2 registradas en el historial de migraciones (`orders_checkout_fields_place_order_v2`, 24-10-2026).
 - [ ] Respaldos activados (plan de Supabase).
 
 ## Pagos
 - [ ] **Webpay:** proceso de validación aprobado por Transbank → llave secreta de producción → `WEBPAY_ENV=production` → **compra real de $50**.
 - [ ] **Flow:** credenciales de producción (`https://www.flow.cl/api`), medios de pago contratados y `timeout` configurado.
-- [ ] `NEXT_PUBLIC_SITE_URL` = el dominio real (queda fija en el build). `urlConfirmation` de Flow alcanzable y probada de verdad (en local se simuló con `curl`, D-024).
+- [ ] `NEXT_PUBLIC_SITE_URL` = el dominio real (queda fija en el build). `urlConfirmation` de Flow alcanzable y probada de verdad: ✅ en sandbox desde `audazia.dev` (25-10-2026, pedido 1036); repetir con las credenciales de producción.
 - [x] Probados en integración/sandbox los casos aprobado, rechazado, abortado, timeout (simulado), recarga del retorno, retornos simultáneos, navegador cerrado después de pagar y pago tardío sobre un pedido vencido (25-10-2026). Repetirlos en producción.
 - [x] Plan de Vercel que permite el cron cada 10 min: **Pro** (25-10-2026, D-021).
 - [ ] Cron de vencimiento funcionando en producción (✅ en local): `CRON_SECRET` de producción **generado al desplegar** (distinto al local) y cargado en Vercel y, tras el primer despliegue, *Settings → Cron Jobs* con ejecuciones en 200.

@@ -104,7 +104,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 ## 6. Supabase
 
-- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1035 están pagados en integración/sandbox, anulados o reembolsados.
+- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6). Los pedidos de prueba 1001–1036 están pagados en integración/sandbox, anulados o reembolsados.
 - [ ] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). Falta **probar la confirmación de correo** (tarea 12 de [despliegue](pendientes-del-despliegue.md)) con un correo real (no hay ninguna cuenta creada desde `/ingresar`). Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
@@ -118,7 +118,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [x] 🔴 👥 ✅ 25-10-2026 · **Hosting:** Vercel, proyecto `shop` vinculado a `Luckillash/shop` (cada push a `main` despliega). Plan **Hobby** (ver el cron).
 - [ ] 🔴 👥 **Variables de entorno de producción** (ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)): ✅ cargadas en Vercel el 25-10-2026 (19, con `NEXT_PUBLIC_SITE_URL=https://audazia.dev` y un `CRON_SECRET` nuevo). Faltan `REDIS_URL`, las credenciales de producción de Webpay y Flow y la llave `almacen-produccion` de Resend (hoy la local). Tareas 1, 3 y 4 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👥 **Redis en producción** (por ejemplo Upstash o Redis Cloud). Sin Redis, el rate limiting del login, el cupón, los invitados, los pedidos y los reintentos **deja pasar todo** (fail-open, D-005). Los locks de pago siguen protegidos por el lock de la BD.
-- [ ] 🔴 👥 **HTTPS** en todo el sitio ✅ (certificado de Vercel, 25-10-2026) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** (en local solo se simuló, D-024; ya se puede con el sitio desplegado, tarea 8 de [despliegue](pendientes-del-despliegue.md)).
+- [x] 🔴 👥 **HTTPS** en todo el sitio ✅ (certificado de Vercel, 25-10-2026) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** ✅ (25-10-2026, pedido 1036 pagado solo por el aviso del servidor, tarea 8 de [despliegue](pendientes-del-despliegue.md)). Repetirla con las credenciales de producción.
 - [ ] 🔴 👥 **Cron** de vencimiento: la cuenta sigue en **Hobby** (no Pro, como se había anotado), así que `vercel.json` quedó **diario** (`0 9 * * *`) desde el 25-10-2026. `CRON_SECRET` ✅ cargado. Falta pasar a Pro y volver a `*/10 * * * *`, y comprobar la primera ejecución (26-10-2026). Tareas 6 y 7 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 🤖 Que el proxy o la plataforma **sobrescriba `x-forwarded-for`**: el rate limiting usa esa IP (`clientIp` toma la primera), y si el cliente la puede inventar, puede saltarse el límite. En Vercel la plataforma lo sobrescribe: falta comprobarlo enviando un `x-forwarded-for` inventado a `audazia.dev` cuando haya Redis.
 - [ ] 🟠 👥 `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` fija si hay más de una instancia (guía de Server Actions de Next).
@@ -134,7 +134,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [ ] 🔴 👥 **Compra real con Flow** y una **transferencia** confirmada a mano.
 - [ ] 🔴 🤖 Casos de pago en producción: aprobado, rechazado, abortado, timeout, recarga del retorno y pago tardío sobre un pedido vencido (✅ en integración/sandbox el 25-10-2026).
 - [ ] 🔴 👥 Compra como **invitado** y con **cuenta**, en escritorio y en un celular real.
-- [ ] 🔴 🤖 **Borrar los datos de prueba** al subir a producción (decisión del dueño, 25-10-2026: se dejan hasta entonces): pedidos 1001–1035 y los de la fase 7. Primero `cancel_order` a los **pagados** (1020–1022 y 1027–1029) para devolver el stock, después borrarlos de `orders` (cascada a `payments` y `payment_alerts`). Pasos en la tarea 6 de [fase 6](pendientes-del-dueno-fase-6.md#6-decidir-qué-hacer-con-los-datos-de-prueba--25-10-2026).
+- [ ] 🔴 🤖 **Borrar los datos de prueba** al subir a producción (decisión del dueño, 25-10-2026: se dejan hasta entonces): pedidos 1001–1036 y los de la fase 7. Primero `cancel_order` a los **pagados** (1020–1022, 1027–1029 y 1036) para devolver el stock, después borrarlos de `orders` (cascada a `payments` y `payment_alerts`). Pasos en la tarea 6 de [fase 6](pendientes-del-dueno-fase-6.md#6-decidir-qué-hacer-con-los-datos-de-prueba--25-10-2026).
 - [ ] 🔴 🤖 Seed de prueba **no** cargado en la base de producción (o borrado), y caché de Next invalidada después de cargar el catálogo real (trampa 47).
 - [ ] 🟠 👥 Revisión visual de todas las pantallas en claro y oscuro, a 1280 px y 390 px.
 - [ ] 🟠 👤 Revisar los correos que recibe el cliente (confirmación, transferencia, despacho, confirmación de cuenta).

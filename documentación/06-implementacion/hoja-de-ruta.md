@@ -80,7 +80,7 @@ Se hacen cuando se cumple su condición. Ninguno bloquea la compra.
 | ✅ Confirmación, Pago rechazado, Flow no completado, Transferencia pendiente (+ confirmando, vencido, reembolsado) | [04-diseno/estados-y-mensajes.md](../04-diseno/estados-y-mensajes.md) |
 | ✅ Locks en Redis para el commit (D-005), fail-open con respaldo en la BD | [02-arquitectura/renderizado-y-cache.md](../02-arquitectura/renderizado-y-cache.md#rol-de-redis) |
 | ✅ Reintentar / cambiar de medio sobre el mismo pedido; B13 con reembolso + alerta (D-020) | [checkout-y-pedidos.md](checkout-y-pedidos.md) |
-| ⏳ Fuera de la fase: túnel o despliegue para `urlConfirmation`, confirmación manual de transferencias (administración, fase 7) | — |
+| ⏳ Fuera de la fase: ~~túnel o despliegue para `urlConfirmation`~~ (✅ probada en `audazia.dev`, 25-10-2026), confirmación manual de transferencias (administración, fase 7) | — |
 
 ## Fase 7 · Postcompra y operación
 | Tarea | Notas |

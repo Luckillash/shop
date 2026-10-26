@@ -36,7 +36,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 | 5 | Base de datos compartida entre desarrollo y producción | 👥 | 🔴 | Datos de prueba visibles en el sitio público |
 | 6 | Pasar a Pro y volver al cron cada 10 min | 👥 | 🟠 | Pedidos abandonados retienen stock hasta ~24 h |
 | 7 | Revisar la primera ejecución del cron | 🤖 | 🟠 | Saber que `CRON_SECRET` funciona en producción |
-| 8 | Probar `urlConfirmation` de Flow con el sitio desplegado | 🤖 | 🟠 | Confiar en Flow cuando el cliente cierra el navegador |
+| 8 | ~~Probar `urlConfirmation` de Flow con el sitio desplegado~~ ✅ (25-10-2026, pedido 1036) | 🤖 | ✅ | — |
 | 9 | Región de las funciones (`iad1`) frente a la de Supabase | 🤖 | 🟠 | Latencia de cada consulta |
 | 10 | `NEXT_PUBLIC_SITE_URL` de Preview apunta a producción | 🤖 | 🟢 | Los retornos de pago de un preview caen en producción |
 | 11 | Monitoreo (`/api/health` y errores) | 👥 | 🟢 | Enterarse de una caída |
@@ -135,7 +135,9 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 **Si hay que dispararlo a mano:** el valor de `CRON_SECRET` no se puede leer desde Vercel. El agente genera uno nuevo, lo carga y lo usa en el `curl`.
 
-## 8. Probar `urlConfirmation` de Flow con el sitio desplegado 🟠
+## 8. Probar `urlConfirmation` de Flow con el sitio desplegado ✅ (25-10-2026)
+
+> **Resultado (25-10-2026):** ✅ compra en Flow sandbox desde `https://audazia.dev` (pedido **1036**, $18.990), con la pestaña cerrada al aprobarse el pago. Flow envió el POST a `/api/pagos/flow/confirmacion` a las 00:29:23 UTC (petición `wt6jl-1792974562240-e3480420aafd`, despliegue `dpl_7i3NUYBRvUy6brAJCyEyHeTNhwc1`), el intento `1036-1` pasó a `paid` 0,8 s después y el pedido a `paid`, con el stock descontado (movimiento `sale` −1) y el correo de confirmación del pago llegó al cliente (remitente `pedidos@mail.audazia.dev`). No hubo ningún GET a `/api/pagos/flow/retorno`: el pago quedó registrado solo por el aviso del servidor. Sin Redis, el lock cayó a `claim_payment` como estaba previsto (tarea 3). Antes de la compra se comprobó que la ruta responde `200 ok` con un token desconocido y `400` sin token.
 
 **Por qué:** es la tarea 5 de la [fase 6](pendientes-del-dueno-fase-6.md#5-probar-la-confirmación-de-flow-con-un-túnel-o-con-el-sitio-desplegado-). En local solo se simuló (D-024). Ya hay una URL pública, así que no hace falta túnel.
 

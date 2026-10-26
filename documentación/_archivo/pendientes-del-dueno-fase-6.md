@@ -16,7 +16,7 @@ La fase 6 (pagos) quedó implementada y probada en los ambientes de prueba: Webp
 | 2 | ~~Confirmar los textos propuestos sin diseño~~ ✅ Aprobados (25-10-2026) | 🟠 Media | — | Nada |
 | 3 | Elegir el plan de Vercel o cambiar a `pg_cron` ⚠️ La cuenta sigue en Hobby: cron diario (25-10-2026) | 🔴 Alta | 5 min | Cron cada 10 min |
 | 4 | ~~Pasar los datos bancarios reales~~ ✅ Hecho (25-10-2026) | 🔴 Alta | — | Falta copiarlos a Vercel al desplegar |
-| 5 | Probar la confirmación de Flow con el sitio desplegado (ya está en `audazia.dev`) | 🟠 Media | 15 min | Confiar en Flow cuando el cliente cierra el navegador |
+| 5 | ~~Probar la confirmación de Flow con el sitio desplegado~~ ✅ Probada en `audazia.dev` (25-10-2026, pedido 1036) | 🟠 Media | — | Nada |
 | 6 | ~~Decidir qué hacer con los datos de prueba~~ ✅ Se quedan hasta producción (25-10-2026) | 🟢 Baja | — | Borrarlos antes de publicar |
 
 ---
@@ -116,9 +116,11 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 
 ---
 
-## 5. Probar la confirmación de Flow con un túnel o con el sitio desplegado 🟠
+## 5. Probar la confirmación de Flow con un túnel o con el sitio desplegado ✅ (25-10-2026)
 
-> **Estado (25-10-2026):** el sitio ya está en `https://audazia.dev`, así que no hace falta túnel. La prueba la hace el agente (tarea 8 de [pendientes del despliegue](pendientes-del-despliegue.md)).
+> **Estado (25-10-2026):** ✅ probada en `https://audazia.dev`, sin túnel (tarea 8 de [pendientes del despliegue](pendientes-del-despliegue.md)).
+>
+> **Resultado (25-10-2026):** ✅ compra en Flow sandbox desde `https://audazia.dev` (pedido **1036**, $18.990), con la pestaña cerrada al aprobarse el pago. Flow envió el POST a `/api/pagos/flow/confirmacion` a las 00:29:23 UTC (petición `wt6jl-1792974562240-e3480420aafd`, despliegue `dpl_7i3NUYBRvUy6brAJCyEyHeTNhwc1`), el intento `1036-1` pasó a `paid` 0,8 s después y el pedido a `paid`, con el stock descontado (movimiento `sale` −1) y el correo de confirmación del pago llegó al cliente (remitente `pedidos@mail.audazia.dev`). No hubo ningún GET a `/api/pagos/flow/retorno`: el pago quedó registrado solo por el aviso del servidor. Sin Redis, el lock cayó a `claim_payment` como estaba previsto (tarea 3). Antes de la compra se comprobó que la ruta responde `200 ok` con un token desconocido y `400` sin token.
 
 **Por qué:** cuando alguien paga en Flow, Flow avisa a la tienda por dos caminos: el navegador del cliente (`urlReturn`) y un aviso directo de su servidor (`urlConfirmation`). El segundo cubre al cliente que cierra el navegador después de pagar. **Ese aviso no puede llegar a `localhost`**, así que en esta fase se probó simulándolo (decisión D-024). Sin él, el pago igual se registra cuando el cliente vuelve, o cuando el cron revisa el pedido antes de anularlo.
 
@@ -133,11 +135,12 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 
 > **Decisión (25-10-2026):** se **dejan** los datos de prueba (sirven para probar Mis pedidos y la administración en la fase 7) y se **borran al subir a producción**. Está en el checklist de producción.
 
-Durante las pruebas quedaron en Supabase los pedidos **1007 a 1035** (el próximo pedido será el N.º 1036):
+Durante las pruebas quedaron en Supabase los pedidos **1007 a 1036** (el próximo pedido será el N.º 1037):
 
 | Pedidos | Estado |
 |---|---|
 | 1020, 1021, 1022, 1027, 1028, 1029 | **Pagados** en los ambientes de prueba (no hubo dinero real). Descuentan stock: 4 frascos de 1 L y 3 sets de paños |
+| 1036 | **Pagado** en Flow sandbox desde `audazia.dev` (prueba de `urlConfirmation`, 25-10-2026). Descuenta 1 unidad |
 | 1030 | Anulado, con el pago reembolsado en Flow y una alerta `paid_after_cancel` (era la prueba del pago tardío) |
 | El resto | Anulados por el cron, con el stock devuelto |
 
@@ -145,8 +148,8 @@ También quedan el usuario `prueba.fase5@almacen.cl` y varios usuarios anónimos
 
 **Cómo se borrarán al subir a producción** (lo hace el agente con el MCP de Supabase):
 
-1. Anular con `cancel_order` los que sigan pagados (1020, 1021, 1022, 1027, 1028, 1029, y los que se agreguen en la fase 7) para **devolver el stock** (4 frascos de 1 L y 3 sets de paños). Son pagos de prueba: no hay que reembolsar nada.
-2. Borrar los pedidos de prueba (1001–1035 y los que se creen después) de `orders`. Se borran en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`; los `inventory_movements` quedan con `order_id` nulo.
+1. Anular con `cancel_order` los que sigan pagados (1020, 1021, 1022, 1027, 1028, 1029, 1036 y los que se agreguen en la fase 7) para **devolver el stock** (4 frascos de 1 L, 3 sets de paños y la unidad del 1036). Son pagos de prueba: no hay que reembolsar nada.
+2. Borrar los pedidos de prueba (1001–1036 y los que se creen después) de `orders`. Se borran en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`; los `inventory_movements` quedan con `order_id` nulo.
 3. Borrar los usuarios de prueba en *Authentication → Users*: `prueba.fase5@almacen.cl` y los anónimos.
 4. Comprobar que el stock cuadra con el catálogo real y que los cupones quedan con `used_count` correcto.
 

@@ -146,5 +146,5 @@ Estados: ✅ tomada · 💡 propuesta (recomendada, falta confirmarla) · ❓ pe
 ### D-024 · Datos bancarios, invitados y Flow en local ✅ (dueño, 2026-10-25)
 - Datos de la transferencia: los **ficticios** del diseño, en variables `BANK_*`, hasta producción. **Actualización (25-10-2026):** el dueño pasó los reales (Itaú, cuenta corriente) y quedaron en `.env.local`; `.env.example` sigue con los de ejemplo.
 - Convertir al invitado en cuenta: fase 7 (D-008).
-- **Datos de prueba (25-10-2026):** los pedidos 1001–1035, sus pagos y los usuarios de prueba se dejan para la fase 7 y **se borran al subir a producción** (checklist de producción).
+- **Datos de prueba (25-10-2026):** los pedidos 1001–1036, sus pagos y los usuarios de prueba se dejan para la fase 7 y **se borran al subir a producción** (checklist de producción).
 - Flow sin túnel en esta fase: se probó con `urlReturn` + `getStatus`, y la confirmación se simuló con un POST local del token. El túnel (o el despliegue) se prueba antes de producción.
