@@ -37,7 +37,7 @@ shop/
     │   │   ├── carro/page.tsx    ← Carro y Carro vacío (estática; el carro está en el cliente)
     │   │   ├── ingresar/page.tsx ← Ingresar o crear cuenta (+ comprar como invitado)
     │   │   ├── ingresar/recuperar/ · ingresar/nueva-contrasena/  ← ¿Olvidaste tu contraseña?
-    │   │   ├── cuenta/page.tsx   ← provisoria: correo y Cerrar sesión (fase 7: Mis pedidos)
+    │   │   ├── cuenta/           ← layout.tsx (menú y Hola, …) · page.tsx (→ /cuenta/pedidos) · pedidos/page.tsx (Mis pedidos) · pedidos/[orderNumber]/page.tsx (Detalle)
     │   │   └── diseno/page.tsx   ← catálogo de componentes, solo en desarrollo (404 en producción)
     │   ├── (checkout)/
     │   │   ├── layout.tsx        ← header y footer reducidos
@@ -57,7 +57,8 @@ shop/
     │   ├── cart/                 ← drawer, lista con Deshacer, vista del carro, cupón, useHydrated
     │   ├── checkout/             ← CheckoutView, pasos, resumen, acceso, piezas (indicador, errores, opciones)
     │   ├── payment/              ← WebpayRedirect (form POST token_ws), RetryPayment / PayWithCardInstead, TransferDetails (Copiar), PaymentPending (consulta), PaymentSettled (vacía el carro), OrderAside
-    │   └── auth/                 ← formularios de Ingresar/Crear cuenta y de contraseña, useAuthAction, Cerrar sesión
+    │   ├── auth/                 ← formularios de Ingresar/Crear cuenta y de contraseña, useAuthAction, Cerrar sesión
+    │   └── account/              ← menú de la cuenta (AccountNav, enlaces con usePathname), OrderCard, TrackingSteps, account.module.css
     ├── lib/
     │   ├── catalog/              ← queries.ts ('use cache') · listing.ts · variants.ts · mappers.ts (+ *.test.ts)
     │   ├── cart/                 ← actions.ts (refreshCart, applyCoupon, syncCart) · server.ts (syncUserCart, server-only) · merge · totals · reconcile · snapshot · coupon (+ *.test.ts)
@@ -118,7 +119,7 @@ src/
 │   ├── checkout/                    ← actions.ts (place_order + iniciar pago) · shipping.ts
 │   ├── payments/                    ← ✅ webpay.ts · flow.ts (HTTP) · *-core.ts (puro) · service.ts · start.ts · actions.ts · expire.ts · lock.ts · labels.ts · screen.ts · order-view.ts · config.ts
 │   ├── email/                       ← ✅ send.ts (Resend) · templates.ts
-│   ├── orders/                      ← ✅ order-status.ts (estados, transiciones, entrega estimada) · queries.ts · actions.ts
+│   ├── orders/                      ← ✅ order-status.ts (estados, transiciones, entrega estimada) · customer-view.ts (línea de estado, resumen y seguimiento del cliente, B24) · account.ts (pedidos de la cuenta, server-only) · queries.ts · actions.ts
 │   └── format/                      ← clp.ts · rut.ts · phone.ts · dates.ts
 ├── store/
 │   └── cart-store.ts

@@ -29,3 +29,22 @@ export function formatTime(date: Date): string {
 export function formatDeadline(date: Date): string {
   return `${formatDeliveryDay(date)} a las ${formatTime(date)}`;
 }
+
+const longDate = new Intl.DateTimeFormat("es-CL", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: BUSINESS_TIME_ZONE,
+});
+
+const weekday = new Intl.DateTimeFormat("es-CL", { weekday: "long", timeZone: BUSINESS_TIME_ZONE });
+
+// "25 de octubre de 2026" (Mis pedidos: *Comprado el …*)
+export function formatLongDate(date: Date): string {
+  return longDate.format(date);
+}
+
+// "domingo 25 de octubre de 2026" (Detalle de pedido)
+export function formatFullDate(date: Date): string {
+  return `${weekday.format(date)} ${longDate.format(date)}`;
+}

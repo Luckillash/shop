@@ -133,6 +133,8 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 **Cómo comprobarlo (🤖):** *Settings → Cron Jobs* muestra `/api/cron/expirar-pedidos` y la ejecución responde 200 (no 401). En los logs aparece `[cron] expirar-pedidos` con `{ checked, cancelled, recovered, skipped }`.
 
+**Revisión del 26-10 a las 01:52 UTC (22:52 del 25-10 en Chile):** todavía no le tocaba; no hay ejecuciones de `/api/cron/expirar-pedidos` en los logs de producción de los 2 días anteriores. El dueño eligió seguir con la 7.1 y revisarlo en la próxima sesión, después de las 06:00 (T1 de la [fase 7](pendientes-del-dueno-fase-7.md)).
+
 **Si hay que dispararlo a mano:** el valor de `CRON_SECRET` no se puede leer desde Vercel. El agente genera uno nuevo, lo carga y lo usa en el `curl`.
 
 ## 8. Probar `urlConfirmation` de Flow con el sitio desplegado ✅ (25-10-2026)

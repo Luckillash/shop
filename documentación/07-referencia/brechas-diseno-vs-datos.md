@@ -57,7 +57,7 @@ Impacto: 🔴 bloquea el flujo de compra · 🟠 se ve mal o los datos quedan in
 | B21 | *Recibir novedades* (opción al crear cuenta) y la suscripción del footer no tienen tabla | 🟢 | Tabla `newsletter_subscribers`, o un proveedor externo |
 | B22 | `profiles` sin RUT | 🟢 | Opcional: `profiles.rut` para autocompletar el checkout |
 | B23 | Los favoritos de invitados no están definidos | 🟢 | Pedir que ingrese |
-| B24 | Mis pedidos: los estados `cancelled` y `refunded` no tenían `Badge` en el diseño | 🟢 | 🔄 El canvas de la fase 7 los define (*Anulado* `danger` + `close`, *Reembolsado* `neutral` + `returns`, con el motivo en una línea). Badges en `customerStatusBadge` (`src/lib/orders/order-status.ts`, 7.0, 2026-10-25); la línea de cada estado va en la 7.1 |
+| B24 | Mis pedidos: los estados `cancelled` y `refunded` no tenían `Badge` en el diseño | 🟢 | ✅ 2026-10-25 (7.1) · Badges en `customerStatusBadge` (7.0) y la línea de cada estado en `orderStatusLine` (`src/lib/orders/customer-view.ts`): las del diseño (*Transfiere $X hasta el …*, *Llega el …*, *Entregado el …*, *Te devolvimos $X el …*, *La transferencia no llegó a tiempo. No hicimos ningún cargo*) y propuestas para pending con tarjeta o Flow, vencido sin transferencia, motivos `cliente` y `tienda` y el anulado con el pago devuelto (1030), en `_archivo/pendientes-del-dueno-fase-7.md` (D-026) |
 | B25 | Las fechas de entrega estimadas no se guardan (el diseño las muestra en Mis pedidos y en Detalle) | 🟢 | ✅ 2026-10-25 (7.0) · Se calculan sin columna nueva: `estimatedDelivery()` desde `paid_at` (o `placed_at`) con los plazos por zona, la misma función que usa la Confirmación (D-025). Se muestran en la 7.1 y en `AdminPedido` |
 
 ## Código vs. diseño

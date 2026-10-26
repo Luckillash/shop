@@ -50,7 +50,7 @@ Reglas:
 | `getSessionUser()`: `{ id, email, isAnonymous }` con `getClaims()` | `src/lib/auth/session.ts` |
 | `signIn`, `signUp`, `startGuestCheckout`, `signOut` (Server Actions; rate limiting LOGIN, SIGNUP y GUEST por IP). Al entrar, fusionan el carro con `cart_items` | `src/lib/auth/actions.ts` |
 | `useAuthAction`: agrega el carro al `FormData`, reemplaza el store con el carro fusionado y navega a `?volver=` | `src/components/auth/use-auth-action.ts` |
-| `/ingresar` (Ingresar · Crear cuenta · *Comprar como invitado* si hay productos), `/cuenta` (provisoria: correo y *Cerrar sesión*), `/auth/confirm` (enlace del correo: `token_hash` o `code`) | `src/app/` |
+| `/ingresar` (Ingresar · Crear cuenta · *Comprar como invitado* si hay productos), `/cuenta` (→ `/cuenta/pedidos` desde la 7.1: Mis pedidos y Detalle; sesión no anónima, el proxy da el código HTTP del Detalle, D-026), `/auth/confirm` (enlace del correo: `token_hash` o `code`) | `src/app/` |
 | *¿Olvidaste tu contraseña?*: `/ingresar/recuperar` (`requestPasswordReset`, rate limiting RESET por IP, misma respuesta exista o no la cuenta) → enlace del correo → `/auth/confirm` (sesión de recuperación) → `/ingresar/nueva-contrasena` (`updatePassword`: 8 caracteres, repetida, distinta a la anterior). Enlace vencido o reutilizado → `/ingresar/recuperar?error=enlace` | `src/lib/auth/actions.ts`, `src/components/auth/password-forms.tsx` |
 
 - `createSupabaseServer()` llama a `await connection()` (trampa 58).

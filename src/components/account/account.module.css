@@ -1,0 +1,769 @@
+/* Cuenta: layout con menú (MisPedidos), lista de pedidos y Detalle de pedido (DetallePedido).
+   Móvil primero; el menú pasa a columna desde 1024px */
+
+.page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) var(--space-12);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Menú: chips con scroll horizontal en móvil (MisPedidosMovil) */
+.nav {
+  margin: 0 calc(-1 * var(--space-4));
+  padding: 0 var(--space-4);
+  overflow-x: auto;
+}
+
+.greeting {
+  display: none;
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.menuLink[aria-current] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface-raised);
+}
+
+.menuSignOut {
+  display: none;
+}
+
+.mobileSignOut {
+  margin-top: var(--space-2);
+}
+
+@media (min-width: 1024px) {
+  .page {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-12);
+    padding: var(--space-8) var(--space-6) var(--space-16);
+  }
+
+  .content {
+    flex: 1 1 auto;
+  }
+
+  /* Columna de 220px (MisPedidos) */
+  .nav {
+    display: flex;
+    flex: 0 0 220px;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .greeting {
+    display: block;
+    min-height: 18px;
+  }
+
+  .menu {
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: 15px;
+    white-space: normal;
+  }
+
+  .menuLink {
+    height: auto;
+    padding: 10px var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+
+  .menuLink:hover {
+    background: var(--surface-sunken);
+  }
+
+  .menuLink[aria-current] {
+    background: var(--brand-soft);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .menuSignOut {
+    display: block;
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--line);
+  }
+
+  .menuSignOut .signOutLink {
+    justify-content: flex-start;
+    height: auto;
+    padding: 10px var(--space-3);
+    color: var(--ink-muted);
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+
+  .mobileSignOut {
+    display: none;
+  }
+}
+
+/* Encabezados */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.lead {
+  color: var(--ink-muted);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.muted {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.mutedSmall {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.skeleton {
+  min-height: 360px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+/* Lista de pedidos */
+.orders {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+.cardTop,
+.cardBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.cardTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.number {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.cardInfo {
+  display: flex;
+  flex: 1 1 260px;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.thumbs {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.thumb {
+  display: block;
+  width: 40px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  object-fit: cover;
+}
+
+.thumbMore {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statusLine {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.cardAction {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.total {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* *Ver detalle* se estira sobre toda la tarjeta */
+.cardAction .detailLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 767px) {
+  /* En móvil solo la flecha (MisPedidosMovil); el texto queda para los lectores de pantalla */
+  .cardAction .detailLink {
+    width: var(--control-sm);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+  }
+
+  .cardAction .detailLink > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) {
+  .card {
+    gap: var(--space-4);
+    padding: var(--space-6);
+  }
+
+  .thumb {
+    width: 48px;
+    height: 60px;
+  }
+}
+
+/* Estado vacío (sin diseño) */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.emptyMark {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+/* Detalle de pedido */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.detailTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.backLink {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.panelTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panelText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* Seguimiento: vertical en móvil */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.stepTrack {
+  display: flex;
+  flex: 0 0 32px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stepMark {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: var(--radius-full);
+}
+
+.step_done {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.step_current {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+.step_pending {
+  border: 1px solid var(--line-strong);
+}
+
+.stepLine {
+  flex: 1 1 auto;
+  width: 2px;
+  min-height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--line);
+}
+
+.stepLineDone {
+  background: var(--success);
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1) 0 var(--space-4);
+}
+
+.stepName {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+/* Productos y datos */
+.detailColumns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.products {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.items {
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.itemImage {
+  display: block;
+  flex: 0 0 64px;
+  width: 64px;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  object-fit: cover;
+}
+
+.itemBody {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.itemName {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a.itemName:hover {
+  text-decoration: underline;
+}
+
+.itemTotal {
+  margin-top: var(--space-1);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.itemAction {
+  margin-top: var(--space-1);
+  margin-left: calc(-1 * var(--space-3));
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dataCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.dataBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dataBlock + .dataBlock,
+.totals {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.dataTitle {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.dataText {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 15px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.totalRow dt {
+  color: var(--ink-muted);
+}
+
+.totalRow dd {
+  font-weight: 500;
+}
+
+.good dd {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.grandTotal {
+  align-items: baseline;
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.grandTotal dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.grandTotal dd {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.desktopOnly {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .detail {
+    gap: var(--space-8);
+  }
+
+  .detailTitle {
+    font-size: 40px;
+    line-height: 44px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .desktopOnly {
+    display: revert;
+  }
+
+  .mobileOnly {
+    display: none;
+  }
+
+  .panel {
+    gap: var(--space-6);
+    padding: var(--space-6);
+  }
+
+  .panelTop {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+  }
+
+  .mutedSmall {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  /* Seguimiento: 4 columnas (DetallePedido) */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .step {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .stepTrack {
+    flex: none;
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+
+  .stepLine {
+    width: auto;
+    height: 2px;
+    min-height: 0;
+  }
+
+  .stepText {
+    padding: 0;
+  }
+
+  .detailColumns {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-8) var(--space-12);
+  }
+
+  .products {
+    flex: 999 1 420px;
+    gap: var(--space-2);
+  }
+
+  .item {
+    gap: var(--space-4);
+  }
+
+  .itemImage {
+    flex-basis: 72px;
+    width: 72px;
+  }
+
+  .itemBody {
+    gap: var(--space-1);
+  }
+
+  .itemTotal {
+    margin-top: 0;
+  }
+
+  .aside {
+    flex: 1 1 300px;
+    max-width: 400px;
+    gap: var(--space-4);
+  }
+
+  .dataCard {
+    padding: var(--space-6);
+  }
+}

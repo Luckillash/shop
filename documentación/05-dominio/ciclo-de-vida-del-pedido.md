@@ -56,14 +56,14 @@ Un pedido tiene **N intentos**. Solo uno debería quedar `paid`. Antes de crear 
 
 ## Cómo se muestra (UI)
 
-El diseño define tres estados de despacho más *Pago pendiente*. Lo que falta es una propuesta.
+✅ Implementado en la 7.1 (`src/lib/orders/customer-view.ts`, D-026). La línea de cada estado (B24) está en `orderStatusLine`; las que no tienen diseño son propuestas (`_archivo/pendientes-del-dueno-fase-7.md`).
 
 | `orders.status` | `Badge` (Mis pedidos) | Seguimiento (4 pasos) |
 |---|---|---|
 | `pending` | `warning` *Pago pendiente* | — |
-| `paid` | `neutral` + `info` *En preparación* | ✓ Confirmado |
-| `processing` | `neutral` + `info` *En preparación* | ✓ Confirmado · ✓ Preparado |
-| `shipped` | `new` + `truck` *En camino* | ✓ Confirmado · ✓ Preparado · ✓ En camino |
+| `paid` | `neutral` + `info` *En preparación* | ✓ Confirmado (paso 4: *Estimado: …*) |
+| `processing` | `neutral` + `info` *En preparación* | ✓ Confirmado · ● Preparado (en curso, sin fecha) |
+| `shipped` | `new` + `truck` *En camino* | ✓ Confirmado · ✓ Preparado · ● En camino (en curso, `shipped_at`) |
 | `delivered` | `success` + `check` *Entregado* | ✓ todos |
 | `cancelled` | `danger` + `close` *Anulado* (canvas de la fase 7) | — |
 | `refunded` | `neutral` + `returns` *Reembolsado* (canvas de la fase 7) | — |

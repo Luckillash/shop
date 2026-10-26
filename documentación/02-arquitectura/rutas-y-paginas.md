@@ -56,15 +56,15 @@ Detalle en [06-implementacion/pagos-webpay-plus.md](../06-implementacion/pagos-w
 
 | URL | Template | Datos |
 |---|---|---|
-| `/cuenta` | ✅ Provisoria (fase 5): correo y *Cerrar sesión*. En la fase 7, → `/cuenta/pedidos` | Sesión |
+| `/cuenta` | ✅ 7.1: redirige a `/cuenta/pedidos` (layout con el menú: *Hola, <nombre>*, *Mis pedidos*, *Cerrar sesión*; el resto llega en la 7.5, D-026) | — |
 | `/auth/confirm` | (Route Handler) enlace de confirmación del correo → `?volver=` o `/ingresar?error=confirmacion` | Supabase Auth |
-| `/cuenta/pedidos` | Mis pedidos | `orders` del usuario (`user_id, placed_at desc`) + miniaturas |
-| `/cuenta/pedidos/[orderNumber]` | Detalle de pedido | `orders` por `order_number`, `order_items`, `payments` |
-| `/cuenta/direcciones` | (sin template; reutiliza los campos del checkout) | `addresses` |
-| `/cuenta/favoritos` | (sin template; grilla de `ProductCard`) | `wishlist_items` + `product_catalog` |
-| `/cuenta/datos` | (sin template) | `profiles` |
+| `/cuenta/pedidos` | ✅ 7.1 · Mis pedidos (+ estado vacío sin diseño) | `orders` del usuario (`user_id`, `placed_at desc`, hasta 50) + ítems con la foto del producto + intentos de pago. Contenido en `<Suspense>`; sin sesión no anónima → Ingresar |
+| `/cuenta/pedidos/[orderNumber]` | ✅ 7.1 · Detalle de pedido | `orders` por `order_number` y `user_id`, `order_items`, `payments`. El proxy da el código HTTP en la carga directa: sin sesión → redirect a Ingresar, pedido ajeno o inexistente → **404** (trampa 75) |
+| `/cuenta/direcciones` | ⏳ 7.5 · Direcciones | `addresses` |
+| `/cuenta/favoritos` | ⏳ 7.5 · Favoritos (el corazón del header ya enlaza aquí: 404 hasta entonces) | `wishlist_items` + `product_catalog` |
+| `/cuenta/datos` | ⏳ 7.5 · Datos personales | `profiles` |
 
-Todas requieren sesión **no anónima**. El proxy redirige de forma optimista a `/ingresar?volver=/cuenta/...`, y la página vuelve a verificar la sesión.
+Todas requieren sesión **no anónima** (un invitado va a Ingresar, D-026). Cada página verifica la sesión; en el Detalle, además, el proxy lo comprueba antes del render para que el código HTTP sea real (D-026). La redirección optimista de todo `/cuenta/*` en el proxy sigue como opcional (7.8).
 
 ## Errores
 
