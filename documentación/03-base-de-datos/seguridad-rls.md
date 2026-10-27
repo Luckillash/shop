@@ -82,5 +82,5 @@ Con los inicios anónimos activados, los invitados usan el rol `authenticated` (
 
 - Políticas de dueño (`addresses`, `carts`, `cart_items`, `orders`, `order_items`, `payments`, `profiles`, `wishlist_items`): las necesita el invitado para comprar y ver su pedido.
 - Políticas de admin: usan `is_admin()`; un anónimo no es admin.
-- ⏳ **`reviews`**: un invitado que compró podría escribir una reseña. Decidir en la fase 7 si se exige `(auth.jwt() ->> 'is_anonymous')::boolean is not true`.
+- ⏳ **`reviews`**: hoy un invitado que compró podría escribir una reseña. **Decidido el 27-10-2026** (decisiones 3a y 3c del dueño): la política `reviews: compradores crean` exigirá `(auth.jwt() ->> 'is_anonymous')::boolean is not true` y un pedido `delivered` con el producto (hoy acepta `paid`, `processing`, `shipped` y `delivered`). Se aplica en la 7.6.
 

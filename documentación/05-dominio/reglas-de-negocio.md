@@ -82,7 +82,7 @@ si no                  → 6990
 |---|---|---|
 | Se puede comprar como invitado. Crear cuenta se ofrece en el login y en la confirmación | D | ✅ sesión anónima (D-008; falta activarla en Supabase). En la Confirmación: fase 6 |
 | Contraseña de al menos 8 caracteres | D | Configuración de Supabase Auth |
-| Solo quien compró el producto (pedido pagado o posterior) puede reseñarlo. Una reseña por producto | SQL | RLS ✅ |
+| Solo quien compró el producto puede reseñarlo. Una reseña por producto. Decisión 3 del dueño (27-10-2026): con el pedido **entregado**, sin invitados, firmada *Nombre · Comuna* | SQL | RLS ✅ (hoy desde `paid` y sin excluir anónimos; la 7.6 lo ajusta ⏳) |
 
 ## Pagos
 

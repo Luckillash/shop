@@ -8,7 +8,7 @@ related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-est
 
 # Plan de la fase 7: postcompra y operación
 
-Propuesta del 25-10-2026. El dueño pidió empezar por la 7.0 el mismo día; las decisiones de abajo siguen pendientes y están también en [pendientes del dueño](pendientes-del-dueno-fase-7.md).
+Propuesta del 25-10-2026. El dueño pidió empezar por la 7.0 el mismo día; las decisiones de abajo están también en [pendientes del dueño](pendientes-del-dueno-fase-7.md). Al 27-10-2026 solo queda ⏳ la 7c.
 
 **Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027). 7.3 ✅ (26-10-2026): correos de confirmación, despacho y anulación (D-028), con las decisiones 2 y 6 respondidas.
 
@@ -29,8 +29,8 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | **7.2** ✅ | Invitado → cuenta | 7.1 | ✅ 26-10-2026 (D-027): con la confirmación de correo activada el aviso es *Revisa tu correo para terminar* (aprobado por el dueño); correo con cuenta → *Ingresar*; *Ver estado del pedido* solo con cuenta; SMTP propio con Resend (dueño). Plan original: `ConfirmacionCrearCuenta` con `updateUser` sobre la sesión anónima, conservando el `user_id` y por lo tanto sus pedidos. *Ver estado del pedido* (B38). ⚠️ Con la confirmación de correo activa, Supabase puede exigir confirmar el correo antes de que la cuenta deje de ser anónima. Si es así, el aviso tendría que decir algo como *Te enviamos un correo para confirmar* y no *Listo, creamos tu cuenta*; se le propondrá ese texto al dueño. Si el correo ya tiene una cuenta, no se fusionan los pedidos (sería un riesgo de privacidad): se le pide ingresar |
 | **7.3** ✅ | Correos | 7.0 | ✅ 26-10-2026 (D-028): `layout` del artboard con `viewport` (también en transferencia, pago devuelto y las plantillas de Supabase Auth), `orderShippedEmail` y `orderCancelledEmail` con sus 3 motivos, `sendOrderEmail` con registro en `order_events`, enlace según la cuenta, transportistas (decisión 2) y aviso de transferencias vencidas en el cron (decisión 6a). Plan original: ajustar el `layout` de `src/lib/email/templates.ts` a `CorreoConfirmacion`; correos `CorreoDespacho` y `CorreoAnulacion` con sus 3 motivos. Cada correo se prueba con un envío real desde `mail.audazia.dev` |
 | **7.4** | Administración | 7.0, 7.3 y la cuenta admin | `/admin` sin el header de la tienda (`AdminHeader`); acceso validado en el layout **y** en cada Server Action. Incluye `AdminPedidos` (chips con conteo, búsqueda por N.º o correo, *Ver más*), `AdminPedido` con sus 5 estados y el historial, confirmar transferencia con `settle_payment(…, 'paid', …)` y el N.º de operación, *Empezar a preparar*, *Marcar como enviado* (transportista y código, con correo), *Marcar como entregado*, `AdminAnularPedido` (`cancel_order` + reembolso con el código de la fase 6 + correo opcional), `AdminAlertas` (resolver) y `AdminPedidoMovil`. Las transiciones se validan en la acción |
-| **7.5** | Direcciones, Favoritos y Datos personales | 7.1 | CRUD de `addresses` con predeterminada; favoritos con estado vacío (un invitado debe ingresar, B23) y el corazón de la Ficha y de `ProductCard` conectado; datos personales, cambio de contraseña y novedades |
-| **7.6** | Reseñas (B36) | 7.1 | Modal `EscribirResena` en la Ficha. La elegibilidad se consulta al abrirlo, para que la Ficha siga siendo estática. Migración: el nombre y la comuna se copian en `reviews` con un trigger, para que el cliente no pueda inventarlos y `anon` no tenga que leer `profiles`; también se ajusta la política según la decisión 3. Las opiniones reales reemplazan los placeholders y se invalida el tag del producto |
+| **7.5** | Direcciones, Favoritos y Datos personales | 7.1 | CRUD de `addresses` con predeterminada; favoritos con estado vacío (un invitado debe ingresar, B23) y el corazón de la Ficha y de `ProductCard` conectado; datos personales (con `profiles.rut` opcional, decisión 7a ✅), cambio de contraseña y novedades (`profiles.newsletter_opt_in_at`, decisión 7b ✅) |
+| **7.6** | Reseñas (B36) | 7.1 | Modal `EscribirResena` en la Ficha. La elegibilidad se consulta al abrirlo, para que la Ficha siga siendo estática. Migración: el nombre y la comuna se copian en `reviews` con un trigger, para que el cliente no pueda inventarlos y `anon` no tenga que leer `profiles`; también se ajusta la política según la decisión 3 (✅ 27-10-2026: solo `delivered` y sin anónimos; firma *Nombre · Comuna*). Las opiniones reales reemplazan los placeholders y se invalida el tag del producto |
 | **7.7** | *Los más vendidos* (B34) | — | Función `security definer` que devuelve solo los ids, cacheada con el tag `products`; si hay menos de 4, se muestran *Destacados* |
 | **7.8** | Opcionales 🟢 | 7.1, 7.4 | Redirección optimista de `/cuenta/*` y `/admin/*` en el proxy; limpieza de usuarios anónimos sin pedidos de más de 30 días, aprovechando el cron diario |
 
@@ -67,7 +67,17 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | 7.4 | Pedido **1042** de prueba: anulado por la tienda con el pago de Flow sandbox **sin reembolsar** (`payments.status = paid`). Decisión del dueño (26-10-2026): se deja así para probar el reembolso desde la administración. Ya está `cancelled` y `cancel_order` no acepta pedidos anulados, así que `AdminAnularPedido` no lo toma: la 7.4 tiene que poder reembolsar un pedido ya anulado (por ejemplo, desde su alerta), o la anulación se prueba con un pedido nuevo | Supabase |
 | Dueño | ~~Textos propuestos de la 7.3 (T6)~~ ✅ aprobados sin cambios (26-10-2026); ~~volver a pegar las plantillas de Supabase Auth (T7)~~ ✅ y, opcional, un buzón para respuestas (T8) | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 
-**Orden propuesto:** 7.0 → 7.1 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 → 7.8. Si la cuenta admin (decisión 4) se define al aprobar el plan, la 7.4 no se retrasa.
+### Lo que dejan las decisiones del dueño del 27-10-2026
+
+| Subetapa | Pendiente | Dónde |
+|---|---|---|
+| 7.4 | Cuentas admin listas (decisión 4 ✅): `prueba.fase5@almacen.cl` y `lucassalazarc@outlook.com`. Al terminar, quitarle el rol a la de prueba (T9) | `profiles.role` |
+| 7.4 | Transferencia pagada (decisión 5 ✅): modal *Devuélvele $X por transferencia*, *Ya devolví el dinero* → `refunded`; con *Avisar al cliente*, `orderCancelledEmail` le pide banco, tipo de cuenta, número y RUT y dice a qué correo escribir. Sin datos bancarios en la BD. Los correos no tienen `reply_to` y `STORE.contactEmail` es de ejemplo: *escríbenos a …* hasta T8 | `src/lib/email/templates.ts`, `order-emails.ts` |
+| 7.5 | `profiles.rut` opcional y validado (decisión 7a ✅); Datos personales lo edita y el checkout lo precarga sin escribirlo | `src/app/(checkout)/checkout/page.tsx` |
+| 7.5 | `profiles.newsletter_opt_in_at` (decisión 7b ✅): migración que copia `user_metadata.newsletter = true` con la fecha de creación de la cuenta; Crear cuenta y la conversión del invitado escriben la columna; *Correos de la tienda* en Datos personales la activa (fecha actual) o la vacía | `src/lib/auth/actions.ts` |
+| 7.6 | Política `reviews: compradores crean`: `status = 'delivered'` (3a) y `is_anonymous is not true` (3c); trigger con el nombre de pila y la comuna del pedido entregado más reciente (3b); si no hay `full_name`, el modal lo pide | Supabase |
+
+**Orden propuesto:** 7.0 → 7.1 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 → 7.8. La cuenta admin (decisión 4) quedó definida el 27-10-2026, así que la 7.4 no espera nada.
 
 **Fuera de alcance:** boleta o factura electrónica mientras no haya proveedor (D-012), administración del catálogo (productos, stock, cupones) y la lista de pedidos en móvil (sin diseño).
 
@@ -83,12 +93,12 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 |---|---|---|---|
 | 1 | Etiqueta *Por preparar* para `paid` en la administración | Aprobarla. El cliente sigue viendo *En preparación* en `paid` y en `processing` | ✅ 26-10-2026: aprobada (ya estaba en el código de la 7.0) |
 | 2 | Transportistas | Aprobar Starken, Chilexpress, Blue Express, Correos de Chile y despacho propio. *Seguir el envío* enlaza a la página de seguimiento de cada uno; en despacho propio no hay enlace | ✅ 26-10-2026: aprobada (aplicada en la 7.3) |
-| 3a | Solo opina quien compró el producto | Aprobarlo | ⏳ |
-| 3b | La opinión se publica con el nombre de pila y la comuna de despacho (*Camila · Providencia*); en los retiros en tienda, sin comuna | Aprobarlo | ⏳ |
-| 3c | ¿Puede opinar un invitado? | **No**: no tiene nombre, su sesión se pierde y la limpieza de anónimos la borraría. Con la 7.2, crear la cuenta le toma un paso. Exige `is_anonymous is not true` en la política | ⏳ |
-| 4 | Qué cuenta se marca como `admin` en `profiles` | `prueba.fase5@almacen.cl` (para probar) y la cuenta real del dueño (creada el 25-10-2026) | ⏳ |
-| 5 | Anular un pedido pagado por transferencia (no hay pasarela que reembolse) | El modal dice *Devuélvele $X por transferencia* y el pedido pasa a *Reembolsado* cuando el admin marca *Ya devolví el dinero* | ⏳ |
+| 3a | Solo opina quien compró el producto | Aprobarlo | ✅ 27-10-2026: sí, solo con el pedido entregado (`status = 'delivered'` en la política de `reviews`) |
+| 3b | La opinión se publica con el nombre de pila y la comuna de despacho (*Camila · Providencia*); en los retiros en tienda, sin comuna | Aprobarlo | ✅ 27-10-2026: aprobada |
+| 3c | ¿Puede opinar un invitado? | **No**: no tiene nombre, su sesión se pierde y la limpieza de anónimos la borraría. Con la 7.2, crear la cuenta le toma un paso. Exige `is_anonymous is not true` en la política | ✅ 27-10-2026: no; al invitado se le ofrece crear su cuenta |
+| 4 | Qué cuenta se marca como `admin` en `profiles` | `prueba.fase5@almacen.cl` (para probar) y la cuenta real del dueño (creada el 25-10-2026) | ✅ 27-10-2026: ambas (`prueba.fase5@almacen.cl` y `lucassalazarc@outlook.com`) |
+| 5 | Anular un pedido pagado por transferencia (no hay pasarela que reembolse) | El modal dice *Devuélvele $X por transferencia* y el pedido pasa a *Reembolsado* cuando el admin marca *Ya devolví el dinero* | ✅ 27-10-2026: aprobada; el correo de anulación le pide al cliente sus datos bancarios por respuesta (no se guardan) |
 | 6 | Correo *Anulamos tu pedido* cuando el pedido vence | **(a)** Solo a las transferencias vencidas. La otra opción, **(b)**, también lo envía a los pedidos abandonados con tarjeta o Flow, que vencen a los 30 minutos y suelen ser alguien que no siguió con la compra; puede sonar a spam | ✅ 26-10-2026: **(a)** (aplicada en la 7.3) |
-| 7a | RUT en `profiles` (B22) | **Sí**: Datos personales ya lo muestra | ⏳ |
-| 7b | *Recibir novedades* (B21) | Solo una marca en `profiles` | ⏳ |
+| 7a | RUT en `profiles` (B22) | **Sí**: Datos personales ya lo muestra | ✅ 27-10-2026: sí, opcional; se edita en Datos personales, autocompleta el checkout y el checkout no lo guarda solo |
+| 7b | *Recibir novedades* (B21) | Solo una marca en `profiles` | ✅ 27-10-2026: una fecha, `profiles.newsletter_opt_in_at` (vacía = no), para saber desde cuándo aceptó |
 | 7c | Suscripción del footer (B21) | Dejarla deshabilitada hasta elegir un proveedor de newsletter | ⏳ |

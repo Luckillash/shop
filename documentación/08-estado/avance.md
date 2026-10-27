@@ -11,7 +11,7 @@ estado: "vigente"
 
 > **Úsalo cuando:** necesitas saber en qué punto está el proyecto, o terminaste una tarea (actualiza este archivo y el [registro de cambios](registro-de-cambios.md)).
 
-_Última actualización: 26 de octubre de 2026 (7.3)._
+_Última actualización: 27 de octubre de 2026 (decisiones 3, 4, 5, 7a y 7b de la fase 7)._
 
 ## Resumen
 
@@ -96,7 +96,7 @@ Antes de la fase 5: Supabase tiene el esquema, el seed de Almacén y las funcion
 | 4 · Carro | ✅ Terminada (24-10-2026) | — |
 | 5 · Cuenta y checkout | ✅ Terminada (24-10-2026; fecha en la Ficha 25-10-2026) | — |
 | 6 · Pagos | ✅ Terminada (25-10-2026) | `urlConfirmation` real ✅ probada en `audazia.dev` (25-10-2026, pedido 1036). Resend ✅ y datos bancarios reales ✅ (25-10-2026) |
-| 7 · Postcompra y operación | 🔄 **En curso** · 7.0 ✅ · 7.1 ✅ (25-10-2026) · 7.2 ✅ · 7.3 ✅ (26-10-2026) | Seguir con la 7.4 (administración; necesita la decisión 4). Decisiones 2 y 6 ✅ (26-10-2026). Textos propuestos de la 7.3 ✅ aprobados sin cambios (T6, 26-10-2026). Plantillas de Supabase Auth con el estilo nuevo ✅ (T7, 26-10-2026). Cron ✅ (T1). Textos propuestos de la 7.1 y la 7.2 ✅ aprobados sin cambios (T2, T3; 26-10-2026). Plantillas de Supabase Auth ✅ (T4, 26-10-2026). Plan y decisiones en [plan-fase-7](../_archivo/plan-fase-7.md) y [pendientes del dueño](../_archivo/pendientes-del-dueno-fase-7.md) |
+| 7 · Postcompra y operación | 🔄 **En curso** · 7.0 ✅ · 7.1 ✅ (25-10-2026) · 7.2 ✅ · 7.3 ✅ (26-10-2026) | Seguir con la 7.4 (administración), que ya no espera nada: decisiones 3a/3b/3c, 4, 5, 7a y 7b ✅ (27-10-2026); cuentas admin marcadas (`prueba.fase5@almacen.cl` y `lucassalazarc@outlook.com`). Queda ⏳ la 7c. Decisiones 2 y 6 ✅ (26-10-2026). Textos propuestos de la 7.3 ✅ aprobados sin cambios (T6, 26-10-2026). Plantillas de Supabase Auth con el estilo nuevo ✅ (T7, 26-10-2026). Cron ✅ (T1). Textos propuestos de la 7.1 y la 7.2 ✅ aprobados sin cambios (T2, T3; 26-10-2026). Plantillas de Supabase Auth ✅ (T4, 26-10-2026). Plan y decisiones en [plan-fase-7](../_archivo/plan-fase-7.md) y [pendientes del dueño](../_archivo/pendientes-del-dueno-fase-7.md) |
 
 ## Pendientes heredados (del avance original)
 
@@ -159,4 +159,4 @@ Nada de las fases 5 y 6 la bloquea. Lo recomendado antes de empezar (cuenta con 
 
 ## Decisiones que bloquean
 
-Ninguna para la fase 7. Fase 6: el dueño decidió el 25-10-2026 locks fail-open (D-005), Flow sin túnel (D-024), datos bancarios ficticios (D-024; reemplazados por los reales el mismo día), Vercel Cron (D-021; diario mientras la cuenta siga en Hobby), reembolso automático + alerta (D-020), invitado → cuenta en la fase 7 y correos con Resend (D-022). Sigue abierto el proveedor de boleta electrónica (D-012). Resend ya envía desde `mail.audazia.dev`; falta la llave de producción. Los textos propuestos sin diseño (B14, B37) quedaron aprobados.
+Ninguna para la fase 7. El 27-10-2026 el dueño respondió las decisiones 3 (reseñas: solo con el pedido entregado, sin invitados, firma *Nombre · Comuna*), 4 (cuentas admin), 5 (anular una transferencia pagada: devolución a mano y *Ya devolví el dinero*; el correo pide los datos bancarios) 7a (`profiles.rut` opcional) y 7b (`profiles.newsletter_opt_in_at`); sigue ⏳ la 7c, que no bloquea ninguna subetapa ([pendientes del dueño](../_archivo/pendientes-del-dueno-fase-7.md)). Fase 6: el dueño decidió el 25-10-2026 locks fail-open (D-005), Flow sin túnel (D-024), datos bancarios ficticios (D-024; reemplazados por los reales el mismo día), Vercel Cron (D-021; diario mientras la cuenta siga en Hobby), reembolso automático + alerta (D-020), invitado → cuenta en la fase 7 y correos con Resend (D-022). Sigue abierto el proveedor de boleta electrónica (D-012). Resend ya envía desde `mail.audazia.dev`; falta la llave de producción. Los textos propuestos sin diseño (B14, B37) quedaron aprobados.

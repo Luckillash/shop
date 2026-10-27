@@ -38,7 +38,7 @@ Reglas:
 |---|---|---|---|
 | `anon` (sin sesión) | Rol de Postgres | — | Leer el catálogo activo, las marcas, las imágenes y las reseñas publicadas |
 | `customer` | `profiles.role` (por defecto) | Trigger `handle_new_user` al registrarse | Lo suyo: perfil, direcciones, carro, favoritos, pedidos, pagos (solo lectura), reseñas de productos comprados |
-| `admin` | `profiles.role = 'admin'` | A mano en la BD. El trigger `protect_profile_role` impide que un usuario se lo asigne a sí mismo | Todo: catálogo, cupones, inventario, pedidos, pagos, ocultar reseñas, subir imágenes |
+| `admin` | `profiles.role = 'admin'` | A mano en la BD. El trigger `protect_profile_role` impide que un usuario se lo asigne a sí mismo. Desde el 27-10-2026 (decisión 4 del dueño): `lucassalazarc@outlook.com` y, solo para probar la 7.4, `prueba.fase5@almacen.cl` | Todo: catálogo, cupones, inventario, pedidos, pagos, ocultar reseñas, subir imágenes |
 | `service_role` | Llave de servicio | — | Salta RLS. Puede ejecutar `place_order` y `cancel_order` |
 
 `public.is_admin()` (`security definer`) es la única forma de comprobar si alguien es admin dentro de las políticas.
