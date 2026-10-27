@@ -18,8 +18,8 @@ Revisión del 25-10-2026, después de probar la `urlConfirmation` de Flow en `au
 | # | Tarea | Quién | Por qué ahora | Dónde está el detalle |
 |---|---|---|---|---|
 | 1 | ~~Crear una cuenta en `https://audazia.dev/ingresar` con un correo real, abrir el enlace de confirmación y probar *¿Olvidaste tu contraseña?*~~ ✅ (25-10-2026): las dos funcionaron; en `auth.users` la cuenta quedó con `email_confirmed_at` | 👥 | — | Tarea 12 de [despliegue](pendientes-del-despliegue.md) · bloque 6 de la [lista general](pendientes-antes-de-produccion.md#6-supabase) |
-| 2 | Revisar la primera ejecución del cron (`/api/cron/expirar-pedidos`, 200 y no 401) | 🤖 | Corre una vez al día a las 09:00 UTC (06:00 de Chile); la primera es el 26-10-2026 | Tarea 7 de [despliegue](pendientes-del-despliegue.md) |
-| 3 | Decidir el nombre del remitente de los correos | 👤 | El correo del pedido 1036 llegó y se ve como *audazia*. `EMAIL_FROM` dice `Almacén <pedidos@mail.audazia.dev>`; si quieres otro nombre, el agente lo cambia en Vercel | Tarea 4 de [despliegue](pendientes-del-despliegue.md) (llave y remitente de producción) |
+| 2 | ~~Revisar la primera ejecución del cron (`/api/cron/expirar-pedidos`, 200 y no 401)~~ ✅ (26-10-2026): corrió el 26-10-2026 a las 09:00:47 UTC con `{ checked: 0, cancelled: 0, recovered: 0, skipped: 0 }` (200) | 🤖 | — | Tarea 7 de [despliegue](pendientes-del-despliegue.md) |
+| 3 | ~~Decidir el nombre del remitente de los correos~~ ✅ (26-10-2026): por ahora se queda *Almacén* (`EMAIL_FROM=Almacén <pedidos@mail.audazia.dev>` y el remitente del SMTP de Supabase Auth). El dueño lo cambiará más adelante | 👤 | Para cambiarlo: `EMAIL_FROM` en `.env.local` y en Vercel, y el nombre del remitente en *Authentication → SMTP Settings* de Supabase | Tarea 4 de [despliegue](pendientes-del-despliegue.md) (llave y remitente de producción) |
 
 ## 2. Lo que quedó de las fases 5 y 6 para antes de producción
 
@@ -27,11 +27,11 @@ Ya están en la [lista general](pendientes-antes-de-produccion.md) y en el [chec
 
 | Pendiente | Viene de | Quién | Prioridad | En la lista general |
 |---|---|---|---|---|
-| Borrar los datos de prueba: `cancel_order` a los pagados (1020–1022, 1027–1029 y 1036) y después borrar los pedidos 1001–1036 y los de la fase 7 | Fase 5 tarea 6 · fase 6 tarea 6 | 🤖 | 🔴 | Bloque 8 |
-| Borrar los usuarios de prueba: `prueba.fase5@almacen.cl` y los anónimos | Fase 5 tarea 6 | 👤 | 🔴 | Bloque 6 |
+| Borrar los datos de prueba: pedidos **1001–1043** (no hay 1037). Primero `cancel_order` a los **pagados** (1020–1022, 1027–1029, 1036 y 1038) para devolver el stock; los **enviados** 1040 y 1043 (`shipped`) no los acepta `cancel_order`, así que su stock se corrige a mano o al cargar el catálogo real. El 1042 ya está anulado, con el pago de Flow sandbox sin reembolsar (se deja para probar la 7.4). Después, borrarlos de `orders` | Fase 5 tarea 6 · fase 6 tarea 6 | 🤖 | 🔴 | Bloque 8 |
+| Borrar los usuarios de prueba: todos salvo tu cuenta real (`lucassalazarc@outlook.com`). Al 26-10-2026 son 47: `prueba.fase5@almacen.cl`, 5 de mailinator (`almacen.invitado72`, `almacen.registro72`, `almacen.invitado73`, `almacen.asuntos72` y `almacen.asuntos74`) y 41 anónimos | Fase 5 tarea 6 | 👤 | 🔴 | Bloque 6 |
 | Activar *Leaked password protection* en Supabase Auth | Advisors de la fase 5 | 👤 | 🔴 | Bloque 6 |
-| Plantilla del correo *Reset password* con `token_hash` (la recuperación ya funcionó con un correo real el 25-10-2026; la plantilla hace que el enlace sirva también en otro navegador) | Fase 5 | 👤 | 🟠 | Bloque 6 |
-| Templates de todos los correos de Supabase Auth (confirmar cuenta, recuperar contraseña, enlace mágico, cambio de correo, invitación y reautenticación), en español y con el estilo de la tienda. Hoy salen los de Supabase por defecto, en inglés. El agente genera el HTML; tú los pegas en *Authentication → Email Templates* | Nuevo (25-10-2026) | 👥 | 🟠 | Bloque 6 |
+| ~~Plantilla del correo *Reset password* con `token_hash`~~ ✅ (26-10-2026, T4 de la [fase 7](pendientes-del-dueno-fase-7.md)): el enlace funciona en otro navegador | Fase 5 | 👤 | 🟠 | Bloque 6 |
+| ~~Templates de todos los correos de Supabase Auth (confirmar cuenta, recuperar contraseña, enlace mágico, cambio de correo, invitación y reautenticación), en español y con el estilo de la tienda~~ ✅ (26-10-2026, T4 y T7 de la [fase 7](pendientes-del-dueno-fase-7.md)): en `supabase/templates/`, pegadas y probadas con correos reales | Nuevo (25-10-2026) | 👥 | 🟠 | Bloque 6 |
 | Credenciales de producción de Webpay y Flow, y repetir la prueba de `urlConfirmation` con ellas | Fase 6 | 👥 | 🔴 | Bloques 5 y 8 |
 | Llave `almacen-produccion` de Resend en Vercel; revisar si los correos siguen cayendo en spam | Fase 6 tarea 1 | 👥 | 🔴 | Bloque 7 · tarea 4 de [despliegue](pendientes-del-despliegue.md) |
 | Cron cada 10 min: pasar a Pro o `pg_cron` (hoy diario, plan Hobby) | Fase 6 tarea 3 | 👥 | 🔴 | Bloque 7 · tarea 6 de [despliegue](pendientes-del-despliegue.md) |

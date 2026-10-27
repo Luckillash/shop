@@ -1,6 +1,6 @@
 ---
 title: "Plan de la fase 7: postcompra y operación"
-description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones pendientes del dueño. Esperando aprobación."
+description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones del dueño. En curso: 7.0 a 7.3 listas."
 generated: "2026-10-25"
 estado: "en curso"
 related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-estado/avance.md", "_archivo/pendientes-antes-de-la-fase-7.md", "_archivo/prompt-inicio-fase-7.md", "02-arquitectura/decisiones.md", "07-referencia/brechas-diseno-vs-datos.md"]
@@ -38,7 +38,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 
 | Subetapa | Pendiente | Dónde |
 |---|---|---|
-| Antes de la 7.2 | Revisar la primera ejecución del cron (26-10 después de las 06:00 de Chile) y cerrar la tarea 7 del despliegue | T1 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
+| Antes de la 7.2 ✅ | ~~Revisar la primera ejecución del cron (26-10 después de las 06:00 de Chile) y cerrar la tarea 7 del despliegue~~ Corrió el 26-10 a las 09:00:47 UTC (200) | T1 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 | 7.2 ✅ | ~~Un invitado que entra a `/cuenta/*` va a Ingresar (D-026). Cuando convierta su sesión en cuenta, sus pedidos deben aparecer en Mis pedidos sin cambios~~ Probado el 26-10-2026 con el 1038: mismo `user_id`, pedido, dirección y carro | `src/app/(tienda)/cuenta/` |
 | 7.3 ✅ | ~~El correo de despacho debe usar la misma fecha y el mismo texto que el seguimiento (`estimatedDelivery`, `orderStatusLine`) y enlazar a `/cuenta/pedidos/<n>` si el cliente tiene cuenta~~ Hecho (D-028) | `src/lib/orders/customer-view.ts` |
 | 7.4 | ~~Con la decisión 2, agregar la URL de seguimiento de cada transportista en `CARRIER_TRACKING`~~ ✅ en la 7.3. *Marcar como enviado* debe guardar `carrier` con el `name` de `CARRIERS` (el despacho propio es `Almacén`). Si se quiere fecha en el paso *Preparado*, habría que exponer la del evento `processing` al cliente (hoy solo la lee el admin) | `src/lib/orders/customer-view.ts` |
@@ -64,7 +64,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | 7.4 | `AdminAnularPedido`: `cancel_order(id, "tienda", nota)` y, si se marca *Avisar al cliente*, `sendOrderEmail(id, "cancelled", { actor: "admin", … })` **después** del reembolso, para que diga *Te devolvimos $X* y no *Te vamos a devolver*. La nota es el motivo del correo y de Mis pedidos; es opcional (sin ella: *Tuvimos que anular tu pedido. Lo sentimos.*, aprobado por el dueño) | `orderCancelledEmail` |
 | 7.4 | Confirmar una transferencia: después de `settle_payment(…, "paid", …)`, `sendOrderEmail(id, "confirmed")` (el medio sale como *transferencia bancaria*) | `service.ts` |
 | 7.4 | El historial de `AdminPedido` puede mostrar los correos: eventos `kind = "email"` con `data.template` (`confirmed`, `shipped`, `cancelled`, `transfer`, `late_refund`) y `data.subject` | `order_events` |
-| 7.4 | Pedido **1042** de prueba: anulado por la tienda con el pago de Flow sandbox **sin reembolsar** (`payments.status = paid`): sirve para probar el reembolso de `AdminAnularPedido` o se reembolsa a mano | Supabase |
+| 7.4 | Pedido **1042** de prueba: anulado por la tienda con el pago de Flow sandbox **sin reembolsar** (`payments.status = paid`). Decisión del dueño (26-10-2026): se deja así para probar el reembolso desde la administración. Ya está `cancelled` y `cancel_order` no acepta pedidos anulados, así que `AdminAnularPedido` no lo toma: la 7.4 tiene que poder reembolsar un pedido ya anulado (por ejemplo, desde su alerta), o la anulación se prueba con un pedido nuevo | Supabase |
 | Dueño | ~~Textos propuestos de la 7.3 (T6)~~ ✅ aprobados sin cambios (26-10-2026); ~~volver a pegar las plantillas de Supabase Auth (T7)~~ ✅ y, opcional, un buzón para respuestas (T8) | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 
 **Orden propuesto:** 7.0 → 7.1 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 → 7.8. Si la cuenta admin (decisión 4) se define al aprobar el plan, la 7.4 no se retrasa.
@@ -81,7 +81,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 
 | # | Decisión | Recomendación del agente | Respuesta |
 |---|---|---|---|
-| 1 | Etiqueta *Por preparar* para `paid` en la administración | Aprobarla. El cliente sigue viendo *En preparación* en `paid` y en `processing` | ⏳ |
+| 1 | Etiqueta *Por preparar* para `paid` en la administración | Aprobarla. El cliente sigue viendo *En preparación* en `paid` y en `processing` | ✅ 26-10-2026: aprobada (ya estaba en el código de la 7.0) |
 | 2 | Transportistas | Aprobar Starken, Chilexpress, Blue Express, Correos de Chile y despacho propio. *Seguir el envío* enlaza a la página de seguimiento de cada uno; en despacho propio no hay enlace | ✅ 26-10-2026: aprobada (aplicada en la 7.3) |
 | 3a | Solo opina quien compró el producto | Aprobarlo | ⏳ |
 | 3b | La opinión se publica con el nombre de pila y la comuna de despacho (*Camila · Providencia*); en los retiros en tienda, sin comuna | Aprobarlo | ⏳ |

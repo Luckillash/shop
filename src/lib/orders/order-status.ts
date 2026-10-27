@@ -29,7 +29,7 @@ export function customerStatusBadge(status: OrderStatus): StatusBadge {
 
 /**
  * Badge de la administración: pending es *Transferencia por confirmar* (o *Pago pendiente* con
- * tarjeta o Flow) y paid es *Por preparar* (propuesta, decisión 1 del plan de la fase 7).
+ * tarjeta o Flow) y paid es *Por preparar* (decisión 1 de la fase 7, aprobada).
  */
 export function adminStatusBadge(status: OrderStatus, paymentMethod: string | null): StatusBadge {
   if (status === "pending") {

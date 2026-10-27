@@ -101,11 +101,12 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 1. 👤 En Resend → *API Keys*, crear `almacen-produccion` con *Sending access* solo para `mail.audazia.dev`. Cárgala tú en Vercel (*Settings → Environment Variables*, `RESEND_API_KEY`, Production) para que no pase por el chat.
 2. 🤖 Volver a desplegar y hacer un pedido con transferencia para comprobar que llega el correo.
-3. Mirar si los correos siguen llegando a spam en Outlook. Cuando los reportes DMARC estén limpios, subir a `p=quarantine`.
+3. Remitente: por ahora se queda *Almacén* (decisión del dueño, 26-10-2026; lo cambiará más adelante). Si cambia, actualizar `EMAIL_FROM` en Vercel y el nombre del remitente del SMTP de Supabase Auth.
+4. Mirar si los correos siguen llegando a spam en Outlook. Cuando los reportes DMARC estén limpios, subir a `p=quarantine`.
 
 ## 5. Base de datos compartida entre desarrollo y producción 🔴
 
-**Por qué:** hay un solo proyecto de Supabase (`nswchmyzgcutyehhuche`), y tanto `localhost` como `audazia.dev` lo usan. En el sitio público se ven el catálogo de ejemplo, los cupones de prueba (BIENVENIDA10, DESCUENTO5000) y el stock que dejaron los pedidos de prueba 1001–1035. Lo que pruebes en local afecta a producción.
+**Por qué:** hay un solo proyecto de Supabase (`nswchmyzgcutyehhuche`), y tanto `localhost` como `audazia.dev` lo usan. En el sitio público se ven el catálogo de ejemplo, los cupones de prueba (BIENVENIDA10, DESCUENTO5000) y el stock que dejaron los pedidos de prueba 1001–1043. Lo que pruebes en local afecta a producción.
 
 **Opciones:**
 
@@ -119,6 +120,8 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 ## 6. Pasar a Pro y volver al cron cada 10 min 🟠
 
 **Por qué:** la cuenta sigue en **Hobby**, aunque se había anotado Pro el 25-10-2026 (D-021). Hobby solo permite crons diarios, así que `vercel.json` quedó con `0 9 * * *`. Un pedido abandonado de Webpay o Flow retiene el stock hasta que el cron lo anula, unas 24 horas en vez de 30 minutos. La transferencia (48 h) casi no cambia. Además, Hobby no admite uso comercial según los términos de Vercel.
+
+**Decisión (26-10-2026):** la cuenta sigue en Hobby y el dueño planea pasarla a Pro. Mientras tanto, el cron queda diario y no se configura `pg_cron`.
 
 **Pasos:**
 
@@ -165,7 +168,7 @@ El 25-10-2026 la tienda quedó publicada en **https://audazia.dev**. Este archiv
 
 ## 12. Probar la confirmación de cuenta y la recuperación de contraseña con un correo real ✅ (25-10-2026)
 
-> **Resultado (25-10-2026):** ✅ hecho por el dueño en `https://audazia.dev/ingresar`: la cuenta se creó, el enlace de confirmación funcionó y *¿Olvidaste tu contraseña?* también. Comprobado por el agente en `auth.users`: cuenta `8c328ed4-69ce-46f8-a259-9fe8f7dd2c95` (proveedor `email`), creada a las 00:45:44 UTC del 26-10 (21:45 de Chile), confirmada a las 00:49:13 UTC y con el último inicio de sesión a las 00:50:28 UTC. Es la primera cuenta creada desde `/ingresar` con un correo real. Sigue pendiente la plantilla *Reset password* con `token_hash` (paso 5; bloque 6 de la lista general) para que el enlace funcione también en otro navegador.
+> **Resultado (25-10-2026):** ✅ hecho por el dueño en `https://audazia.dev/ingresar`: la cuenta se creó, el enlace de confirmación funcionó y *¿Olvidaste tu contraseña?* también. Comprobado por el agente en `auth.users`: cuenta `8c328ed4-69ce-46f8-a259-9fe8f7dd2c95` (proveedor `email`), creada a las 00:45:44 UTC del 26-10 (21:45 de Chile), confirmada a las 00:49:13 UTC y con el último inicio de sesión a las 00:50:28 UTC. Es la primera cuenta creada desde `/ingresar` con un correo real. La plantilla *Reset password* con `token_hash` (paso 5) ✅ quedó el 26-10-2026 (T4 de la [fase 7](pendientes-del-dueno-fase-7.md)): el enlace funciona también en otro navegador.
 
 **Por qué:** la tarea 2 dejó las URL de Supabase Auth con el dominio real, pero nunca se probó el flujo completo: no hay ninguna cuenta creada desde `/ingresar` con un correo real (bloque 6 de la lista general). Si algo falla (URL fuera de la lista, plantilla con el enlace mal armado, correo en spam), el cliente no puede crear cuenta ni recuperar la contraseña.
 

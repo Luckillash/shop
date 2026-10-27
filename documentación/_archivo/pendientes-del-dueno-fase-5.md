@@ -42,7 +42,7 @@ La fase 5 (cuenta y checkout) quedó implementada y probada con una cuenta. Esta
 
 ## 2. Agregar `/auth/confirm` a las Redirect URLs ✅ Hecha (24-10-2026)
 
-> Falta una prueba real: crea una cuenta con tu correo en `/ingresar` y abre el enlace que llega. Debes volver a la tienda con la sesión iniciada.
+> ✅ Probado con un correo real en `audazia.dev` el 25-10-2026 (tarea 12 del [despliegue](pendientes-del-despliegue.md)): la cuenta quedó confirmada y con la sesión iniciada.
 
 **Por qué:** la confirmación de correo está **activada** en el proyecto. Al crear una cuenta, Supabase envía un enlace que vuelve a la tienda en `/auth/confirm`. Si esa dirección no está permitida, Supabase redirige a otra parte y la cuenta no se confirma.
 
@@ -55,7 +55,7 @@ La fase 5 (cuenta y checkout) quedó implementada y probada con una cuenta. Esta
    - Cuando tengas el dominio: `https://<tu-dominio>/auth/confirm`
 3. Revisa que **Site URL** sea la dirección principal de la tienda (en producción, el dominio real).
 
-**Opcional (recomendado para SSR):** en **Authentication → Email Templates → Confirm signup**, cambia el enlace por:
+**Opcional (recomendado para SSR):** ✅ hecho el 26-10-2026 con las plantillas de `supabase/templates/` (T4 de la [fase 7](pendientes-del-dueno-fase-7.md)). En **Authentication → Email Templates → Confirm signup**, cambia el enlace por:
 
 ```
 {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup

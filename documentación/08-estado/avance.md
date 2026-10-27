@@ -149,13 +149,13 @@ Con sus pasos en [_archivo/pendientes-del-dueno-fase-6.md](../_archivo/pendiente
 | 1 | ~~Cuenta de Resend + `RESEND_API_KEY` + dominio verificado (D-022)~~ ✅ `mail.audazia.dev` (25-10-2026). Falta la llave de producción | ✅ |
 | 2 | ~~Confirmar los textos propuestos sin diseño (B14, B37)~~ ✅ Aprobados (25-10-2026) | ✅ |
 | 3 | ~~Plan de Vercel que permita el cron cada 10 min, o `pg_cron` (D-021)~~ ✅ Cron **diario** (la cuenta sigue en Hobby, no Pro) con `CRON_SECRET` cargado en Vercel (25-10-2026). Falta volver a cada 10 min | ⚠️ |
-| 4 | ~~Datos bancarios reales~~ ✅ en `.env.local` (25-10-2026, D-024). Falta cargarlos en Vercel | ✅ |
+| 4 | ~~Datos bancarios reales~~ ✅ en `.env.local` (25-10-2026, D-024) y en Vercel | ✅ |
 | 5 | ~~Probar `urlConfirmation` de Flow~~ ✅ en `audazia.dev` (25-10-2026, pedido 1036) | ✅ |
 | 6 | ~~Qué hacer con los pedidos de prueba~~ ✅ Se dejan; se borran al subir a producción (25-10-2026) | ✅ |
 
 ## Antes de la fase 7
 
-Nada de las fases 5 y 6 la bloquea. Lo recomendado antes de empezar (cuenta con un correo real ✅ 25-10-2026; primera ejecución del cron) y lo que quedó para producción está en [_archivo/pendientes-antes-de-la-fase-7.md](../_archivo/pendientes-antes-de-la-fase-7.md).
+Nada de las fases 5 y 6 la bloquea. Lo recomendado antes de empezar (cuenta con un correo real ✅ 25-10-2026; primera ejecución del cron ✅ 26-10-2026) y lo que quedó para producción está en [_archivo/pendientes-antes-de-la-fase-7.md](../_archivo/pendientes-antes-de-la-fase-7.md).
 
 ## Decisiones que bloquean
 

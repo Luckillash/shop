@@ -35,7 +35,7 @@ Estados: ✅ tomada · 💡 propuesta (recomendada, falta confirmarla) · ❓ pe
 | D-018 | En la fase 4 el carro vive solo en Zustand; `cart_items` se sincroniza con la sesión (fase 5) | ✅ |
 | D-019 | `validate_coupon` solo para `service_role`, llamada desde una Server Action con rate limiting | ✅ |
 | D-020 | Pago aprobado sobre un pedido anulado o ya pagado: reembolso automático + alerta | ✅ |
-| D-021 | Cron de vencimiento en Vercel Cron cada 10 min (plan Pro) | ✅ |
+| D-021 | Cron de vencimiento en Vercel Cron cada 10 min (plan Pro; hoy Hobby con cron diario, el dueño planea pasar a Pro) | ✅ |
 | D-022 | Correos transaccionales con Resend desde `mail.audazia.dev` (sin llave: se omiten) | ✅ |
 | D-023 | Intentos de pago: `start_payment_attempt` crea el intento antes del token y reemplaza los pendientes; el plazo no se acorta al cambiar de medio | ✅ |
 | D-024 | Datos bancarios ficticios hasta producción (reales desde el 25-10-2026) · invitado → cuenta en la fase 7 · Flow sin túnel en local | ✅ |

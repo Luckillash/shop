@@ -58,7 +58,7 @@ Reglas:
 - Inicios anónimos **activados** (dueño, 2026-10-24). Un invitado que entra a `/cuenta` va a `/ingresar?volver=/cuenta`.
 - `/cuenta` redirige a `/ingresar?volver=/cuenta` sin sesión o con una anónima. El proxy todavía no hace la redirección optimista.
 - ✅ Convertir al invitado en cuenta (7.2, 2026-10-26, D-027): ver abajo.
-- ✅ **SMTP propio en Supabase Auth** (dueño, 26-10-2026): Resend, `smtp.resend.com:465`, remitente *Almacén* en `mail.audazia.dev`; límite de envíos de Auth 30 por hora (antes 2). Antes usaba el SMTP por defecto, que solo envía al equipo del proyecto (respondía 429 a cualquier otra dirección). Las plantillas siguen siendo las de Supabase, en inglés.
+- ✅ **SMTP propio en Supabase Auth** (dueño, 26-10-2026): Resend, `smtp.resend.com:465`, remitente *Almacén* en `mail.audazia.dev`; límite de envíos de Auth 30 por hora (antes 2). Antes usaba el SMTP por defecto, que solo envía al equipo del proyecto (respondía 429 a cualquier otra dirección). Las plantillas están en español y con el estilo de la tienda desde el 26-10-2026 (`supabase/templates/`, con enlaces `token_hash`).
 - ✅ **Plantillas de los correos en español** (`supabase/templates/`, pegadas por el dueño el 26-10-2026): enlaces a `/auth/confirm` con `token_hash`, que funcionan aunque el correo se abra en otro navegador. Las de Crear cuenta, contraseña nueva y cambio de correo usan `{{ .RedirectTo }}` (que arma `confirmUrl` con `?volver=`); verificadas con correos reales y el enlace abierto en otro navegador. Las plantillas por defecto (`{{ .ConfirmationURL }}`, PKCE) solo funcionaban en el mismo navegador.
 
 ## Compra como invitado (D-008 ✅, dueño 2026-10-24)

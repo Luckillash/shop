@@ -15,7 +15,7 @@ La fase 6 (pagos) quedó implementada y probada en los ambientes de prueba: Webp
 | 1 | ~~Crear la cuenta de Resend y pasar la llave~~ ✅ Hecho en local (25-10-2026) | 🔴 Alta | — | Falta la llave de producción en Vercel |
 | 2 | ~~Confirmar los textos propuestos sin diseño~~ ✅ Aprobados (25-10-2026) | 🟠 Media | — | Nada |
 | 3 | Elegir el plan de Vercel o cambiar a `pg_cron` ⚠️ La cuenta sigue en Hobby: cron diario (25-10-2026) | 🔴 Alta | 5 min | Cron cada 10 min |
-| 4 | ~~Pasar los datos bancarios reales~~ ✅ Hecho (25-10-2026) | 🔴 Alta | — | Falta copiarlos a Vercel al desplegar |
+| 4 | ~~Pasar los datos bancarios reales~~ ✅ Hecho (25-10-2026) | 🔴 Alta | — | Nada: también están en Vercel |
 | 5 | ~~Probar la confirmación de Flow con el sitio desplegado~~ ✅ Probada en `audazia.dev` (25-10-2026, pedido 1036) | 🟠 Media | — | Nada |
 | 6 | ~~Decidir qué hacer con los datos de prueba~~ ✅ Se quedan hasta producción (25-10-2026) | 🟢 Baja | — | Borrarlos antes de publicar |
 
@@ -34,7 +34,7 @@ La fase 6 (pagos) quedó implementada y probada en los ambientes de prueba: Webp
 > | Remitente | `EMAIL_FROM=Almacén <pedidos@mail.audazia.dev>` (no necesita buzón) |
 > | Prueba | Correo directo a la API y el correo real *Datos para transferir* (plantilla + `bankDetails()` + `sendEmail`, pedido de ejemplo 9999): **llegaron, pero a spam** en Outlook. Normal en un dominio nuevo; se agregó DMARC y se marcó como *No es correo no deseado* |
 >
-> **Queda:** crear otra llave `almacen-produccion` y cargarla en Vercel con `EMAIL_FROM`; volver a mirar si los correos llegan a la bandeja principal (la reputación mejora con los envíos); prueba de punta a punta con un pedido real desde la tienda.
+> **Queda:** crear otra llave `almacen-produccion` y cargarla en Vercel con `EMAIL_FROM`; volver a mirar si los correos llegan a la bandeja principal (la reputación mejora con los envíos); ~~prueba de punta a punta con un pedido real desde la tienda~~ ✅ (pedido 1036 en `audazia.dev`, 25-10-2026, y los envíos reales de la 7.3, 26-10-2026).
 
 **Por qué:** elegiste Resend para los correos (D-022). El código ya envía tres correos: la confirmación del pago, los datos para transferir y el aviso de *Te devolvimos el pago*. Sin la llave **no se envía nada**: el pedido funciona igual, pero el cliente no recibe nada, y la pantalla *Transferencia pendiente* dice *También te enviamos estos datos a …*.
 
@@ -73,7 +73,7 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 
 ---
 
-## 3. Elegir el plan de Vercel o cambiar a `pg_cron` ✅ (25-10-2026)
+## 3. Elegir el plan de Vercel o cambiar a `pg_cron` ⚠️ (sigue en Hobby)
 
 > **Decisión (25-10-2026):** opción **a)**. Pasaste tu cuenta de Vercel a **Pro**, así que el cron cada 10 minutos de `vercel.json` funciona tal cual; no hace falta `pg_cron`.
 >
@@ -93,7 +93,7 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 
 **En cualquier caso:** carga `CRON_SECRET` en las variables del proyecto de producción (un string aleatorio largo; el agente puede generarlo). Sin él, el cron responde 401.
 
-**Resultado:** opción a), Vercel Pro.
+**Resultado:** opción a), Vercel Pro, pero la cuenta sigue en **Hobby** (cron diario). El dueño planea pasar a Pro (26-10-2026), así que no se configura `pg_cron`. Los pasos están en la tarea 6 de [pendientes del despliegue](pendientes-del-despliegue.md).
 
 ---
 
@@ -110,7 +110,7 @@ Además, la Confirmación dice *Te enviamos el detalle a …* en vez de *Te envi
 > | RUT | `BANK_ACCOUNT_RUT` | 20.630.500-2 (dígito verificador válido) | 76.543.210-3 |
 > | Correo para el comprobante | `BANK_ACCOUNT_EMAIL` | lucassalazarc@outlook.com | pagos@almacen.cl |
 
-**Qué queda:** al desplegar, cargar las mismas seis variables en Vercel (Project Settings → Environment Variables). `.env.example` conserva los valores de ejemplo, porque es una plantilla. Si los datos cambian, basta con cambiar las variables y reiniciar el servidor (las variables se leen al arrancar).
+**Qué queda:** nada. ✅ Las seis variables están en Vercel (Production y Preview) desde el primer despliegue (verificado el 26-10-2026). `.env.example` conserva los valores de ejemplo, porque es una plantilla. Si los datos cambian, basta con cambiar las variables y reiniciar el servidor (las variables se leen al arrancar).
 
 **Recuerda:** quien confirma que llegó una transferencia eres tú (todavía no hay administración, fase 7). Mientras tanto, pídele al agente que la marque como pagada indicándole el número de pedido y el monto recibido.
 
@@ -148,9 +148,9 @@ También quedan el usuario `prueba.fase5@almacen.cl` y varios usuarios anónimos
 
 **Cómo se borrarán al subir a producción** (lo hace el agente con el MCP de Supabase):
 
-1. Anular con `cancel_order` los que sigan pagados (1020, 1021, 1022, 1027, 1028, 1029, 1036 y los que se agreguen en la fase 7) para **devolver el stock** (4 frascos de 1 L, 3 sets de paños y la unidad del 1036). Son pagos de prueba: no hay que reembolsar nada.
-2. Borrar los pedidos de prueba (1001–1036 y los que se creen después) de `orders`. Se borran en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`; los `inventory_movements` quedan con `order_id` nulo.
-3. Borrar los usuarios de prueba en *Authentication → Users*: `prueba.fase5@almacen.cl` y los anónimos.
+1. Anular con `cancel_order` los que sigan pagados (1020, 1021, 1022, 1027, 1028, 1029, 1036 y, de la fase 7, el 1038) para **devolver el stock** (4 frascos de 1 L, 3 sets de paños, la unidad del 1036 y la del 1038). Son pagos de prueba: no hay que reembolsar nada. Los enviados 1040 y 1043 (`shipped`) no los acepta `cancel_order`: su stock se corrige a mano o al cargar el catálogo real. El 1042 ya está anulado, con el pago de Flow sandbox sin reembolsar (decisión del dueño, 26-10-2026: se deja para probar la 7.4).
+2. Borrar los pedidos de prueba (1001–1043 al 26-10-2026, sin 1037, y los que se creen después) de `orders`. Se borran en cascada `order_items`, `payments`, `payment_alerts` y `coupon_redemptions`; los `inventory_movements` quedan con `order_id` nulo.
+3. Borrar los usuarios de prueba en *Authentication → Users*: todos salvo la cuenta real del dueño (`lucassalazarc@outlook.com`). Al 26-10-2026 son 47: `prueba.fase5@almacen.cl`, 5 de mailinator (`almacen.invitado72`, `almacen.registro72`, `almacen.invitado73`, `almacen.asuntos72` y `almacen.asuntos74`) y 41 anónimos.
 4. Comprobar que el stock cuadra con el catálogo real y que los cupones quedan con `used_count` correcto.
 
 ---

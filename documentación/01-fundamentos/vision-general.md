@@ -56,7 +56,7 @@ Leyenda: ✅ implementado · 📐 definido (en diseño o SQL) pero sin código �
 | Servicio | Para qué | Cómo lo usa un agente |
 |---|---|---|
 | **Supabase** (PostgreSQL, Auth, Storage) | Base de datos, usuarios, imágenes | MCP `supabase` (proyecto `nswchmyzgcutyehhuche`, ver `.mcp.json`) |
-| **Vercel** | Hosting, Vercel Cron (`vercel.json`), DNS de `audazia.dev` | MCP `vercel` (plan Pro; la tienda aún no tiene proyecto creado) |
+| **Vercel** | Hosting, Vercel Cron (`vercel.json`), DNS de `audazia.dev` | MCP `vercel` (plan Hobby, con cron diario; el dueño planea pasar a Pro). Proyecto `shop`, publicado en `audazia.dev` desde el 25-10-2026 |
 | **GitHub** | Repositorio `Luckillash/shop` (público, rama `main`) | MCP `github` (issues, PRs, ramas, commits) |
 | **Redis** | Uso por definir. Hoy solo se usa en `/api/health` | `REDIS_URL` |
 | **Transbank Webpay Plus** | Pago con tarjeta | MCP `transbank` (ambiente de integración) + documentación en `../transbank/documentación/` |

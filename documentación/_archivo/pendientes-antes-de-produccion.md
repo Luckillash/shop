@@ -8,7 +8,7 @@ related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-im
 
 # Pendientes antes de producción
 
-Estado al **25 de octubre de 2026**: las fases 0 a 6 están terminadas, y de la fase 7 la 7.0 (base), la 7.1 (Mis pedidos y Detalle de pedido) y la 7.2 (el invitado crea su cuenta, 26-10-2026). **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
+Estado al **26 de octubre de 2026**: las fases 0 a 6 están terminadas, y de la fase 7 la 7.0 (base) y la 7.1 (Mis pedidos y Detalle de pedido), el 25-10-2026, y la 7.2 (el invitado crea su cuenta) y la 7.3 (correos de confirmación, despacho y anulación), el 26-10-2026. **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
 
 Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-del-dueno-fase-6.md](pendientes-del-dueno-fase-6.md).
 
@@ -26,7 +26,7 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 |
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
-| [6. Supabase](#6-supabase) | 5 | 3 (✅ 1) | 0 |
+| [6. Supabase](#6-supabase) | 5 | 2 (✅ 2) | 0 |
 | [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 1) | 4 | 1 |
 | [8. Verificación final](#8-verificación-final) | 7 | 2 | 0 |
 
@@ -71,7 +71,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 - [ ] 🔴 🤖 **Páginas de ayuda y legales** (`/ayuda/terminos`, `/ayuda/privacidad`, `/ayuda/despacho`, `/ayuda/contacto`). El header, el footer y el checkout (*Acepto los términos…*) ya enlazan a ellas y hoy dan **404**. El texto legal lo pones tú (bloque 4). Cuando exista `/ayuda/contacto`, *Necesito ayuda con este pedido* (Detalle de pedido) puede enlazar ahí: hoy abre un correo a la tienda con el número del pedido en el asunto (D-026).
 - [ ] 🟠 🤖 `error.tsx` por grupo de rutas, con un `Notice` útil (hoy sale la página de error por defecto de Next).
-- [ ] 🟠 🤖 **Tests E2E** (Playwright) del flujo de compra y de los pagos. Hoy hay 202 tests unitarios (25-10-2026, 7.1) y las pruebas de punta a punta (también las de pago y de la cuenta) se hicieron con scripts de CDP (ojo con la trampa 63: una pestaña por vista).
+- [ ] 🟠 🤖 **Tests E2E** (Playwright) del flujo de compra y de los pagos. Hoy hay 231 tests unitarios (26-10-2026, 7.3) y las pruebas de punta a punta (también las de pago y de la cuenta) se hicieron con scripts de CDP (ojo con la trampa 63: una pestaña por vista).
 - [ ] 🟠 🤖 `next/image` con las fotos reales (`remotePatterns` hacia Storage, D-015). Hoy `<img>`, porque los placeholders son SVG.
 - [ ] 🟠 🤖 `npm audit`: 5 vulnerabilidades "high" heredadas de la plantilla (no se aplicó `--force`).
 - [x] 🟢 🤖 Fecha de entrega concreta en la Ficha con la comuna guardada (B35). ✅ Hecho el 25-10-2026.
@@ -84,7 +84,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 ## 4. Datos y decisiones del negocio
 
 - [x] 🔴 👤 ✅ 25-10-2026 · **Retiro en tienda:** datos reales (Local Tajamar, Tajamar 223, Departamento 302, Las Condes; L–V 10:00–18:00 y sábados 10:00–14:00) en `src/lib/store.ts` y en `place_order`.
-- [x] 🔴 👤 **Datos bancarios** para la transferencia: ✅ los reales en `BANK_*` de `.env.local` (25-10-2026). Falta cargarlos en Vercel al desplegar.
+- [x] 🔴 👤 **Datos bancarios** para la transferencia: ✅ los reales en `BANK_*` de `.env.local` (25-10-2026) y en Vercel (Production y Preview, desde el primer despliegue; verificado el 26-10-2026).
 - [ ] 🔴 👤 **Razón social, RUT y correo de contacto reales** (hoy *Almacén SpA · 76.543.210-3 · hola@almacen.cl* son de ejemplo, en `src/lib/store.ts`).
 - [ ] 🔴 👤 **Términos y condiciones** y **política de privacidad** (texto). Idealmente revisados por un abogado (Ley del Consumidor, protección de datos).
 - [ ] 🔴 👤 **Catálogo real:** productos, precios, stock y **fotos 4:5**. Hoy es el seed de ejemplo con imágenes placeholder.
@@ -105,14 +105,14 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 ## 6. Supabase
 
-- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): `prueba.fase5@almacen.cl` y los anónimos de las pruebas (fases 5 y 6, y uno sin pedido de la prueba de invitado de la 7.1) y los de la 7.2: `almacen.invitado72@mailinator.com` (cuenta convertida, pedidos 1038 y 1039) y 5 anónimos sin pedido (ver el avance). Los pedidos de prueba 1001–1039 (no hay 1037) están pagados en integración/sandbox, anulados o reembolsados.
+- [ ] 🔴 👤 **Borrar los usuarios de prueba** (*Authentication → Users*): todos salvo tu cuenta real (`lucassalazarc@outlook.com`). Al 26-10-2026 son 47: `prueba.fase5@almacen.cl`, 5 de mailinator (`almacen.invitado72`, `almacen.registro72`, `almacen.invitado73`, `almacen.asuntos72` y `almacen.asuntos74`) y 41 anónimos. Los pedidos de prueba son los 1001–1043 (no hay 1037; bloque 8).
 - [x] 🔴 👤 **Site URL y Redirect URLs** con `https://audazia.dev` ✅ (25-10-2026; se mantienen `localhost:3000` y `localhost:3310` en las Redirect URLs). **Confirmación de correo y *¿Olvidaste tu contraseña?* probadas con un correo real** ✅ (25-10-2026, tarea 12 de [despliegue](pendientes-del-despliegue.md)): la cuenta quedó confirmada en `auth.users`. Tarea 2 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👤 Activar **Leaked password protection** en Supabase Auth (aviso de los advisors).
 - [ ] 🔴 👥 **Al menos un admin:** crea tu cuenta en la tienda y el agente la marca como `admin` en `profiles`.
 - [ ] 🔴 👤 **Respaldos** (según el plan de Supabase) y revisar el plan en general (límites de Auth, base de datos y almacenamiento).
 - [ ] 🟠 👤 **Captcha** (Turnstile o hCaptcha) para crear cuentas y sesiones anónimas.
 - [x] 🟠 👥 **Templates de los correos de Supabase Auth** (*Authentication → Email Templates*): *Confirm signup*, *Reset password*, *Magic link*, *Change email address*, *Invite user* y *Reauthentication*, en español, con la voz y el estilo de los correos de Resend (D-022) y los enlaces a `/auth/confirm` con `token_hash` (como el de *Reset password*). Hoy salen los de Supabase por defecto, en inglés. El agente genera el HTML y los asuntos; tú los pegas en el panel. Conviene hacerlo junto con el SMTP propio (Resend), antes de la conversión de invitado en cuenta de la fase 7. El de *Change email address* es el que recibe el invitado al crear su cuenta (7.2). ✅ 26-10-2026: generadas en `supabase/templates/`, pegadas y probadas con correos reales, con sus asuntos (T4 de la [fase 7](pendientes-del-dueno-fase-7.md)). La 7.3 les cambió el estilo para que coincidan con los correos de pedidos: el dueño volvió a pegar los cuerpos el 26-10-2026 (T7, verificado con *Crea una contraseña nueva*).
-- [ ] 🟠 👤 **Plantilla del correo *Reset password*** (Authentication → Email Templates): `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto el enlace solo funciona en el mismo navegador donde se pidió. La recuperación ya funcionó con un correo real (25-10-2026); después de cambiar la plantilla, probar abriendo el enlace en otro navegador.
+- [x] 🟠 👤 ✅ 26-10-2026 (T4 de la [fase 7](pendientes-del-dueno-fase-7.md), probada abriendo el enlace en otro navegador) · **Plantilla del correo *Reset password*** (Authentication → Email Templates): `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&volver=/ingresar/nueva-contrasena`. Con la plantilla por defecto el enlace solo funciona en el mismo navegador donde se pidió. La recuperación ya funcionó con un correo real (25-10-2026); después de cambiar la plantilla, probar abriendo el enlace en otro navegador.
 - [ ] 🟠 🤖 `get_advisors` (seguridad y rendimiento) revisado justo antes de publicar. Hoy solo quedan avisos aceptados y documentados.
 
 ## 7. Infraestructura y despliegue
@@ -121,7 +121,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [ ] 🔴 👥 **Variables de entorno de producción** (ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)): ✅ cargadas en Vercel el 25-10-2026 (19, con `NEXT_PUBLIC_SITE_URL=https://audazia.dev` y un `CRON_SECRET` nuevo). Faltan `REDIS_URL`, las credenciales de producción de Webpay y Flow y la llave `almacen-produccion` de Resend (hoy la local). Tareas 1, 3 y 4 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👥 **Redis en producción** (por ejemplo Upstash o Redis Cloud). Sin Redis, el rate limiting del login, el cupón, los invitados, los pedidos y los reintentos **deja pasar todo** (fail-open, D-005). Los locks de pago siguen protegidos por el lock de la BD.
 - [x] 🔴 👥 **HTTPS** en todo el sitio ✅ (certificado de Vercel, 25-10-2026) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** ✅ (25-10-2026, pedido 1036 pagado solo por el aviso del servidor, tarea 8 de [despliegue](pendientes-del-despliegue.md)). Repetirla con las credenciales de producción.
-- [ ] 🔴 👥 **Cron** de vencimiento: la cuenta sigue en **Hobby** (no Pro, como se había anotado), así que `vercel.json` quedó **diario** (`0 9 * * *`) desde el 25-10-2026. `CRON_SECRET` ✅ cargado. Falta pasar a Pro y volver a `*/10 * * * *`, y comprobar la primera ejecución (26-10-2026). Tareas 6 y 7 de [despliegue](pendientes-del-despliegue.md).
+- [ ] 🔴 👥 **Cron** de vencimiento: la cuenta sigue en **Hobby** (no Pro, como se había anotado), así que `vercel.json` quedó **diario** (`0 9 * * *`) desde el 25-10-2026. `CRON_SECRET` ✅ cargado. Primera ejecución ✅ (corrió el 26-10-2026 a las 09:00:47 UTC con `{ checked: 0, cancelled: 0, recovered: 0, skipped: 0 }` (200)). Falta pasar a Pro (el dueño lo planea) y volver a `*/10 * * * *`. Tareas 6 y 7 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 🤖 Que el proxy o la plataforma **sobrescriba `x-forwarded-for`**: el rate limiting usa esa IP (`clientIp` toma la primera), y si el cliente la puede inventar, puede saltarse el límite. En Vercel la plataforma lo sobrescribe: falta comprobarlo enviando un `x-forwarded-for` inventado a `audazia.dev` cuando haya Redis.
 - [ ] 🟠 👥 `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` fija si hay más de una instancia (guía de Server Actions de Next).
 - [ ] 🟠 👥 Monitoreo: `/api/health` (Redis) en un servicio de uptime y alertas de errores. Hoy responde 503 en producción porque no hay Redis.
@@ -136,7 +136,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [ ] 🔴 👥 **Compra real con Flow** y una **transferencia** confirmada a mano.
 - [ ] 🔴 🤖 Casos de pago en producción: aprobado, rechazado, abortado, timeout, recarga del retorno y pago tardío sobre un pedido vencido (✅ en integración/sandbox el 25-10-2026).
 - [ ] 🔴 👥 Compra como **invitado** y con **cuenta**, en escritorio y en un celular real.
-- [ ] 🔴 🤖 **Borrar los datos de prueba** al subir a producción (decisión del dueño, 25-10-2026: se dejan hasta entonces): pedidos 1001–1036 y los de la fase 7. Primero `cancel_order` a los **pagados** (1020–1022, 1027–1029 y 1036) para devolver el stock, después borrarlos de `orders` (cascada a `payments` y `payment_alerts`). Pasos en la tarea 6 de [fase 6](pendientes-del-dueno-fase-6.md#6-decidir-qué-hacer-con-los-datos-de-prueba--25-10-2026).
+- [ ] 🔴 🤖 **Borrar los datos de prueba** al subir a producción (decisión del dueño, 25-10-2026: se dejan hasta entonces): pedidos **1001–1043** (no hay 1037). Primero `cancel_order` a los **pagados** (1020–1022, 1027–1029, 1036 y 1038) para devolver el stock; los **enviados** 1040 y 1043 (`shipped`) no los acepta `cancel_order`, así que su stock se corrige a mano o al cargar el catálogo real. El 1042 ya está anulado, con el pago de Flow sandbox sin reembolsar (se deja para probar la 7.4). Después, borrarlos de `orders` (cascada a `payments` y `payment_alerts`). Pasos en la tarea 6 de [fase 6](pendientes-del-dueno-fase-6.md#6-decidir-qué-hacer-con-los-datos-de-prueba--25-10-2026).
 - [ ] 🔴 🤖 Seed de prueba **no** cargado en la base de producción (o borrado), y caché de Next invalidada después de cargar el catálogo real (trampa 47).
 - [ ] 🟠 👥 Revisión visual de todas las pantallas en claro y oscuro, a 1280 px y 390 px.
 - [ ] 🟠 👤 Revisar los correos que recibe el cliente (confirmación, transferencia, despacho, anulación, confirmación de cuenta). Para verlos sin buzón propio, maildrop.cc: mailinator descarta los asuntos con «pedido» (trampa 80).
@@ -145,7 +145,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 
 ## Ya resuelto (para no repetirlo)
 
-Fase 7, 25-10-2026: 7.0 (historial del pedido, motivo de anulación, estados, `requireAdmin`, M8) · 7.1 (Mis pedidos y Detalle de pedido, B24 cerrada, 404 real de los pedidos ajenos).
+Fase 7, 25-10-2026: 7.0 (historial del pedido, motivo de anulación, estados, `requireAdmin`, M8) · 7.1 (Mis pedidos y Detalle de pedido, B24 cerrada, 404 real de los pedidos ajenos) · 26-10-2026: 7.2 (invitado → cuenta, *Ver estado del pedido*, SMTP propio y plantillas de Supabase Auth) · 7.3 (correos de confirmación, despacho y anulación, transportistas y aviso de transferencias vencidas).
 
 Fase 6, 25-10-2026: Webpay Plus, Flow y transferencia · reintentos y cambio de medio · cron de vencimiento + M4 · locks · B13 con reembolso automático · pantallas de resultado · Resend en el código (con llave en local desde el mismo día).
 
@@ -153,4 +153,4 @@ Fase 5, 24-10-2026: inicios anónimos activados · Redirect URLs agregadas (falt
 
 ## Dónde se mantiene esta lista
 
-La lista viva es [07-referencia/checklist-produccion.md](../07-referencia/checklist-produccion.md) y el estado general está en [08-estado/avance.md](../08-estado/avance.md). Este archivo es una foto consolidada al 25-10-2026: cuando cierres algo, avísale al agente para que actualice el checklist y el avance.
+La lista viva es [07-referencia/checklist-produccion.md](../07-referencia/checklist-produccion.md) y el estado general está en [08-estado/avance.md](../08-estado/avance.md). Este archivo es una foto consolidada al 26-10-2026: cuando cierres algo, avísale al agente para que actualice el checklist y el avance.
