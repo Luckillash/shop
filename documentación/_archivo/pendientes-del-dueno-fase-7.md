@@ -8,18 +8,18 @@ related: ["_archivo/plan-fase-7.md", "_archivo/pendientes-del-dueno-fase-6.md", 
 
 # Lo que te toca a ti (fase 7)
 
-La fase 7 avanza por subetapas ([plan](plan-fase-7.md)). La **7.0** (base: historial del pedido, motivo de anulación, estados y acceso de administración) quedó lista el 25-10-2026 y no necesitó nada de ti. La **7.1** (Mis pedidos y Detalle de pedido) quedó lista el mismo día: aprobaste sus textos propuestos (T2, 26-10-2026). La **7.2** (el invitado crea su cuenta desde la Confirmación) quedó lista el 26-10-2026: configuraste el SMTP propio y aprobaste sus textos (T3) y te toca, cuando puedas, las plantillas de los correos de Supabase (T4). Estas decisiones sí son tuyas; ninguna bloquea la 7.1 salvo donde se indica.
+La fase 7 avanza por subetapas ([plan](plan-fase-7.md)). La **7.0** (base: historial del pedido, motivo de anulación, estados y acceso de administración) quedó lista el 25-10-2026 y no necesitó nada de ti. La **7.1** (Mis pedidos y Detalle de pedido) quedó lista el mismo día: aprobaste sus textos propuestos (T2, 26-10-2026). La **7.2** (el invitado crea su cuenta desde la Confirmación) quedó lista el 26-10-2026: configuraste el SMTP propio y aprobaste sus textos (T3) y pegaste las plantillas de los correos de Supabase (T4). La **7.3** (correos de confirmación, despacho y anulación) quedó lista el 26-10-2026 con tus respuestas a las decisiones 2 y 6 aprobaste sus textos (T6) y volviste a pegar las plantillas de Supabase con el estilo nuevo (T7). Estas decisiones sí son tuyas; ninguna bloquea la 7.1 salvo donde se indica.
 
 | # | Decisión | Recomendación del agente | Bloquea | Estado |
 |---|---|---|---|---|
 | 1 | Etiqueta *Por preparar* para `paid` en la administración | Aprobarla. El cliente sigue viendo *En preparación* en `paid` y en `processing` | 7.4 (ya está en el código de la 7.0; cambiarla es una línea) | ⏳ |
-| 2 | Transportistas | Starken, Chilexpress, Blue Express, Correos de Chile y despacho propio. *Seguir el envío* enlaza a la página de seguimiento de cada uno; en despacho propio no hay enlace | 7.3, 7.4 y el botón *Seguir el envío* del Detalle de pedido (la 7.1 lo deja preparado y oculto) | ⏳ |
+| 2 | Transportistas | Starken, Chilexpress, Blue Express, Correos de Chile y despacho propio. *Seguir el envío* enlaza a la página de seguimiento de cada uno; en despacho propio no hay enlace | 7.3, 7.4 y el botón *Seguir el envío* del Detalle de pedido | ✅ 26-10-2026: aprobada la lista. En la 7.3 (D-028) *Seguir el envío* abre la página de Starken, Chilexpress y Blue Express con el código; Correos de Chile no acepta el código en la URL, así que abre su página de seguimiento y el código se copia. El despacho propio aparece como *Despacha Almacén*, sin enlace |
 | 3a | Solo opina quien compró el producto | Aprobarlo | 7.6 | ⏳ |
 | 3b | La opinión se publica con el nombre de pila y la comuna de despacho (*Camila · Providencia*); en los retiros en tienda, sin comuna | Aprobarlo | 7.6 | ⏳ |
 | 3c | ¿Puede opinar un invitado? | **No**: no tiene nombre, su sesión se pierde y la limpieza de anónimos la borraría. Con la 7.2, crear la cuenta le toma un paso | 7.6 | ⏳ |
 | 4 | Qué cuenta se marca como `admin` | `prueba.fase5@almacen.cl` (para probar) y tu cuenta real (creada el 25-10-2026). **El agente no marca ninguna sin tu respuesta** | 7.4 (prueba de punta a punta) | ⏳ |
 | 5 | Anular un pedido pagado por transferencia (no hay pasarela que reembolse) | El modal dice *Devuélvele $X por transferencia* y el pedido pasa a *Reembolsado* cuando marcas *Ya devolví el dinero* | 7.4 | ⏳ |
-| 6 | Correo *Anulamos tu pedido* cuando el pedido vence | **(a)** Solo a las transferencias vencidas. (b) también a los pedidos abandonados con tarjeta o Flow (vencen a los 30 minutos; puede sonar a spam) | 7.3 | ⏳ |
+| 6 | Correo *Anulamos tu pedido* cuando el pedido vence | **(a)** Solo a las transferencias vencidas. (b) también a los pedidos abandonados con tarjeta o Flow (vencen a los 30 minutos; puede sonar a spam) | 7.3 | ✅ 26-10-2026: **(a)**. El cron envía *Anulamos tu pedido* solo a las transferencias vencidas |
 | 7a | RUT en `profiles` (B22) | Sí: Datos personales ya lo muestra | 7.5 | ⏳ |
 | 7b | *Recibir novedades* (B21) | Solo una marca en `profiles` | 7.5 (la 7.2 la dejó en `user_metadata.newsletter`, igual que Crear cuenta, sin columna nueva) | ⏳ |
 | 7c | Suscripción del footer (B21) | Dejarla deshabilitada hasta elegir un proveedor de newsletter | Nada | ⏳ |
@@ -33,11 +33,14 @@ La fase 7 avanza por subetapas ([plan](plan-fase-7.md)). La **7.0** (base: histo
 | T3 | Revisar los textos propuestos de la 7.2 (abajo) | Tú | ✅ 26-10-2026: aprobados los cuatro sin cambios (se descartaron las alternativas *Confirma tu correo para terminar*, el enlace a *¿Olvidaste tu contraseña?*, *Ya tienes una cuenta* y las versiones con *Tu pedido está confirmado igual* y *crea tu cuenta desde Ingresar*) |
 | T4 | Plantillas de los correos de Supabase Auth en español | Tú las pegaste en Supabase; el agente las generó (`supabase/templates/`) | ✅ 26-10-2026: cuerpos y asuntos verificados con correos reales (Crear cuenta, Contraseña nueva y Change email address, cada enlace abierto en otro navegador). Magic link, Invite user y Reauthentication no se probaron: la tienda no los envía |
 | T5 | SMTP propio en Supabase Auth | Tú | ✅ 26-10-2026: Resend (`smtp.resend.com:465`, remitente *Almacén* en `mail.audazia.dev`). Verificado: el correo llega a un buzón externo y el límite de envíos de Auth pasó de 2 por hora a 30. Antes, el SMTP por defecto respondía 429 a cualquier dirección fuera del equipo |
+| T6 | Revisar los textos propuestos de la 7.3 (abajo) | Tú | ✅ 26-10-2026: aprobados todos sin cambios (se descartaron el botón *Ver el pedido* o quitar la línea para el invitado en el despacho, la frase *Si no estás…* genérica o solo para Starken, *Nosotros llevamos tu pedido*, *Ya puedes retirar tu pedido*, *en Webpay Plus*, avisar por correo cuando el reembolso esté hecho o mandar el correo solo después del reembolso, *El pago no se completó, así que no se cobró nada* o solo el título, y la nota obligatoria al anular). El *escríbenos* en vez de *respóndenos* sigue atado a T8 |
+| T7 | Volver a pegar los cuerpos de las 6 plantillas de Supabase Auth (`supabase/templates/`): la 7.3 les dio el estilo nuevo de los correos (logo en Georgia, márgenes del diseño). Los asuntos no cambian. Después conviene un *¿Olvidaste tu contraseña?* de prueba | Tú | ✅ 26-10-2026 (21:02 de Chile): pegadas por ti. Verificado con un *¿Olvidaste tu contraseña?* real a `almacen.invitado72@mailinator.com`: llega *Crea una contraseña nueva* con el estilo nuevo y el enlace `token_hash` a `audazia.dev`. Las otras 5 no se enviaron (mismo cambio de estilo) |
+| T8 | (Opcional) Un buzón real para las respuestas de los correos (por ejemplo `hola@` en tu dominio). Con él, los correos pueden decir *respóndenos con el comprobante* y *responde este correo*, como el diseño; hoy dicen *escríbenos a hola@almacen.cl*, que es el correo de ejemplo de la tienda (bloque 4 de los pendientes de producción) | Tú | ⏳ |
 
 ## Lo que cambió en la 7.0 y conviene que sepas
 
 - **Desde ahora, cada pedido guarda su historial** (cuándo se creó, pagó, preparó, envió, entregó o anuló, y quién lo hizo). Los pedidos de prueba 1001–1036 no lo tienen: en la administración se verá armado con sus fechas.
-- **Los pedidos que anula el cron quedan con el motivo *vencido*.** Servirá para el correo *Anulamos tu pedido* (decisión 6).
+- **Los pedidos que anula el cron quedan con el motivo *vencido*.** Servirá para el correo *Anulamos tu pedido* (decisión 6; ✅ en la 7.3 solo a las transferencias).
 - **La fecha de entrega se calcula igual en todas partes** (Confirmación, Mis pedidos, administración). Con el despacho express, la Confirmación ahora dice *Llega el martes 27 de octubre* en vez de *Llega mañana… si pagas antes de las 14:00*, que ya no tenía sentido después de pagar.
 
 ## Textos propuestos en la 7.1 (sin diseño) · T2 ✅ aprobados (26-10-2026)
@@ -64,7 +67,7 @@ Mis pedidos y Detalle de pedido quedaron listos el 25-10-2026 (D-026). Estos tex
 **Decisiones que tomé y conviene que sepas (D-026):**
 
 - El menú de la cuenta muestra solo *Mis pedidos* y *Cerrar sesión* hasta que Direcciones, Favoritos y Datos personales existan (7.5), para no enlazar a páginas que dan 404.
-- *Seguir el envío* no aparece hasta que decidas los transportistas (decisión 2). El seguimiento ya muestra *Despacha Starken · Código de seguimiento …* si el pedido tiene transportista y código.
+- *Seguir el envío* no aparece hasta que decidas los transportistas (decisión 2; ✅ aparece desde la 7.3). El seguimiento ya muestra *Despacha Starken · Código de seguimiento …* si el pedido tiene transportista y código.
 - *Necesito ayuda con este pedido* abre un correo a la tienda con *Pedido N.º …* en el asunto (las páginas de Ayuda aún no existen). *Descargar boleta* queda oculto (D-012).
 - *Volver a comprar* lleva a la Ficha del producto, como en el diseño: ahí se elige la variante y se ven el precio y el stock de hoy.
 - Un invitado que entra a `/cuenta/pedidos` va a Ingresar: sus pedidos los ve en la Confirmación y en el correo hasta la 7.2.
@@ -85,4 +88,30 @@ La 7.2 quedó lista el 26-10-2026 (D-027). Como Supabase exige confirmar el corr
 - *Ver estado del pedido* solo aparece con una cuenta (en la Confirmación y en Transferencia pendiente). Al invitado no se le muestra: lo mandaría a Ingresar.
 - El nombre de la cuenta es el destinatario del pedido (*Hola, Rocío*), porque el invitado no escribe otro.
 - *Recibir novedades* se guarda igual que en Crear cuenta (en los datos del usuario), sin columna nueva ni envíos, hasta tu decisión 7b.
+
+## Textos propuestos en la 7.3 (sin diseño) · T6 ✅ aprobados (26-10-2026)
+
+Los correos siguen los artboards `CorreoConfirmacion`, `CorreoDespacho` y `CorreoAnulacion` (D-028). Estos textos no están en el canvas o cambian algo de él: los propuse yo. Cada uno es una línea en `src/lib/email/templates.ts`.
+
+| Correo | Caso | Texto propuesto |
+|---|---|---|
+| Confirmación | Pagado con cupón | Fila *Descuento −$1.249* antes del despacho (el artboard no la tiene y el total no cuadraría) |
+| Confirmación | Retiro en tienda | *…Ahora lo preparamos y te avisamos cuando esté listo para retirar.* · bloque con *Disponible desde el …* y el horario y la dirección del local · fila *Retiro: Gratis* |
+| Confirmación | Medio de pago | *con tarjeta de débito vía Webpay Plus* (el texto que ya usa la app; el artboard dice *en Webpay Plus*) |
+| Despacho | Invitado (no tiene Mis pedidos) | *Puedes ver el detalle en la página del pedido.* (el enlace va a la Confirmación) |
+| Despacho | Despacho propio | *Hola, Camila. Tu pedido N.º 1040 salió con nuestro despacho. Llega el …* · código sin *Seguir el envío* |
+| Despacho | Retiro en tienda (la Confirmación promete *Recibirás un correo cuando puedas retirarlo*) | Asunto *Tu pedido N.º … está listo para retirar* · *Hola, Camila. Tu pedido N.º … ya está en la tienda Local Tajamar. Retira con tu RUT y número de pedido.* · dirección y horario |
+| Despacho | Frase del artboard *Si no vas a estar, Starken deja un aviso y lo intenta de nuevo al día hábil siguiente* | **Se quitó**: depende de la política de cada transportista y no la verifiqué. Si la quieres, dime el texto por transportista |
+| Anulación | Vencido con tarjeta o Flow (hoy no se envía, decisión 6a) | *El pago no se completó antes del …, así que liberamos los productos y anulamos el pedido.* · vista previa *Venció el plazo para pagar* |
+| Anulación | Por la tienda sin nota | *Tuvimos que anular tu pedido. Lo sentimos.* (con nota, la nota es el motivo, como en Mis pedidos) |
+| Anulación | Pagado, reembolso todavía no hecho | *Te vamos a devolver $X* · *Lo devolvemos por el mismo medio con el que pagaste.* |
+| Anulación | Reembolso en Flow / por transferencia | *El reembolso ya está hecho en Flow. Según tu banco, puede tardar unos días hábiles en verse en tu cuenta.* / *Te lo devolvimos por transferencia bancaria.* (decisión 5 todavía ⏳) |
+| Anulación | Sin cobro y sin transferencia (por ejemplo, el cliente anula antes de pagar) | *No hicimos ningún cargo* · *No tienes nada más que hacer.* |
+| Anulación | Transferencia vencida y el pie | *Si ya transferiste, escríbenos a hola@almacen.cl con el comprobante…* y *Si tienes dudas, escríbenos a hola@almacen.cl.* en vez de *respóndenos* / *responde este correo* (T8) |
+
+**Decisiones que tomé y conviene que sepas (D-028):**
+
+- *Ver el pedido* lleva a Mis pedidos si el cliente tiene cuenta y a la Confirmación si compró como invitado. El correo de transferencia y el de pago devuelto siguen llevando a la página del pedido, porque ahí están los datos para transferir.
+- Cada correo enviado queda en el historial del pedido (lo verás en la administración, 7.4).
+- Mailinator no muestra los correos con «pedido» en el asunto (todos los nuestros lo llevan): los revisé en maildrop.cc. A tus clientes les llegan normal; es un filtro de esa bandeja pública.
 

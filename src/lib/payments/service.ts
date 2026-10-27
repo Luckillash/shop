@@ -1,16 +1,15 @@
 import "server-only";
 import { after } from "next/server";
-import { lateRefundEmail, orderConfirmedEmail, transferInstructionsEmail } from "@/lib/email/templates";
-import { sendEmail } from "@/lib/email/send";
+import { sendOrderEmail } from "@/lib/email/order-emails";
 import { getRedis } from "@/lib/redis";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database, Json } from "@/types/database";
-import { bankDetails, siteUrl } from "./config";
+import { siteUrl } from "./config";
 import * as flow from "./flow";
 import { flowOutcome, type FlowStatus } from "./flow-core";
 import { GatewayError } from "./gateway-error";
 import { createPaymentLock, type LockClient } from "./lock";
-import { bankRows, paidWithLabel, type PaymentProvider } from "./labels";
+import type { PaymentProvider } from "./labels";
 import * as webpay from "./webpay";
 import { webpayOutcome, type AttemptOutcome, type FailureReason, type WebpayResult } from "./webpay-core";
 
@@ -49,10 +48,6 @@ function rawWith(payment: Payment, extra: Record<string, unknown>): Json {
   return { ...asObject(payment.raw_response), ...extra } as Json;
 }
 
-function orderUrl(orderId: string) {
-  return `${siteUrl()}/pedido/${orderId}`;
-}
-
 // ----- Crear un intento -----
 
 /**
@@ -75,7 +70,7 @@ export async function startAttempt(orderId: string, provider: PaymentProvider): 
   const amount = Math.round(Number(attempt.amount));
 
   if (provider === "transfer") {
-    after(() => sendTransferEmail(orderId));
+    after(() => sendOrderEmail(orderId, "transfer"));
     return { kind: "transfer" };
   }
 
@@ -252,11 +247,11 @@ async function applyOutcome(
   if (late || double) {
     await alert(admin, payment, late ? "paid_after_cancel" : "double_payment", { order_state: settled.order_state, response });
     const refunded = await refund(admin, { ...payment, status: "paid" }, amount);
-    if (refunded && late) after(() => sendLateRefundEmail(orderId));
+    if (refunded && late) after(() => sendOrderEmail(orderId, "late_refund"));
     return { status: refunded ? "refunded" : "paid", orderId };
   }
 
-  after(() => sendConfirmationEmail(orderId));
+  after(() => sendOrderEmail(orderId, "confirmed"));
   return { status: "paid", orderId };
 }
 
@@ -353,56 +348,4 @@ export async function reconcileFlow(payment: Payment, options: { final?: boolean
   } finally {
     await lock.release("flow", token);
   }
-}
-
-// ----- Correos (después de responder) -----
-
-async function sendConfirmationEmail(orderId: string) {
-  const admin = createSupabaseAdmin();
-  const { data } = await admin
-    .from("orders")
-    .select("order_number, contact_email, total, payments(provider, status, raw_response)")
-    .eq("id", orderId)
-    .single();
-  if (!data?.contact_email) return;
-  const paid = data.payments.find((p) => p.status === "paid");
-  await sendEmail(
-    orderConfirmedEmail({
-      to: data.contact_email,
-      orderNumber: data.order_number,
-      total: Math.round(Number(data.total)),
-      orderUrl: orderUrl(orderId),
-      paidWith: paid ? paidWithLabel(paid.provider, paid.raw_response) : "el medio elegido",
-    }),
-  );
-}
-
-async function sendLateRefundEmail(orderId: string) {
-  const contact = await orderContact(createSupabaseAdmin(), orderId);
-  if (!contact.contact_email) return;
-  await sendEmail(
-    lateRefundEmail({
-      to: contact.contact_email,
-      orderNumber: contact.order_number,
-      total: Math.round(Number(contact.total)),
-      orderUrl: orderUrl(orderId),
-    }),
-  );
-}
-
-async function sendTransferEmail(orderId: string) {
-  const admin = createSupabaseAdmin();
-  const { data } = await admin.from("orders").select("order_number, contact_email, total, expires_at").eq("id", orderId).single();
-  if (!data?.contact_email || !data.expires_at) return;
-  const total = Math.round(Number(data.total));
-  await sendEmail(
-    transferInstructionsEmail({
-      to: data.contact_email,
-      orderNumber: data.order_number,
-      total,
-      orderUrl: orderUrl(orderId),
-      expiresAt: new Date(data.expires_at),
-      bank: bankRows(bankDetails(), total, data.order_number),
-    }),
-  );
 }

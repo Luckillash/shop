@@ -106,6 +106,14 @@ Etiquetas de estado para la administración: `pending` *Transferencia por confir
 | Pedido en camino | `CorreoDespacho` | *Tu pedido va en camino*, transportista y fecha · código de seguimiento + *Seguir el envío* · dirección · productos y total |
 | Pedido anulado | `CorreoAnulacion` (tweak `motivo`: `vencio`, `tienda`, `cliente`) | *Anulamos tu pedido N.º …*, el motivo · bloque de dinero (*No hicimos ningún cargo* o *Te devolvimos $…*) · productos · *Volver a la tienda* |
 
+✅ Implementados en la 7.3 (`src/lib/email/templates.ts`, D-028), también para los correos sin artboard (datos para transferir, pago devuelto) y las plantillas de Supabase Auth. Diferencias con el artboard:
+
+- Los bloques se separan con margen (no flex) y en pantallas angostas los márgenes bajan a 12 px (página) y 20 px (tarjeta). Los títulos no cortan *N.º 1041*.
+- *Ver el pedido* va a Mis pedidos con cuenta y a la Confirmación como invitado; en el despacho, el invitado lee *Puedes ver el detalle en la página del pedido* en vez de *Mis pedidos* (propuesta).
+- Confirmación: *con tarjeta de débito vía Webpay Plus* (el mismo texto del medio de pago de la app; el artboard dice *en Webpay Plus*); fila *Descuento* si hubo cupón; con retiro en tienda, el bloque `promo` lleva el horario y la dirección del local y la fila dice *Retiro* (propuestas).
+- Despacho: sin *Si no vas a estar, Starken deja un aviso…* (depende de cada transportista); despacho propio y retiro en tienda con su propio texto (propuestas, en pendientes del dueño).
+- Anulación: *escríbenos a hola@almacen.cl* en lugar de *respóndenos* / *responde este correo* (el remitente no recibe respuestas). Textos para tienda sin nota, reembolso pendiente y sin cobro sin transferencia. Todas las propuestas de esta lista fueron aprobados sin cambios por el dueño el 26-10-2026 (T6).
+
 ## Mapa de estados
 
 `FlujoPostcompra`: una columna por `orders.status` (de `pending` a `cancelled · refunded`) y tres filas: la pantalla que ve el cliente, el correo que recibe y el botón de la administración. Marca lo que es nuevo de la fase 7.

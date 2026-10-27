@@ -178,8 +178,17 @@ describe("seguimiento del Detalle", () => {
 });
 
 describe("Seguir el envío", () => {
-  it("sin URL mientras los transportistas no estén decididos (decisión 2)", () => {
-    expect(carrierTrackingUrl("Starken", "984512307716")).toBeNull();
+  it("la página de cada transportista con el código (decisión 2)", () => {
+    expect(carrierTrackingUrl("Starken", "9845 1230 7716")).toBe("https://www.starken.cl/seguimiento?codigo=984512307716");
+    expect(carrierTrackingUrl("Chilexpress", "1234567890")).toBe("https://centrodeayuda.chilexpress.cl/seguimiento/1234567890");
+    expect(carrierTrackingUrl("Blue Express", "BX123")).toBe("https://www.blue.cl/enviar/seguimiento?n_seguimiento=BX123");
+    expect(carrierTrackingUrl("Correos de Chile", "1234567890123")).toBe("https://www.correos.cl/seguimiento-en-linea");
+  });
+
+  it("sin enlace en el despacho propio, sin código o con un transportista desconocido", () => {
+    expect(carrierTrackingUrl("Almacén", "A-1")).toBeNull();
+    expect(carrierTrackingUrl("Starken", null)).toBeNull();
+    expect(carrierTrackingUrl("Otro", "1")).toBeNull();
     expect(carrierTrackingUrl(null, null)).toBeNull();
   });
 });

@@ -62,4 +62,4 @@ Se aplica a **todos los medios**, no solo a la transferencia: un pedido de Webpa
 - *Pagar con tarjeta en su lugar*: `retryPayment(order, 'webpay')`. El intento de transferencia queda `failed` y el plazo **no se acorta** (D-023).
 - *Ver estado del pedido*: no se muestra hasta Mis pedidos (fase 7, B38).
 - Confirmación manual del admin: sin implementar (no hay administración). Mínimo viable con el MCP: `select settle_payment('<payment_id>', 'paid', '{"confirmed_by":"<admin>","bank_ref":"…"}')` como `service_role`, después de comparar el monto con `orders.total`.
-- Cron: `src/app/api/cron/expirar-pedidos/route.ts` + `src/lib/payments/expire.ts`, en lotes de 50, `vercel.json` cada 10 min (D-021). Para Webpay y Flow consulta la pasarela con `final: true` antes de anular.
+- Cron: `src/app/api/cron/expirar-pedidos/route.ts` + `src/lib/payments/expire.ts`, en lotes de 50, `vercel.json` cada 10 min (D-021). Para Webpay y Flow consulta la pasarela con `final: true` antes de anular. Las transferencias anuladas reciben *Anulamos tu pedido* con `sendOrderEmail(id, "cancelled")` (decisión 6a, D-028); los pedidos con tarjeta o Flow no.

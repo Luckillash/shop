@@ -6,11 +6,12 @@ import "server-only";
 
 export type Email = { to: string; subject: string; html: string; text: string };
 
-export async function sendEmail(email: Email): Promise<boolean> {
+/** El id del correo en Resend, o null si no se envió */
+export async function sendEmail(email: Email): Promise<string | null> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
     console.warn(`[email] Sin RESEND_API_KEY: no se envió "${email.subject}" a ${email.to}`);
-    return false;
+    return null;
   }
   try {
     const response = await fetch("https://api.resend.com/emails", {
@@ -27,11 +28,12 @@ export async function sendEmail(email: Email): Promise<boolean> {
     });
     if (!response.ok) {
       console.error("[email] Resend respondió", response.status, await response.text());
-      return false;
+      return null;
     }
-    return true;
+    const { id } = (await response.json()) as { id?: string };
+    return id ?? "";
   } catch (error) {
     console.error("[email] No se pudo enviar", error);
-    return false;
+    return null;
   }
 }

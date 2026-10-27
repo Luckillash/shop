@@ -74,4 +74,4 @@ Impacto: 🔴 bloquea el flujo de compra · 🟠 se ve mal o los datos quedan in
 
 ## Sin diseño ni datos
 
-Correos transaccionales · emisión de boleta o factura (SII) · integración con Starken (seguimiento) · panel de administración · toast de producto agregado · páginas de Direcciones, Favoritos y Datos personales.
+~~Correos transaccionales~~ (✅ 7.3: diseñados en el canvas de la fase 7 e implementados, D-028) · emisión de boleta o factura (SII) · integración con las API de los transportistas (la 7.3 solo enlaza a su página de seguimiento, D-028) · panel de administración · toast de producto agregado · páginas de Direcciones, Favoritos y Datos personales.

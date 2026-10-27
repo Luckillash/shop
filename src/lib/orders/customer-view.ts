@@ -2,6 +2,7 @@ import { santiagoDate } from "@/lib/chile/business-days";
 import { isShippingMethod, shippingMethodLabel, type ShippingMethod } from "@/lib/checkout/shipping";
 import { formatCLP } from "@/lib/format/clp";
 import { formatDeadline, formatDeliveryDay } from "@/lib/format/dates";
+import { STORE } from "@/lib/store";
 import type { Database, Json } from "@/types/database";
 import { estimatedDelivery, isCancelReason, trackingProgress, TRACKING_STEPS, type OrderStatus } from "./order-status";
 
@@ -51,7 +52,7 @@ function refund(order: CustomerOrder): { amount: string; day: string } | null {
  * Motivo de un pedido anulado. Los anulados antes de la M8 no tienen cancel_reason: si se anularon
  * después de su plazo, venció; si no, los anuló la tienda (son las pruebas 1001–1004).
  */
-function cancelReason(order: CustomerOrder) {
+export function cancelReason(order: Pick<CustomerOrder, "cancel_reason" | "expires_at" | "cancelled_at">) {
   if (isCancelReason(order.cancel_reason)) return order.cancel_reason;
   if (order.expires_at && order.cancelled_at && order.cancelled_at >= order.expires_at) return "vencio";
   return "tienda";
@@ -163,14 +164,33 @@ export function trackingTimeline(order: CustomerOrder, now: Date): TrackingStep[
 }
 
 /**
- * Página de seguimiento de cada transportista, por orders.carrier. Vacío a propósito: los
- * transportistas son la decisión 2 del plan (⏳) y no se inventan URL. Con la decisión se agregan
- * aquí (el despacho propio no lleva enlace).
+ * Transportistas (decisión 2, aprobada por el dueño el 26-10-2026). `name` es lo que se guarda en
+ * orders.carrier y lo que lee el cliente (*Despacha Starken*); `label`, la opción de *Marcar como
+ * enviado* (7.4). El despacho propio se guarda como la tienda (*Despacha Almacén*) y no tiene enlace.
  */
-const CARRIER_TRACKING: Record<string, (trackingNumber: string) => string> = {};
+export const CARRIERS = [
+  { name: "Starken", label: "Starken" },
+  { name: "Chilexpress", label: "Chilexpress" },
+  { name: "Blue Express", label: "Blue Express" },
+  { name: "Correos de Chile", label: "Correos de Chile" },
+  { name: STORE.name, label: "Despacho propio" },
+] as const;
+
+/**
+ * Página de seguimiento de cada transportista, por orders.carrier. Revisadas el 26-10-2026 en el
+ * código de cada sitio: Starken lee `codigo`, Blue Express `n_seguimiento` y Chilexpress la OT en la
+ * ruta. Correos de Chile no acepta el código en la URL (y su sitio tiene captcha): se enlaza a su
+ * página y el código se copia desde el correo o el Detalle.
+ */
+const CARRIER_TRACKING: Record<string, (trackingNumber: string) => string> = {
+  Starken: (code) => `https://www.starken.cl/seguimiento?codigo=${encodeURIComponent(code)}`,
+  Chilexpress: (code) => `https://centrodeayuda.chilexpress.cl/seguimiento/${encodeURIComponent(code)}`,
+  "Blue Express": (code) => `https://www.blue.cl/enviar/seguimiento?n_seguimiento=${encodeURIComponent(code)}`,
+  "Correos de Chile": () => "https://www.correos.cl/seguimiento-en-linea",
+};
 
 /** Enlace de *Seguir el envío*. null = el botón no se muestra */
 export function carrierTrackingUrl(carrier: string | null, trackingNumber: string | null): string | null {
   if (!carrier || !trackingNumber) return null;
-  return CARRIER_TRACKING[carrier]?.(trackingNumber) ?? null;
+  return CARRIER_TRACKING[carrier]?.(trackingNumber.replace(/\s+/g, "")) ?? null;
 }

@@ -28,3 +28,5 @@ abra en otro navegador (la plantilla por defecto usa PKCE y solo sirve en el mis
   cuenta desde la Confirmación (7.2, D-027); con correo anterior, un cambio de correo normal.
 
 Si cambias el texto o el estilo, cambia los seis archivos igual (comparten el mismo `layout`) y vuelve a pegarlos.
+
+**26-10-2026 (7.3):** el `layout` pasó al del artboard `CorreoConfirmacion` (logo en Georgia, márgenes del diseño, pie fuera de la tarjeta), igual que los correos de pedidos. Los textos, enlaces y asuntos no cambiaron. El dueño volvió a pegar los cuerpos el mismo día (T7 de `documentación/_archivo/pendientes-del-dueno-fase-7.md`), verificado con *Crea una contraseña nueva*. El `<style>` lleva espacios entre las llaves para no confundirse con las de los Go templates.

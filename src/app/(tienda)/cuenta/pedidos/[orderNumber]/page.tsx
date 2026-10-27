@@ -125,7 +125,7 @@ function Status({ order, now }: { order: AccountOrder; now: Date }) {
           </h2>
           <p className={styles.mutedSmall}>{shipment}</p>
         </div>
-        {/* Sin URL hasta decidir los transportistas (decisión 2): el botón no se muestra */}
+        {/* El despacho propio no tiene página de seguimiento: el botón no se muestra */}
         {trackingUrl && (
           <Button href={trackingUrl} variant="secondary" iconEnd="chevronRight" className={styles.trackButton}>
             Seguir el envío

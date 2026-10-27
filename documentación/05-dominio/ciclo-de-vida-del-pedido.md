@@ -80,7 +80,7 @@ Cron (`/api/cron/expirar-pedidos`, cada 10–15 min):
 
 1. Busca los pedidos `pending` con `expires_at < now()`.
 2. Si el medio es Webpay o Flow, **antes de anular consulta el estado en la pasarela** (`status` / `getStatus`). Si está pagado, registra el pago en vez de anular. Esto cubre al usuario que cerró el navegador después de pagar.
-3. Si no está pagado: marca los `payments` pendientes como `failed` y llama a `cancel_order` con el cliente admin.
+3. Si no está pagado: marca los `payments` pendientes como `failed` y llama a `cancel_order` con el cliente admin. Si es una transferencia, envía *Anulamos tu pedido* (decisión 6a, D-028).
 4. Invalida `stock:<productId>` (`revalidateTag(…, 'max')`).
 
 ## Carreras e idempotencia

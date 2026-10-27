@@ -1,12 +1,14 @@
 import "server-only";
 import { revalidateTag } from "next/cache";
+import { sendOrderEmail } from "@/lib/email/order-emails";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { reconcileFlow, reconcileWebpay } from "./service";
 
 // Cron de vencimiento (06-implementacion/pago-transferencia.md): anula con cancel_order los
 // pedidos pending con expires_at vencido, de cualquier medio. Antes consulta la pasarela del
 // intento pending (el usuario pudo pagar y cerrar el navegador): si está pagado, lo registra.
-// Idempotente: un pedido que ya no está pending no se vuelve a tocar.
+// Idempotente: un pedido que ya no está pending no se vuelve a tocar. Las transferencias anuladas
+// reciben el correo *Anulamos tu pedido* (motivo vencio).
 
 const BATCH = 50;
 
@@ -16,7 +18,7 @@ export async function expireOrders(now = new Date()): Promise<ExpireSummary> {
   const admin = createSupabaseAdmin();
   const { data: orders, error } = await admin
     .from("orders")
-    .select("id, order_number, payments(*), items:order_items(product_id)")
+    .select("id, order_number, payment_method, payments(*), items:order_items(product_id)")
     .eq("status", "pending")
     .lt("expires_at", now.toISOString())
     .order("expires_at", { ascending: true })
@@ -64,6 +66,10 @@ export async function expireOrders(now = new Date()): Promise<ExpireSummary> {
       continue;
     }
     summary.cancelled++;
+    // *Anulamos tu pedido* solo a las transferencias vencidas (decisión 6a del dueño, 26-10-2026): los
+    // pedidos con tarjeta o Flow que vencen a los 30 min suelen ser compras abandonadas. Sin after():
+    // nadie espera la respuesta del cron, y así el envío no depende de que la función siga viva
+    if (order.payment_method === "transfer") await sendOrderEmail(order.id, "cancelled");
     for (const productId of new Set(order.items.map((i) => i.product_id).filter(Boolean))) {
       revalidateTag(`stock:${productId}`, "max");
     }
