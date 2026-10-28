@@ -13,7 +13,7 @@ Foto del **28-10-2026**, con la fase 7 terminada (7.0 a 7.8). Junta lo que sigue
 **Quién:** 👤 tú · 🤖 el agente · 👥 los dos.
 **Prioridad:** 🔴 sin esto no se puede publicar · 🟠 importante · 🟢 mejora, puede ir después.
 
-**Estado del sitio:** `audazia.dev` responde 200 con la 7.7 desplegada (commit `1a10a61`). **La 7.8 está sin commit**: espera tu aviso (T18). Pagos en integración/sandbox, base de Supabase compartida entre desarrollo y producción, sin Redis, cron diario (Hobby).
+**Estado del sitio:** `audazia.dev` responde 200 con la 7.7 desplegada (commit `1a10a61`). La 7.8 también está desplegada (commit `b24396d`, verificada el 28-10-2026 a las 05:17 UTC). Pagos en integración/sandbox, base de Supabase compartida entre desarrollo y producción, sin Redis, cron diario (Hobby).
 
 **Datos de prueba hoy:** 51 usuarios (8 con correo y 43 anónimos) y los pedidos 1001–1048 (no hay 1037; el próximo es el 1049).
 
@@ -23,7 +23,7 @@ Foto del **28-10-2026**, con la fase 7 terminada (7.0 a 7.8). Junta lo que sigue
 
 | # | Qué | Quién | Prioridad | Estado |
 |---|---|---|---|---|
-| T18 | **Commit y deploy de la 7.8.** Al desplegar, la limpieza de invitados **no borra nada** (sin `ANON_CLEANUP_ENABLED` solo cuenta). Después de ver un par de logs `[cron] limpiar-anonimos` con `dryRun: true`, define `ANON_CLEANUP_ENABLED=true` en Vercel → Production y redespliega | 👤 (el agente hace el commit con tu aviso) | 🟢 | ⏳ |
+| T18 | **Activar la limpieza de invitados.** La 7.8 ya está desplegada (`b24396d`) y la limpieza **no borra nada** (sin `ANON_CLEANUP_ENABLED` solo cuenta). Después de ver un par de logs `[cron] limpiar-anonimos` con `dryRun: true`, define `ANON_CLEANUP_ENABLED=true` en Vercel → Production y redespliega | 👤 | 🟢 | ⏳ |
 | T11 | **Confirmar que el cron diario corre con 200.** El del 27-10 nunca apareció en los logs (el sitio estuvo deshabilitado hasta el 28-10, T15); el del 28-10 y el del 29-10 están por revisar (Hobby: entre las 09:00 y las 09:59 UTC). El agente lo revisa con el MCP de Vercel; tú puedes mirarlo en *Cron Jobs* | 👥 | 🔴 | ⏳ |
 | T9 | Quitarle el rol `admin` a `prueba.fase5@almacen.cl` (dijiste *todavía no*). Se va igual al borrar los usuarios de prueba | 🤖 con tu aviso | 🔴 antes de producción | ⏳ |
 | T10 | Revisar los textos propuestos de la 7.4 (administración, motivos de anulación, correo de transferencia anulada) | 👤 | — (quedan así si no dices nada) | ⏳ |
