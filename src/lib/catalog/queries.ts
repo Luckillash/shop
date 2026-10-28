@@ -1,5 +1,6 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabasePublic } from "@/lib/supabase/public";
 import {
   PAGE_SIZE,
@@ -100,6 +101,30 @@ export async function getProductsByIds(ids: string[]): Promise<CatalogItem[]> {
   const items = await withVariants(data);
   const position = new Map(ids.map((id, index) => [id, index]));
   return items.sort((a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0));
+}
+
+/**
+ * Los más vendidos del Inicio (M12, D-032): la función devuelve solo ids y unidades, y solo la ejecuta
+ * service_role (anon no lee order_items). Sin fecha de inicio no se consulta. Si falla, devuelve []
+ * y el Inicio muestra Destacados: la sección no debe tumbar el build ni la página.
+ */
+export async function getBestSellers(since: string | null, limit = 4): Promise<CatalogItem[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
+  if (!since) return [];
+
+  try {
+    const { data, error } = await createSupabaseAdmin().rpc("best_selling_products", {
+      p_since: since,
+      p_limit: limit,
+    });
+    if (error) throw error;
+    return await getProductsByIds(data.map((r) => r.product_id));
+  } catch (error) {
+    console.error("[catalog] best_selling_products:", error instanceof Error ? error.message : error);
+    return [];
+  }
 }
 
 export async function getNewProducts(limit = 4): Promise<CatalogItem[]> {

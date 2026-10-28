@@ -155,7 +155,7 @@ documentación/
 │   ├── renderizado-y-cache.md         use cache, tags, invalidación, rol de Redis
 │   ├── estado-del-cliente.md          carro en Zustand y sincronización con la BD
 │   ├── autenticacion-y-autorizacion.md  clientes de Supabase, proxy, roles, invitados
-│   └── decisiones.md                  registro D-001…D-031
+│   └── decisiones.md                  registro D-001…D-032
 ├── 03-base-de-datos/                  ← Supabase / PostgreSQL
 │   ├── modelo-de-datos.md             tablas por dominio, relaciones, enums, vista
 │   ├── tablas-catalogo.md

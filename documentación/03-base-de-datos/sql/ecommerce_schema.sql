@@ -1519,6 +1519,44 @@ $$;
 revoke execute on function public.search_products(text, int) from public;
 grant execute on function public.search_products(text, int) to anon, authenticated;
 
+-- Los más vendidos del Inicio (M12, fase 7.7, D-032). Devuelve solo ids de producto y unidades.
+-- Cuenta order_items de pedidos paid/processing/shipped/delivered pagados (paid_at) desde p_since
+-- y dentro de los últimos p_window_days; solo productos activos con alguna variante activa con stock.
+-- security invoker con EXECUTE solo para service_role (que salta RLS): anon y authenticated no la
+-- pueden llamar por /rest/v1/rpc (el RLS tampoco les deja leer order_items ni orders).
+create or replace function public.best_selling_products(
+  p_since timestamptz,
+  p_limit integer default 4,
+  p_window_days integer default 90
+)
+returns table (product_id uuid, units bigint)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select oi.product_id, sum(oi.quantity)::bigint as units
+  from public.order_items oi
+  join public.orders o on o.id = oi.order_id
+  join public.products p on p.id = oi.product_id
+  where o.status in ('paid', 'processing', 'shipped', 'delivered')
+    and o.paid_at >= greatest(p_since, now() - make_interval(days => greatest(p_window_days, 1)))
+    and p.is_active
+    and exists (
+      select 1 from public.product_variants v
+      where v.product_id = p.id and v.is_active and v.stock > 0
+    )
+  group by oi.product_id
+  order by units desc, max(o.paid_at) desc, oi.product_id
+  limit least(greatest(p_limit, 0), 24);
+$$;
+
+revoke all on function public.best_selling_products(timestamptz, integer, integer) from public, anon, authenticated;
+grant execute on function public.best_selling_products(timestamptz, integer, integer) to service_role;
+
+comment on function public.best_selling_products(timestamptz, integer, integer) is
+  'Los más vendidos (M12, D-032): unidades de pedidos paid/processing/shipped/delivered pagados desde p_since y dentro de p_window_days; solo productos activos con stock. Solo service_role.';
+
 -- ---------------------------------------------------------------------
 -- 13. ROW LEVEL SECURITY
 -- ---------------------------------------------------------------------

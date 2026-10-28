@@ -3,9 +3,16 @@ import catalog from "@/components/catalog/catalog.module.css";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { Button } from "@/components/ui/button";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { HOME_SECTION_SIZE, homeProductSection, parseBestSellersSince } from "@/lib/catalog/home";
 import { DEFAULT_FILTERS } from "@/lib/catalog/listing";
 import { maxDiscount } from "@/lib/catalog/mappers";
-import { getCategories, getFeaturedProducts, getNewProducts, listProducts } from "@/lib/catalog/queries";
+import {
+  getBestSellers,
+  getCategories,
+  getFeaturedProducts,
+  getNewProducts,
+  listProducts,
+} from "@/lib/catalog/queries";
 import { formatCLP } from "@/lib/format/clp";
 import { STORE } from "@/lib/store";
 import styles from "./page.module.css";
@@ -21,14 +28,17 @@ const BENEFITS: { icon: IconName; title: string; text: string }[] = [
 ];
 
 // Template Inicio. Todo sale de consultas con 'use cache': la página entera es parte del static shell.
+// La última sección es Los más vendidos con 4 o más vendidos desde BEST_SELLERS_SINCE; si no, Destacados (D-032).
 export default async function Home() {
-  const [categories, newProducts, featured, sale] = await Promise.all([
+  const [categories, newProducts, bestSellers, featured, sale] = await Promise.all([
     getCategories(),
     getNewProducts(4),
-    getFeaturedProducts(4),
+    getBestSellers(parseBestSellersSince(process.env.BEST_SELLERS_SINCE), HOME_SECTION_SIZE),
+    getFeaturedProducts(HOME_SECTION_SIZE),
     listProducts({ kind: "sale" }, DEFAULT_FILTERS),
   ]);
   const discount = maxDiscount(sale.items);
+  const last = homeProductSection(bestSellers, featured);
 
   return (
     <main className={catalog.main}>
@@ -109,11 +119,11 @@ export default async function Home() {
         </section>
       )}
 
-      <section className={catalog.section} aria-labelledby="destacados">
-        <h2 id="destacados" className={catalog.sectionTitle}>
-          Destacados
+      <section className={catalog.section} aria-labelledby={last.id}>
+        <h2 id={last.id} className={catalog.sectionTitle}>
+          {last.title}
         </h2>
-        <ProductGrid items={featured} />
+        <ProductGrid items={last.items} />
       </section>
     </main>
   );

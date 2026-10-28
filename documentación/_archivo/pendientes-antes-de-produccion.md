@@ -66,7 +66,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [x] 🟢 🤖 ✅ 28-10-2026 (7.6, D-031, M11) · **Reseñas:** *Escribe tu opinión* en la Ficha; solo con el pedido **entregado** y una cuenta (no invitado); firma *Nombre · Comuna* puesta por la BD; la propia se edita.
 - [ ] 🟠 👤 Revisar los textos y las propuestas de la 7.6 (T14 de la [fase 7](pendientes-del-dueno-fase-7.md)).
 - [ ] 🟢 🤖 **Moderar opiniones:** hoy ocultar una es un `update reviews set is_published = false` en Supabase, y después invalidar `reviews:<productId>` y `products` (por ejemplo con `invalidate_by_tags` de Vercel). Sin pantalla de administración (fuera de alcance de la fase 7). Con Redis en producción, el límite de 10 opiniones por hora por usuario empieza a valer (hoy fail-open).
-- [ ] 🟢 🤖 *Los más vendidos* en el Inicio cuando haya ventas (B34; hoy *Destacados*).
+- [ ] 🟢 🤖 *Los más vendidos* en el Inicio cuando haya ventas (B34): ✅ 7.7 (28-10-2026, D-032). **Al lanzar**, el dueño define `BEST_SELLERS_SINCE` en Vercel (Production) con la fecha de lanzamiento y redespliega; sin ella el Inicio sigue con *Destacados* (T17).
 - [x] 🟢 🤖 ✅ 25-10-2026 · Badges y línea de estado de `cancelled` y `refunded` en Mis pedidos (B24, 7.0 y 7.1) y fecha de entrega estimada (B25, calculada sin columna en la 7.0).
 - [ ] 🟢 🤖 Limpieza periódica de usuarios anónimos sin pedidos.
 - [ ] 🟢 🤖 Newsletter: ✅ *Recibir novedades* guarda la fecha en `profiles.newsletter_opt_in_at` desde la 7.5 (decisión 7b, B21; Crear cuenta, conversión del invitado y *Correos de la tienda*), sin envíos. Falta la suscripción del footer (decisión 7c) y, cuando se envíen novedades, un proveedor y el enlace para darse de baja en cada correo.

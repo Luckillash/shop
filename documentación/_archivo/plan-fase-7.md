@@ -1,6 +1,6 @@
 ---
 title: "Plan de la fase 7: postcompra y operación"
-description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones del dueño. En curso: 7.0 a 7.6 listas."
+description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones del dueño. En curso: 7.0 a 7.7 listas."
 generated: "2026-10-25"
 estado: "en curso"
 related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-estado/avance.md", "_archivo/pendientes-antes-de-la-fase-7.md", "_archivo/prompt-inicio-fase-7.md", "02-arquitectura/decisiones.md", "07-referencia/brechas-diseno-vs-datos.md"]
@@ -10,7 +10,7 @@ related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-est
 
 Propuesta del 25-10-2026. El dueño pidió empezar por la 7.0 el mismo día; las decisiones de abajo están también en [pendientes del dueño](pendientes-del-dueno-fase-7.md). Al 27-10-2026 solo queda ⏳ la 7c.
 
-**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027). 7.3 ✅ (26-10-2026): correos de confirmación, despacho y anulación (D-028), con las decisiones 2 y 6 respondidas. 7.4 ✅ (27-10-2026): administración de pedidos y alertas de pago (D-029, migración M9). 7.5 ✅ (27-10-2026): Direcciones, Favoritos y Datos personales (D-030, migración M10). 7.6 ✅ (28-10-2026): reseñas (D-031, migración M11).
+**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027). 7.3 ✅ (26-10-2026): correos de confirmación, despacho y anulación (D-028), con las decisiones 2 y 6 respondidas. 7.4 ✅ (27-10-2026): administración de pedidos y alertas de pago (D-029, migración M9). 7.5 ✅ (27-10-2026): Direcciones, Favoritos y Datos personales (D-030, migración M10). 7.6 ✅ (28-10-2026): reseñas (D-031, migración M11). 7.7 ✅ (28-10-2026): *Los más vendidos* (D-032, migración M12).
 
 ## Pendiente previo: el cron ✅ (26-10-2026)
 
@@ -31,7 +31,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | **7.4** ✅ | Administración | 7.0, 7.3 y la cuenta admin | ✅ 27-10-2026 (D-029, M9): `/admin` con AdminHeader, AdminPedidos, AdminPedido (también móvil), AdminAnularPedido y AdminAlertas; una función SQL por acción con el admin como actor del historial; reembolso de pedidos ya anulados (1042) y reintento de reembolsos fallidos; decisión 5 con *Ya devolví el dinero*. Textos propuestos en T10. Plan original: `/admin` sin el header de la tienda (`AdminHeader`); acceso validado en el layout **y** en cada Server Action. Incluye `AdminPedidos` (chips con conteo, búsqueda por N.º o correo, *Ver más*), `AdminPedido` con sus 5 estados y el historial, confirmar transferencia con `settle_payment(…, 'paid', …)` y el N.º de operación, *Empezar a preparar*, *Marcar como enviado* (transportista y código, con correo), *Marcar como entregado*, `AdminAnularPedido` (`cancel_order` + reembolso con el código de la fase 6 + correo opcional), `AdminAlertas` (resolver) y `AdminPedidoMovil`. Las transiciones se validan en la acción |
 | **7.5** ✅ | Direcciones, Favoritos y Datos personales | 7.1 | ✅ 27-10-2026 (D-030, M10): las tres páginas en el menú; corazón conectado sin volver dinámico el catálogo (invitado → Ingresar y se guarda al ingresar); `first_name`/`last_name`, `rut` y `newsletter_opt_in_at` en `profiles` con grant por columna; textos propuestos en T12. Plan original: CRUD de `addresses` con predeterminada; favoritos con estado vacío (un invitado debe ingresar, B23) y el corazón de la Ficha y de `ProductCard` conectado; datos personales (con `profiles.rut` opcional, decisión 7a ✅), cambio de contraseña y novedades (`profiles.newsletter_opt_in_at`, decisión 7b ✅) |
 | **7.6** ✅ | Reseñas (B36) | 7.1 | ✅ 28-10-2026 (D-031, M11): modal *Escribe tu opinión* con la elegibilidad al abrirlo (sin sesión → Ingresar; invitado → crear su cuenta; sin pedido entregado → explicación), la propia se edita, el modal pide el nombre si falta, firma *Nombre · Comuna* puesta por el trigger `set_review_author`, política con `delivered` y sin anónimos, grant por columna, `updateTag` del producto y `revalidateTag('products', 'max')`. Textos propuestos en T14. Plan original: Modal `EscribirResena` en la Ficha. La elegibilidad se consulta al abrirlo, para que la Ficha siga siendo estática. Migración: el nombre y la comuna se copian en `reviews` con un trigger, para que el cliente no pueda inventarlos y `anon` no tenga que leer `profiles`; también se ajusta la política según la decisión 3 (✅ 27-10-2026: solo `delivered` y sin anónimos; firma *Nombre · Comuna*). Las opiniones reales reemplazan los placeholders y se invalida el tag del producto |
-| **7.7** | *Los más vendidos* (B34) | — | Función `security definer` que devuelve solo los ids, cacheada con el tag `products`; si hay menos de 4, se muestran *Destacados* |
+| **7.7** ✅ | *Los más vendidos* (B34) | — | ✅ 28-10-2026 (D-032, M12): `best_selling_products` solo para `service_role` (ids y unidades; `paid` a `delivered`, 90 días, activos con stock), `getBestSellers` con el tag `products` y `cacheLife('hours')`, respaldo a *Destacados* con menos de 4, sin completar. Decisión del dueño (opción b): solo cuentan los pedidos pagados desde `BEST_SELLERS_SINCE`; sin la variable, *Destacados* (hoy en producción). Plan original: Función `security definer` que devuelve solo los ids, cacheada con el tag `products`; si hay menos de 4, se muestran *Destacados* |
 | **7.8** | Opcionales 🟢 | 7.1, 7.4 | Redirección optimista de `/cuenta/*` (también Direcciones, Favoritos y Datos personales de la 7.5) y `/admin/*` en el proxy; limpieza de usuarios anónimos sin pedidos de más de 30 días, aprovechando el cron diario |
 
 ### Lo que deja la 7.1 para las siguientes subetapas
@@ -102,6 +102,16 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | 7.7 | `getReviews` ya lee `product_catalog` (promedio y total). *Los más vendidos* puede seguir la misma idea: una función que devuelva solo los ids, con el tag `products` | `src/lib/catalog/queries.ts` |
 | 7.8 | La limpieza de anónimos no toca `reviews`: un anónimo no puede opinar (M11) | cron |
 | Más adelante | Ocultar o borrar una opinión: hoy se hace en Supabase (`is_published = false`, el admin con `service_role`), e invalidar `reviews:<productId>` y `products`. *Ver todas las opiniones* (paginación) cuando haya más de 10 por producto. Responder una opinión no está en el diseño | D-031 |
+
+### Lo que deja la 7.7 para las siguientes subetapas
+
+| Subetapa | Pendiente | Dónde |
+|---|---|---|
+| Dueño | Al lanzar: definir `BEST_SELLERS_SINCE` (la fecha de lanzamiento, ISO) en Vercel → Production y redesplegar. Hasta entonces el Inicio muestra *Destacados* (T17) | Vercel |
+| Dueño | Revisar las propuestas de la 7.7: ventana de 90 días, solo productos con stock, *Destacados* entero con 0 a 3 vendidos (sin completar), empate por la venta más reciente (T17) | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
+| 7.8 | La limpieza de anónimos no afecta el ranking: solo borra anónimos **sin pedidos** | cron |
+| Más adelante | Orden *Más vendidos* en el Listado: no es barato (`listProducts` ordena y pagina en PostgREST con `count`); haría falta una vista o función con las unidades por producto. Revisarlo cuando haya ventas reales | D-032 |
+| Más adelante | Si se quiere el ranking al instante después de un pago, invalidar un tag propio (`best-sellers`) con `revalidateTag` desde `settle_payment` (no `products`, que vaciaría el catálogo) | D-032 |
 
 ### Lo que dejan las decisiones del dueño del 27-10-2026
 

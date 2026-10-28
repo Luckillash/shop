@@ -99,6 +99,16 @@ Todas `security definer`, `search_path = ''` y **solo `service_role`**: las llam
 
 Devuelve como máximo `least(max_results, 48)` filas. La app la llama desde `searchProducts(q)` en `src/lib/catalog/queries.ts`.
 
+## `best_selling_products(p_since timestamptz, p_limit int = 4, p_window_days int = 90) → table (product_id uuid, units bigint)` (M12, fase 7.7, D-032)
+
+`security invoker`, `stable`, `search_path = ''`. **`EXECUTE` solo para `service_role`** (revocado a `public`, `anon` y `authenticated`): como `service_role` salta el RLS, puede leer `order_items` y `orders` sin ser `security definer`. Devuelve **solo** ids de producto y unidades, nunca datos de pedidos ni de clientes.
+
+- Suma `order_items.quantity` de los pedidos `paid`, `processing`, `shipped` y `delivered` con `paid_at >= greatest(p_since, now() - p_window_days días)`.
+- Solo productos activos con alguna variante activa con `stock > 0`.
+- Orden: unidades, después la venta más reciente y después el id. Máximo `least(p_limit, 24)` filas.
+
+La app la llama desde `getBestSellers(since, 4)` en `src/lib/catalog/queries.ts`, con `createSupabaseAdmin()` y `since` = `BEST_SELLERS_SINCE`; sin esa variable no la llama. Archivo `sql/2026-10-28_best_sellers_m12.sql`.
+
 ## `validate_coupon(p_code text, p_subtotal numeric, p_user_id uuid = null) → table (code, discount, description)`
 
 `security definer`, `stable`, `search_path = ''`. **Solo `service_role`** tiene `EXECUTE` (D-019). Migración M3, fase 4 (2026-10-24).

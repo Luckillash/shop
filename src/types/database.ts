@@ -1102,6 +1102,13 @@ export type Database = {
         Args: { p_admin_id: string; p_alert_id: string }
         Returns: boolean
       }
+      best_selling_products: {
+        Args: { p_limit?: number; p_since: string; p_window_days?: number }
+        Returns: {
+          product_id: string
+          units: number
+        }[]
+      }
       cancel_order: {
         Args: { p_note?: string; p_order_id: string; p_reason?: string }
         Returns: undefined
