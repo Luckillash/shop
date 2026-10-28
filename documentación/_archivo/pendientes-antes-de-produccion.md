@@ -8,7 +8,7 @@ related: ["07-referencia/checklist-produccion.md", "08-estado/avance.md", "06-im
 
 # Pendientes antes de producción
 
-Estado al **27 de octubre de 2026** (decisiones 3, 4, 5 y 7a de la fase 7 respondidas): las fases 0 a 6 están terminadas, y de la fase 7 la 7.0 (base) y la 7.1 (Mis pedidos y Detalle de pedido), el 25-10-2026, y la 7.2 (el invitado crea su cuenta) y la 7.3 (correos de confirmación, despacho y anulación), el 26-10-2026. **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
+Lo abierto al 28-10-2026, junto con las tareas del dueño y lo de más adelante, está también en [pendientes al cierre de la fase 7](pendientes-al-cierre-de-la-fase-7.md). **Al 28-10-2026 la fase 7 está terminada** (7.8: proxy de `/cuenta/*` y limpieza de invitados, D-033): lo que queda del desarrollo es lo de los bloques 2 y 3 sin marcar. Estado anterior, al **27 de octubre de 2026** (decisiones 3, 4, 5 y 7a de la fase 7 respondidas): las fases 0 a 6 están terminadas, y de la fase 7 la 7.0 (base) y la 7.1 (Mis pedidos y Detalle de pedido), el 25-10-2026, y la 7.2 (el invitado crea su cuenta) y la 7.3 (correos de confirmación, despacho y anulación), el 26-10-2026. **Ya se puede cobrar en integración y sandbox** (Webpay Plus, Flow y transferencia, con reintentos, vencimiento y reembolso de pagos tardíos). Para cobrar de verdad faltan las credenciales de producción, el despliegue y los datos reales (bloques 4 a 8).
 
 Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-del-dueno-fase-6.md](pendientes-del-dueno-fase-6.md).
 
@@ -22,7 +22,7 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | Bloque | 🔴 | 🟠 | 🟢 |
 |---|---|---|---|
 | [1. Desarrollo: pagos (fase 6)](#1-desarrollo-pagos-fase-6) | 0 (✅ 8) | 0 (✅ 2) | 0 (✅ 1) |
-| [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 1 (✅ 1) | 2 (✅ 5) | 7 (✅ 3) |
+| [2. Desarrollo: postcompra y operación (fase 7)](#2-desarrollo-postcompra-y-operación-fase-7) | 1 (✅ 1) | 2 (✅ 5) | 6 (✅ 5) |
 | [3. Desarrollo: pendientes sueltos](#3-desarrollo-pendientes-sueltos) | 1 | 4 | 5 (✅ 1) |
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
@@ -62,13 +62,14 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 - [ ] 🟠 👤 Revisar los textos y las propuestas de la 7.5 (T12 de la [fase 7](pendientes-del-dueno-fase-7.md)): estado vacío y avisos de Direcciones, tope de 10 direcciones, confirmar al eliminar, nueva principal al eliminar la principal, favorito pendiente que se guarda al ingresar, *Deshacer* en Favoritos, sin *Te avisamos si baja de precio*, precarga del nombre y el teléfono en el checkout.
 - [ ] 🟢 🤖 **Cerrar sesión en los demás dispositivos** al cambiar la contraseña: hoy las otras sesiones caen al renovar su token (hasta 1 hora, trampa 86). Si se quiere al instante, verificar con `getUser()` en las rutas sensibles.
 - [ ] 🟢 🤖 **Favorito pendiente al crear una cuenta nueva:** con la confirmación de correo activada se pierde (solo se guarda al ingresar). Se podría llevar en el enlace de confirmación (D-030).
-- [ ] 🟢 🤖 Redirección optimista de `/cuenta/*` a `/ingresar` en el proxy (7.8). Desde la 7.1 el proxy ya lo hace para el Detalle de pedido (con el 404 de los pedidos ajenos, D-026); el resto lo hace cada página. Incluye las páginas de la 7.5 (`/cuenta/direcciones`, `/cuenta/favoritos`, `/cuenta/datos`), que sin sesión responden 200 y redirigen desde el navegador.
+- [x] 🟢 🤖 ✅ 28-10-2026 (7.8, D-033) · Redirección optimista de todo `/cuenta/*` a `/ingresar?volver=…` en el proxy, con el código HTTP real (307) sin sesión o con una sesión anónima, sin consulta extra. El Detalle y `/admin/*` siguen con su 404. `safeNext` ya no deja pasar `"/\t/otro.cl"` (trampa 96).
 - [x] 🟢 🤖 ✅ 28-10-2026 (7.6, D-031, M11) · **Reseñas:** *Escribe tu opinión* en la Ficha; solo con el pedido **entregado** y una cuenta (no invitado); firma *Nombre · Comuna* puesta por la BD; la propia se edita.
 - [ ] 🟠 👤 Revisar los textos y las propuestas de la 7.6 (T14 de la [fase 7](pendientes-del-dueno-fase-7.md)).
 - [ ] 🟢 🤖 **Moderar opiniones:** hoy ocultar una es un `update reviews set is_published = false` en Supabase, y después invalidar `reviews:<productId>` y `products` (por ejemplo con `invalidate_by_tags` de Vercel). Sin pantalla de administración (fuera de alcance de la fase 7). Con Redis en producción, el límite de 10 opiniones por hora por usuario empieza a valer (hoy fail-open).
 - [ ] 🟢 🤖 *Los más vendidos* en el Inicio cuando haya ventas (B34): ✅ 7.7 (28-10-2026, D-032). **Al lanzar**, el dueño define `BEST_SELLERS_SINCE` en Vercel (Production) con la fecha de lanzamiento y redespliega; sin ella el Inicio sigue con *Destacados* (T17).
 - [x] 🟢 🤖 ✅ 25-10-2026 · Badges y línea de estado de `cancelled` y `refunded` en Mis pedidos (B24, 7.0 y 7.1) y fecha de entrega estimada (B25, calculada sin columna en la 7.0).
-- [ ] 🟢 🤖 Limpieza periódica de usuarios anónimos sin pedidos.
+- [x] 🟢 🤖 ✅ 28-10-2026 (7.8, D-033, M13) · Limpieza de usuarios anónimos sin pedidos en el cron diario (30 días sin actividad, hasta 500 por ejecución, en una transacción). Nunca borra cuentas con correo, admins ni a quien tenga pedidos.
+- [ ] 🟢 👤 **Activar la limpieza de invitados** (T18 de la [fase 7](pendientes-del-dueno-fase-7.md)): después del deploy de la 7.8, revisa un par de logs `[cron] limpiar-anonimos` (con `dryRun: true` dicen cuántos borraría) y define `ANON_CLEANUP_ENABLED=true` en Vercel → Production; redespliega. Antes de producción conviene borrar los usuarios de prueba igual (bloque 6).
 - [ ] 🟢 🤖 Newsletter: ✅ *Recibir novedades* guarda la fecha en `profiles.newsletter_opt_in_at` desde la 7.5 (decisión 7b, B21; Crear cuenta, conversión del invitado y *Correos de la tienda*), sin envíos. Falta la suscripción del footer (decisión 7c) y, cuando se envíen novedades, un proveedor y el enlace para darse de baja en cada correo.
 - [x] 🟢 🤖 ✅ 27-10-2026 (7.5, D-030) · RUT en `profiles` (B22, decisión 7a): opcional, validado, se edita en Datos personales y el checkout lo precarga sin guardarlo.
 

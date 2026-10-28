@@ -82,13 +82,17 @@ Se hacen cuando se cumple su condición. Ninguno bloquea la compra.
 | ✅ Reintentar / cambiar de medio sobre el mismo pedido; B13 con reembolso + alerta (D-020) | [checkout-y-pedidos.md](checkout-y-pedidos.md) |
 | ⏳ Fuera de la fase: ~~túnel o despliegue para `urlConfirmation`~~ (✅ probada en `audazia.dev`, 25-10-2026), confirmación manual de transferencias (administración, fase 7) | — |
 
-## Fase 7 · Postcompra y operación
+## Fase 7 · Postcompra y operación ✅ (terminada el 28-10-2026)
+
+Subetapas 7.0 a 7.8 en el [plan](../_archivo/plan-fase-7.md). Lo que queda para producción (tareas del dueño T8 a T17) está en el plan, en *Cierre de la fase 7*, y en los [pendientes antes de producción](../_archivo/pendientes-antes-de-produccion.md).
+
 | Tarea | Notas |
 |---|---|
 | ✅ Mis pedidos, Detalle de pedido | 7.1 (D-026) |
-| ✅ Direcciones, Favoritos, Datos personales | 7.5 (D-030, M10): artboards de Cuenta; `profiles.rut` y `newsletter_opt_in_at`. Falta: textos propuestos (T12) y el código HTTP de `/cuenta/*` (7.8) |
+| ✅ Direcciones, Favoritos, Datos personales | 7.5 (D-030, M10): artboards de Cuenta; `profiles.rut` y `newsletter_opt_in_at`. Falta: textos propuestos (T12). Código HTTP real de `/cuenta/*` en el proxy ✅ (7.8, D-033) |
 | ✅ Reseñas | 7.6 (D-031, M11, B36): *Escribe tu opinión* con pedido entregado y sin invitados, firma *Nombre · Comuna* puesta por la BD, la propia se edita. Falta: textos propuestos (T14) |
-| *Los más vendidos* en el Inicio (hoy *Destacados*) | Función con el ranking de pedidos pagados + respaldo a *Destacados* si hay menos de 4. Detalle en B34 ([brechas](../07-referencia/brechas-diseno-vs-datos.md)) |
+| ✅ *Los más vendidos* en el Inicio | 7.7 (D-032, M12, B34). Se activa con `BEST_SELLERS_SINCE` al lanzar (T17); sin ella, *Destacados* |
+| ✅ Redirección optimista de `/cuenta/*` y limpieza de invitados | 7.8 (D-033, M13). La limpieza solo borra con `ANON_CLEANUP_ENABLED=true` |
 | ✅ Correos transaccionales: despacho y anulación (7.3, D-028) | Resend (D-022). Los de confirmación, transferencia y pago devuelto ya existen (fase 6) y se envían desde `mail.audazia.dev` |
 | Boleta/factura electrónica | **Sin proveedor definido** (D-012) |
 | Administración: ✅ pedidos, confirmar transferencias y alertas de pago (7.4, D-029); catálogo pendiente | El catálogo no tiene diseño. Confirmar una transferencia = `settle_payment(…, 'paid', …)`; las alertas están en `payment_alerts` |

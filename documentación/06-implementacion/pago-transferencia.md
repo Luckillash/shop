@@ -63,3 +63,11 @@ Se aplica a **todos los medios**, no solo a la transferencia: un pedido de Webpa
 - *Ver estado del pedido*: no se muestra hasta Mis pedidos (fase 7, B38).
 - Confirmación manual del admin: sin implementar (no hay administración). Mínimo viable con el MCP: `select settle_payment('<payment_id>', 'paid', '{"confirmed_by":"<admin>","bank_ref":"…"}')` como `service_role`, después de comparar el monto con `orders.total`.
 - Cron: `src/app/api/cron/expirar-pedidos/route.ts` + `src/lib/payments/expire.ts`, en lotes de 50, `vercel.json` cada 10 min (D-021). Para Webpay y Flow consulta la pasarela con `final: true` antes de anular. Las transferencias anuladas reciben *Anulamos tu pedido* con `sendOrderEmail(id, "cancelled")` (decisión 6a, D-028); los pedidos con tarjeta o Flow no.
+
+## El cron hoy: dos trabajos (7.8, D-033) ✅
+
+- **Frecuencia real:** `vercel.json` tiene `0 9 * * *` (diario, Hobby; Vercel puede correrlo entre las 09:00 y las 09:59 UTC). Lo de *cada 10 min* de arriba es para el plan Pro. Hobby permite hasta 100 cron por proyecto, cada uno una vez al día.
+- **Respuesta:** `{ expire: { checked, cancelled, recovered, skipped }, anonymous: { checked, deleted, dryRun } }`. 401 sin `Authorization: Bearer ${CRON_SECRET}` (comparado con `timingSafeEqual`).
+- **Trabajos independientes:** cada uno con su `try` (`runJob` en `route.ts`). Si la limpieza falla, los pedidos vencen igual, y al revés; la respuesta es 500 si alguno falló, con `{ error }` en ese trabajo. Logs: `[cron] expirar-pedidos {…}` y `[cron] limpiar-anonimos {…}` (o `console.error` con el error).
+- **Limpieza de invitados:** `cleanupAnonymousUsers()` (`src/lib/auth/anon-cleanup.ts`) llama `rpc('delete_stale_anonymous_users', { p_inactive_days: 30, p_limit: 500, p_dry_run })` con `service_role` (M13). Borra los anónimos sin correo, sin pedidos ni registros históricos y con 30 días sin actividad, en una sola transacción. **Solo borra con `ANON_CLEANUP_ENABLED=true`**; sin la variable responde `dryRun: true` con cuántos borraría.
+- **Probar en local:** `curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron/expirar-pedidos`. El 28-10-2026: `{"expire":{"checked":0,…},"anonymous":{"checked":0,"deleted":0,"dryRun":true}}`.

@@ -68,9 +68,18 @@ export function validateNewPassword(input: { password: unknown; confirm: unknown
   return Object.keys(errors).length > 0 ? { ok: false as const, errors } : { ok: true as const, data: { password } };
 }
 
-/** Solo rutas internas ("/checkout"); cualquier otra cosa (URL externa, "//otro.cl") vuelve al inicio */
+/**
+ * Solo rutas internas ("/checkout"); cualquier otra cosa (URL externa, "//otro.cl") vuelve al inicio.
+ * Se compara el origen después de parsear como lo hace el navegador, que quita tabs y saltos de línea
+ * y toma "\" por "/": "/\t/otro.cl" o "/\\otro.cl" terminarían en otro dominio (7.8).
+ */
 export function safeNext(value: unknown, fallback = "/"): string {
-  if (typeof value !== "string") return fallback;
-  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return fallback;
-  return value;
+  if (typeof value !== "string" || !value.startsWith("/")) return fallback;
+  const base = "http://tienda.invalid";
+  try {
+    const url = new URL(value, base);
+    return url.origin === base ? url.pathname + url.search + url.hash : fallback;
+  } catch {
+    return fallback;
+  }
 }

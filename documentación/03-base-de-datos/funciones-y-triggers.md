@@ -109,6 +109,16 @@ Devuelve como máximo `least(max_results, 48)` filas. La app la llama desde `sea
 
 La app la llama desde `getBestSellers(since, 4)` en `src/lib/catalog/queries.ts`, con `createSupabaseAdmin()` y `since` = `BEST_SELLERS_SINCE`; sin esa variable no la llama. Archivo `sql/2026-10-28_best_sellers_m12.sql`.
 
+## `delete_stale_anonymous_users(p_inactive_days int = 30, p_limit int = 500, p_dry_run bool = false) → jsonb` (M13, fase 7.8, D-033)
+
+`security definer` (borra de `auth.users`), `volatile`, `search_path = ''`. **`EXECUTE` solo para `service_role`** (revocado a `public`, `anon` y `authenticated`). La llama el cron diario (`cleanupAnonymousUsers`, `src/lib/auth/anon-cleanup.ts`). Devuelve `{ checked, deleted }`.
+
+- **Candidatos:** `is_anonymous`, sin `email`, `phone` ni `email_change` pendiente; perfil `customer`; sin filas en `orders` (cualquier estado), `coupon_redemptions`, `order_events` (actor) ni `inventory_movements`; y la actividad más reciente (`created_at`, `last_sign_in_at` o el último refresco de una sesión en `auth.sessions`) anterior a `now() - p_inactive_days`. Los más antiguos primero, hasta `p_limit` (1 a 1000), con `FOR UPDATE SKIP LOCKED`.
+- **Borrado:** bloquea sus `profiles` (`FOR UPDATE`, espera a un `place_order` en curso) y borra de `auth.users` volviendo a comprobar `orders` y `coupon_redemptions`. Cascada: `identities`, `sessions`, `profiles` → `addresses`, `carts` (`cart_items`), `wishlist_items`, `reviews`. Todo en una transacción: si falla, no se borra ninguno.
+- **`p_dry_run`:** solo cuenta (`deleted = 0`). El cron lo usa mientras `ANON_CLEANUP_ENABLED` no sea `true`.
+- Valida `p_inactive_days >= 1` y `p_limit` entre 1 y 1000 (si no, `raise exception`).
+- Probada el 28-10-2026 en una transacción revertida con 8 casos (ver D-033 y `sql/2026-10-28_anon_cleanup_m13.sql`).
+
 ## `validate_coupon(p_code text, p_subtotal numeric, p_user_id uuid = null) → table (code, discount, description)`
 
 `security definer`, `stable`, `search_path = ''`. **Solo `service_role`** tiene `EXECUTE` (D-019). Migración M3, fase 4 (2026-10-24).

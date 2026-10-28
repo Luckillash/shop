@@ -36,6 +36,12 @@ test("safeNext solo acepta rutas internas", () => {
   expect(safeNext("//otro.cl")).toBe("/");
   expect(safeNext("/\\otro.cl")).toBe("/");
   expect(safeNext(undefined, "/cuenta")).toBe("/cuenta");
+  // El navegador quita tabs y saltos de línea: terminarían en //otro.cl
+  expect(safeNext("/\t/otro.cl")).toBe("/");
+  expect(safeNext("/\n/otro.cl")).toBe("/");
+  expect(safeNext("/\\\\otro.cl")).toBe("/");
+  expect(safeNext("/cuenta/favoritos?orden=precio#x")).toBe("/cuenta/favoritos?orden=precio#x");
+  expect(safeNext("/%2F%2Fotro.cl")).toBe("/%2F%2Fotro.cl");
 });
 
 test("validateResetRequest: solo un correo válido", () => {

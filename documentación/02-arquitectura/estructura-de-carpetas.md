@@ -66,13 +66,13 @@ shop/
     │   ├── auth/                 ← actions.ts (signIn, signUp, startGuestCheckout, signOut, requestPasswordReset, updatePassword, createGuestAccount, resendGuestAccountEmail) · session.ts (getSessionUser, getPendingEmail, getAccountView, requireAdmin) · validation · guest-account (7.2) (+ *.test.ts)
     │   ├── chile/                ← regions.ts (16 regiones, 346 comunas) · business-days.ts (feriados, días hábiles) (+ *.test.ts)
     │   ├── format/               ← clp.ts · rut.ts · phone.ts · dates.ts (+ *.test.ts)
-    │   ├── supabase/             ← config.ts · public.ts (anon) · server.ts (usuario) · admin.ts (secreta) · proxy.ts (updateSession)
+    │   ├── supabase/             ← config.ts · public.ts (anon) · server.ts (usuario) · admin.ts (secreta) · proxy.ts (updateSession + redirect/404 de /cuenta y /admin) · proxy-routes.ts (qué rutas revisa, 7.8)
     │   ├── payments/             ← webpay.ts · flow.ts (HTTP, server-only) · webpay-core / flow-core (puro) · service.ts (intentos, conciliación, B13) · start.ts · actions.ts (retryPayment, checkPayment) · expire.ts (cron) · lock.ts · labels.ts · screen.ts · order-view.ts · config.ts (+ *.test.ts)
     │   ├── email/                ← send.ts (Resend, server-only) · templates.ts (+ *.test.ts)
     │   ├── store.ts              ← STORE: nombre, razón social, RUT, correo, umbral de despacho gratis, retiro en tienda
     │   ├── rate-limit.ts         ← rate limiting en Redis (ventana fija, fail-open)
     │   └── redis.ts              ← getRedis(): conexión única (globalThis)
-    ├── proxy.ts                  ← refresca la sesión de Supabase (getClaims)
+    ├── proxy.ts                  ← refresca la sesión de Supabase (getClaims) y da el código HTTP de /cuenta/* y /admin/*
     ├── store/                    ← cart-store.ts (useCartStore, persist "cart" v1) · cart-ui-store.ts (drawer, Deshacer) · payment-ui-store.ts (pagando: *Volver al carro* sin enlace)
     ├── test/setup.ts             ← cleanup de Testing Library
     └── types/database.ts         ← generado por el MCP de Supabase

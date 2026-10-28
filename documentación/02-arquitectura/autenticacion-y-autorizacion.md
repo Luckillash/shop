@@ -28,7 +28,13 @@ Reglas:
 ## Sesión con cookies y `proxy.ts`
 
 - `@supabase/ssr` guarda la sesión en cookies. En Next 16 el refresco del token se hace en **`src/proxy.ts`** (antes `middleware.ts`), con un `matcher` que excluye los assets estáticos.
-- El proxy solo hace **chequeos optimistas**: sin cookie de sesión → redirige `/cuenta/*` a `/ingresar`. **No consulta la base de datos** ni decide permisos.
+- El proxy hace **chequeos optimistas** y da el código HTTP real, porque las páginas son de prerender parcial y su `redirect()` o `notFound()` salen con 200 (trampa 75). Lógica pura en `src/lib/supabase/proxy-routes.ts` (con tests):
+  - **`/cuenta` y todo `/cuenta/*`** (7.8, D-033): sin sesión o con una sesión anónima → **307 a `/ingresar?volver=<ruta y query>`**. Solo usa el JWT que ya validó `getClaims()`: no consulta la BD.
+  - **Detalle de pedido** (`/cuenta/pedidos/<n>`, D-026): además busca el pedido; ajeno, inválido o inexistente → 404 (rewrite a `/cuenta/pedido-no-encontrado`).
+  - **`/admin/*`** (D-029): además llama `rpc("is_admin")`; sin el rol → 404 (rewrite a `/admin-no-encontrada`).
+  - Las cookies refrescadas y su `Cache-Control` van también en el redirect o el 404 (`withSession`). No se agrega código entre `createServerClient` y `getClaims()` (trampa 44).
+  - Corre también en los prefetch y las navegaciones: Next 16 le oculta la cabecera `rsc` al proxy (trampa 95).
+  - `volver` sale de la URL pedida y Ingresar lo valida con `safeNext` (compara el origen después de parsear; `"/	/otro.cl"` vuelve al inicio).
 - Cada página y cada Server Action vuelve a verificar al usuario con `supabase.auth.getClaims()`, que valida el JWT. Usa `getUser()` solo si necesitas el registro actualizado desde Auth. No confíes en `getSession()` en el servidor.
 - Las páginas que leen la sesión lo hacen dentro de `<Suspense>` (Cache Components). Ver `authentication-with-cache-components.md` en la doc de Next.
 
@@ -58,7 +64,7 @@ Reglas:
 - `createSupabaseServer()` llama a `await connection()` (trampa 58).
 - Confirmación de correo **activada** en el proyecto: `signUp` muestra *Revisa tu correo*. `/auth/confirm` ya está en *Redirect URLs* (dueño, 2026-10-24).
 - Inicios anónimos **activados** (dueño, 2026-10-24). Un invitado que entra a `/cuenta` va a `/ingresar?volver=/cuenta`.
-- `/cuenta` redirige a `/ingresar?volver=/cuenta` sin sesión o con una anónima. El proxy todavía no hace la redirección optimista.
+- `/cuenta` redirige a `/ingresar?volver=/cuenta` sin sesión o con una anónima: desde la 7.8 lo hace el proxy, con 307 (D-033). Las páginas lo vuelven a comprobar.
 - ✅ Convertir al invitado en cuenta (7.2, 2026-10-26, D-027): ver abajo.
 - ✅ **SMTP propio en Supabase Auth** (dueño, 26-10-2026): Resend, `smtp.resend.com:465`, remitente *Almacén* en `mail.audazia.dev`; límite de envíos de Auth 30 por hora (antes 2). Antes usaba el SMTP por defecto, que solo envía al equipo del proyecto (respondía 429 a cualquier otra dirección). Las plantillas están en español y con el estilo de la tienda desde el 26-10-2026 (`supabase/templates/`, con enlaces `token_hash`).
 - ✅ **Plantillas de los correos en español** (`supabase/templates/`, pegadas por el dueño el 26-10-2026): enlaces a `/auth/confirm` con `token_hash`, que funcionan aunque el correo se abra en otro navegador. Las de Crear cuenta, contraseña nueva y cambio de correo usan `{{ .RedirectTo }}` (que arma `confirmUrl` con `?volver=`); verificadas con correos reales y el enlace abierto en otro navegador. Las plantillas por defecto (`{{ .ConfirmationURL }}`, PKCE) solo funcionaban en el mismo navegador.
@@ -82,7 +88,7 @@ Requisitos:
 
 - Activar *Anonymous sign-ins* en Supabase Auth.
 - Agregar captcha o rate limiting (Redis) a la creación de sesiones anónimas.
-- Si un usuario anónimo nunca se convierte, se puede limpiar después de N días, **salvo** que tenga pedidos.
+- ✅ Limpieza de anónimos (7.8, D-033, M13): el cron diario borra los invitados sin pedidos (ni registros históricos), sin correo y con **30 días sin actividad** (creación, último ingreso o último refresco de sesión), hasta 500 por ejecución, con `delete_stale_anonymous_users` (solo `service_role`). **Solo borra con `ANON_CLEANUP_ENABLED=true`**; sin la variable, solo cuenta.
 - En las políticas, `auth.jwt() ->> 'is_anonymous'` permite diferenciarlos si hace falta (por ejemplo, que un anónimo no pueda escribir reseñas).
 
 Alternativa descartada por ahora: crear el pedido con el cliente admin desde el servidor. Obligaría a reescribir `place_order`, que depende de `auth.uid()`.

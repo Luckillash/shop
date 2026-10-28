@@ -111,7 +111,7 @@ Base de conocimiento del proyecto **Shop**, una tienda en línea chilena con el 
 | Publicar en producción | [07-referencia/checklist-produccion.md](07-referencia/checklist-produccion.md) |
 | Qué significa un término (carro, comuna, `token_ws`…) | [07-referencia/glosario.md](07-referencia/glosario.md) |
 | Artifacts de diseño, documentación de Flow y Transbank, MCP, documentación de Next | [07-referencia/recursos-externos.md](07-referencia/recursos-externos.md) |
-| Estado actual / qué falta | [08-estado/avance.md](08-estado/avance.md) |
+| Estado actual / qué falta | [08-estado/avance.md](08-estado/avance.md) → [_archivo/pendientes-al-cierre-de-la-fase-7.md](_archivo/pendientes-al-cierre-de-la-fase-7.md) |
 | Cuándo cambió algo | [08-estado/registro-de-cambios.md](08-estado/registro-de-cambios.md) |
 
 ### Tabla de la BD → archivo
@@ -155,7 +155,7 @@ documentación/
 │   ├── renderizado-y-cache.md         use cache, tags, invalidación, rol de Redis
 │   ├── estado-del-cliente.md          carro en Zustand y sincronización con la BD
 │   ├── autenticacion-y-autorizacion.md  clientes de Supabase, proxy, roles, invitados
-│   └── decisiones.md                  registro D-001…D-032
+│   └── decisiones.md                  registro D-001…D-033
 ├── 03-base-de-datos/                  ← Supabase / PostgreSQL
 │   ├── modelo-de-datos.md             tablas por dominio, relaciones, enums, vista
 │   ├── tablas-catalogo.md
@@ -201,6 +201,7 @@ documentación/
 └── _archivo/                          ← documentos originales (solo referencia histórica)
     ├── avance-del-proyecto.md
     ├── diseno-almacen.md
+    ├── pendientes-al-cierre-de-la-fase-7.md ← todo lo abierto al 28-10-2026, en un solo lugar
     ├── pendientes-antes-de-produccion.md   ← lista única para publicar
     ├── pendientes-del-dueno-fase-5.md
     ├── pendientes-del-dueno-fase-6.md      ← tareas del dueño tras los pagos

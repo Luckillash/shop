@@ -1117,6 +1117,10 @@ export type Database = {
         Args: { p_payment_id: string; p_seconds?: number }
         Returns: boolean
       }
+      delete_stale_anonymous_users: {
+        Args: { p_dry_run?: boolean; p_inactive_days?: number; p_limit?: number }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
       place_order: {
         Args: {

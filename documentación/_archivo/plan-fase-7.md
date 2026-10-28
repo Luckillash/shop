@@ -1,8 +1,8 @@
 ---
 title: "Plan de la fase 7: postcompra y operación"
-description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones del dueño. En curso: 7.0 a 7.7 listas."
+description: "Propuesta de subetapas de la fase 7 (Mis pedidos, invitado → cuenta, correos, administración, cuenta, reseñas, Los más vendidos), con su orden, dependencias, los criterios que aplica el agente y las decisiones del dueño. Terminada el 28-10-2026: 7.0 a 7.8 listas."
 generated: "2026-10-25"
-estado: "en curso"
+estado: "terminado"
 related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-estado/avance.md", "_archivo/pendientes-antes-de-la-fase-7.md", "_archivo/prompt-inicio-fase-7.md", "02-arquitectura/decisiones.md", "07-referencia/brechas-diseno-vs-datos.md"]
 ---
 
@@ -10,7 +10,7 @@ related: ["06-implementacion/hoja-de-ruta.md", "04-diseno/templates.md", "08-est
 
 Propuesta del 25-10-2026. El dueño pidió empezar por la 7.0 el mismo día; las decisiones de abajo están también en [pendientes del dueño](pendientes-del-dueno-fase-7.md). Al 27-10-2026 solo queda ⏳ la 7c.
 
-**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027). 7.3 ✅ (26-10-2026): correos de confirmación, despacho y anulación (D-028), con las decisiones 2 y 6 respondidas. 7.4 ✅ (27-10-2026): administración de pedidos y alertas de pago (D-029, migración M9). 7.5 ✅ (27-10-2026): Direcciones, Favoritos y Datos personales (D-030, migración M10). 7.6 ✅ (28-10-2026): reseñas (D-031, migración M11). 7.7 ✅ (28-10-2026): *Los más vendidos* (D-032, migración M12).
+**Avance:** 7.0 ✅ (25-10-2026). La migración se llamó **M8** (M7 ya era `search_products`). 7.1 ✅ (25-10-2026): Mis pedidos y Detalle de pedido (D-026). 7.2 ✅ (26-10-2026): invitado → cuenta y *Ver estado del pedido* (D-027). 7.3 ✅ (26-10-2026): correos de confirmación, despacho y anulación (D-028), con las decisiones 2 y 6 respondidas. 7.4 ✅ (27-10-2026): administración de pedidos y alertas de pago (D-029, migración M9). 7.5 ✅ (27-10-2026): Direcciones, Favoritos y Datos personales (D-030, migración M10). 7.6 ✅ (28-10-2026): reseñas (D-031, migración M11). 7.7 ✅ (28-10-2026): *Los más vendidos* (D-032, migración M12). 7.8 ✅ (28-10-2026): código HTTP real de `/cuenta/*` en el proxy y limpieza de invitados (D-033, migración M13). **La fase 7 está terminada**; lo que queda para producción está en [Cierre de la fase 7](#cierre-de-la-fase-7).
 
 ## Pendiente previo: el cron ✅ (26-10-2026)
 
@@ -32,7 +32,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | **7.5** ✅ | Direcciones, Favoritos y Datos personales | 7.1 | ✅ 27-10-2026 (D-030, M10): las tres páginas en el menú; corazón conectado sin volver dinámico el catálogo (invitado → Ingresar y se guarda al ingresar); `first_name`/`last_name`, `rut` y `newsletter_opt_in_at` en `profiles` con grant por columna; textos propuestos en T12. Plan original: CRUD de `addresses` con predeterminada; favoritos con estado vacío (un invitado debe ingresar, B23) y el corazón de la Ficha y de `ProductCard` conectado; datos personales (con `profiles.rut` opcional, decisión 7a ✅), cambio de contraseña y novedades (`profiles.newsletter_opt_in_at`, decisión 7b ✅) |
 | **7.6** ✅ | Reseñas (B36) | 7.1 | ✅ 28-10-2026 (D-031, M11): modal *Escribe tu opinión* con la elegibilidad al abrirlo (sin sesión → Ingresar; invitado → crear su cuenta; sin pedido entregado → explicación), la propia se edita, el modal pide el nombre si falta, firma *Nombre · Comuna* puesta por el trigger `set_review_author`, política con `delivered` y sin anónimos, grant por columna, `updateTag` del producto y `revalidateTag('products', 'max')`. Textos propuestos en T14. Plan original: Modal `EscribirResena` en la Ficha. La elegibilidad se consulta al abrirlo, para que la Ficha siga siendo estática. Migración: el nombre y la comuna se copian en `reviews` con un trigger, para que el cliente no pueda inventarlos y `anon` no tenga que leer `profiles`; también se ajusta la política según la decisión 3 (✅ 27-10-2026: solo `delivered` y sin anónimos; firma *Nombre · Comuna*). Las opiniones reales reemplazan los placeholders y se invalida el tag del producto |
 | **7.7** ✅ | *Los más vendidos* (B34) | — | ✅ 28-10-2026 (D-032, M12): `best_selling_products` solo para `service_role` (ids y unidades; `paid` a `delivered`, 90 días, activos con stock), `getBestSellers` con el tag `products` y `cacheLife('hours')`, respaldo a *Destacados* con menos de 4, sin completar. Decisión del dueño (opción b): solo cuentan los pedidos pagados desde `BEST_SELLERS_SINCE`; sin la variable, *Destacados* (hoy en producción). Plan original: Función `security definer` que devuelve solo los ids, cacheada con el tag `products`; si hay menos de 4, se muestran *Destacados* |
-| **7.8** | Opcionales 🟢 | 7.1, 7.4 | Redirección optimista de `/cuenta/*` (también Direcciones, Favoritos y Datos personales de la 7.5) y `/admin/*` en el proxy; limpieza de usuarios anónimos sin pedidos de más de 30 días, aprovechando el cron diario |
+| **7.8** ✅ | Opcionales 🟢 | 7.1, 7.4 | ✅ 28-10-2026 (D-033, M13): todo `/cuenta/*` responde 307 a `/ingresar?volver=<ruta y query>` sin sesión o con una sesión anónima, sin consulta extra (`/admin/*` ya estaba desde la 7.4); se quitó la condición de la cabecera `rsc`, que el proxy no ve (trampa 95), y `safeNext` exige el mismo origen (trampa 96). `delete_stale_anonymous_users` (solo `service_role`) en el mismo cron: anónimos sin correo, sin pedidos ni registros históricos y con 30 días sin actividad, hasta 500, en una transacción; **solo borra con `ANON_CLEANUP_ENABLED=true`** (decisión del dueño). Plan original: Redirección optimista de `/cuenta/*` (también Direcciones, Favoritos y Datos personales de la 7.5) y `/admin/*` en el proxy; limpieza de usuarios anónimos sin pedidos de más de 30 días, aprovechando el cron diario |
 
 ### Lo que deja la 7.1 para las siguientes subetapas
 
@@ -44,7 +44,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | 7.4 | ~~Con la decisión 2, agregar la URL de seguimiento de cada transportista en `CARRIER_TRACKING`~~ ✅ en la 7.3. *Marcar como enviado* debe guardar `carrier` con el `name` de `CARRIERS` (el despacho propio es `Almacén`). Si se quiere fecha en el paso *Preparado*, habría que exponer la del evento `processing` al cliente (hoy solo la lee el admin) | `src/lib/orders/customer-view.ts` |
 | 7.4 | Al anular desde la administración, `cancel_note` es el texto que ve el cliente en Mis pedidos: el modal debe decirlo | `orderStatusLine` |
 | 7.5 ✅ | ~~Agregar Direcciones, Favoritos y Datos personales al menú de la cuenta (`LINKS`) cuando existan sus páginas~~ Hecho (D-030) | `src/components/account/account-menu-links.tsx` |
-| 7.8 | La redirección optimista del proxy ya cubre el Detalle de pedido (redirect y 404 reales); falta el resto de `/cuenta/*` y `/admin/*` | `src/lib/supabase/proxy.ts` |
+| 7.8 ✅ | La redirección optimista del proxy ya cubre el Detalle de pedido (redirect y 404 reales); falta el resto de `/cuenta/*` y `/admin/*` | `src/lib/supabase/proxy.ts` · ✅ 28-10-2026 (D-033) |
 | Dueño | ~~Textos propuestos sin diseño de la 7.1~~ ✅ aprobados sin cambios (26-10-2026) | T2 de [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 
 ### Lo que deja la 7.2 para las siguientes subetapas
@@ -75,7 +75,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | Dueño | Quitarle el rol `admin` a `prueba.fase5@almacen.cl` (T9, con tu aviso). Su contraseña se cambió para la prueba | `profiles.role` |
 | Dueño | Revisar en Vercel si el cron corrió el 27-10 a las 09:00 UTC: no aparece en los logs (el del 26-10 sí) | Vercel → Cron Jobs |
 | Antes de producción | T8: el correo de una transferencia anulada le pide al cliente que escriba sus datos bancarios a `STORE.contactEmail` (hoy `hola@almacen.cl`, de ejemplo): tiene que ser un buzón real | `src/lib/store.ts` |
-| 7.8 | El proxy ya da el código HTTP de `/admin/*` en la carga directa (redirect y 404), como en el Detalle de pedido; falta el resto de `/cuenta/*` | `src/lib/supabase/proxy.ts` |
+| 7.8 ✅ | El proxy ya da el código HTTP de `/admin/*` en la carga directa (redirect y 404), como en el Detalle de pedido; falta el resto de `/cuenta/*` | `src/lib/supabase/proxy.ts` · ✅ 28-10-2026 (D-033) |
 | Más adelante | Una alerta `refund_failed` no se cierra sola cuando el reintento sale bien (la cierra el admin). La lista trae todos los pedidos y cuenta en la app: con miles de pedidos, contar en la BD. Lista de pedidos en móvil y administración del catálogo: sin diseño | D-029 |
 | Pruebas | El reembolso en Flow sandbox no se pudo completar (sin fondos en el comercio de prueba, trampa 84): el 1042 sigue anulado con el pago sin devolver y su alerta `refund_failed` abierta. Se reintenta desde su pedido si Flow repone fondos | Supabase |
 
@@ -86,8 +86,8 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | Dueño | Revisar los textos y las propuestas de la 7.5 (T12): estado vacío y avisos de Direcciones, tope de 10, confirmar al eliminar, favorito pendiente que se guarda al ingresar, *Deshacer*, sin *Te avisamos si baja de precio*, precarga del nombre y el teléfono en el checkout. Recomendado: *Secure password change* en Supabase Auth | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 | 7.6 ✅ | El trigger de la firma (3b) puede usar `profiles.first_name` (o la primera palabra de `full_name` si está vacío, como `greetingName`). Si no hay nombre, el modal lo pide: se puede guardar en `first_name`/`full_name` con el grant por columna de M10 | Supabase, `src/lib/account/profile.ts` |
 | 7.6 ✅ | `reviews` no tiene grant por columna: si la 7.6 copia nombre y comuna con un trigger, conviene el mismo patrón que M10 para que el cliente no los escriba | Supabase |
-| 7.8 | El código HTTP real de `/cuenta/direcciones`, `/cuenta/favoritos` y `/cuenta/datos` (redirect en la carga directa sin sesión) sigue pendiente con el resto de `/cuenta/*` | `src/lib/supabase/proxy.ts` |
-| 7.8 | La limpieza de anónimos borra también sus `wishlist_items` (no tienen: el invitado no guarda favoritos) | cron |
+| 7.8 ✅ | El código HTTP real de `/cuenta/direcciones`, `/cuenta/favoritos` y `/cuenta/datos` (redirect en la carga directa sin sesión) sigue pendiente con el resto de `/cuenta/*` | `src/lib/supabase/proxy.ts` · ✅ 28-10-2026 (D-033) |
+| 7.8 ✅ | La limpieza de anónimos borra también sus `wishlist_items` (no tienen: el invitado no guarda favoritos) | cron · ✅ 28-10-2026 (D-033) |
 | Antes de producción | Activar *Secure password change* en Supabase Auth (el cambio de contraseña no pide la actual) | Supabase → Authentication |
 | Más adelante | Al cambiar la contraseña, las otras sesiones caen al renovar su token (≤ 1 h, trampa 86); para cortarlas al instante habría que verificar con `getUser()` | `src/lib/account/actions.ts` |
 | 7c | Cuando haya proveedor de newsletter: leer `profiles.newsletter_opt_in_at is not null`; cada envío con su enlace para darse de baja (que vacíe la columna) | Supabase |
@@ -100,7 +100,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | Dueño | Revisar los textos y las propuestas de la 7.6 (T14): invitado, sin pedido entregado, editar la propia, *Tu nombre*, firma fija, sin opiniones, sin *Ver las N opiniones* en móvil | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
 | Dueño | `audazia.dev` responde **402 `DEPLOYMENT_DISABLED`** (28-10-2026, 04:06 UTC; el proyecto figura `live: false` con el último deploy `READY`). Puede explicar que el cron del 27-10 no aparezca (T11). Revisarlo en Vercel (uso del plan Hobby o proyecto pausado) . ✅ Redesplegado por el dueño el 28-10-2026 (commit `33c67a1`) y verificado | Vercel (T15) |
 | 7.7 | `getReviews` ya lee `product_catalog` (promedio y total). *Los más vendidos* puede seguir la misma idea: una función que devuelva solo los ids, con el tag `products` | `src/lib/catalog/queries.ts` |
-| 7.8 | La limpieza de anónimos no toca `reviews`: un anónimo no puede opinar (M11) | cron |
+| 7.8 ✅ | La limpieza de anónimos no toca `reviews`: un anónimo no puede opinar (M11) | cron · ✅ 28-10-2026 (D-033) |
 | Más adelante | Ocultar o borrar una opinión: hoy se hace en Supabase (`is_published = false`, el admin con `service_role`), e invalidar `reviews:<productId>` y `products`. *Ver todas las opiniones* (paginación) cuando haya más de 10 por producto. Responder una opinión no está en el diseño | D-031 |
 
 ### Lo que deja la 7.7 para las siguientes subetapas
@@ -109,9 +109,19 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 |---|---|---|
 | Dueño | Al lanzar: definir `BEST_SELLERS_SINCE` (la fecha de lanzamiento, ISO) en Vercel → Production y redesplegar. Hasta entonces el Inicio muestra *Destacados* (T17) | Vercel |
 | Dueño | Revisar las propuestas de la 7.7: ventana de 90 días, solo productos con stock, *Destacados* entero con 0 a 3 vendidos (sin completar), empate por la venta más reciente (T17) | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
-| 7.8 | La limpieza de anónimos no afecta el ranking: solo borra anónimos **sin pedidos** | cron |
+| 7.8 ✅ | La limpieza de anónimos no afecta el ranking: solo borra anónimos **sin pedidos** | cron · ✅ 28-10-2026 (D-033) |
 | Más adelante | Orden *Más vendidos* en el Listado: no es barato (`listProducts` ordena y pagina en PostgREST con `count`); haría falta una vista o función con las unidades por producto. Revisarlo cuando haya ventas reales | D-032 |
 | Más adelante | Si se quiere el ranking al instante después de un pago, invalidar un tag propio (`best-sellers`) con `revalidateTag` desde `settle_payment` (no `products`, que vaciaría el catálogo) | D-032 |
+
+### Lo que deja la 7.8 (y la fase 7)
+
+| Subetapa | Pendiente | Dónde |
+|---|---|---|
+| Dueño | Autorizar el commit de la 7.8 y, después de ver un par de logs `[cron] limpiar-anonimos` con `dryRun: true`, definir `ANON_CLEANUP_ENABLED=true` en Vercel → Production y redesplegar (T18) | Vercel |
+| Dueño | Confirmar que el cron corrió el 28-10 y el 29-10 con 200 (T11): a las 04:53 UTC del 28-10 todavía no le tocaba | Vercel → Cron Jobs / logs |
+| Más adelante | El Detalle y `/admin/*` consultan la BD también en cada prefetch y navegación (el proxy no ve la cabecera `rsc`, trampa 95). Con mucho tráfico, se podría bajar el `prefetch` de las tarjetas de Mis pedidos o aceptar el 200 en las navegaciones | `src/lib/supabase/proxy.ts` |
+| Más adelante | Si algún día hay más de 500 invitados por día para borrar, subir el tope (la función acepta hasta 1000) o pasar a Pro y correr el cron más seguido | `src/lib/auth/anon-cleanup-core.ts` |
+| Antes de producción | Borrar los usuarios de prueba igual (bloque 6 de los pendientes de producción): la limpieza solo toca invitados sin pedidos, no las cuentas de prueba ni los invitados con pedidos de prueba | Supabase |
 
 ### Lo que dejan las decisiones del dueño del 27-10-2026
 
@@ -148,3 +158,27 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | 7a | RUT en `profiles` (B22) | **Sí**: Datos personales ya lo muestra | ✅ 27-10-2026: sí, opcional; se edita en Datos personales, autocompleta el checkout y el checkout no lo guarda solo |
 | 7b | *Recibir novedades* (B21) | Solo una marca en `profiles` | ✅ 27-10-2026: una fecha, `profiles.newsletter_opt_in_at` (vacía = no), para saber desde cuándo aceptó |
 | 7c | Suscripción del footer (B21) | Dejarla deshabilitada hasta elegir un proveedor de newsletter | ⏳ |
+
+## Cierre de la fase 7
+
+Lista completa de lo que queda abierto (dueño, producción y más adelante): [pendientes al cierre de la fase 7](pendientes-al-cierre-de-la-fase-7.md).
+
+**Terminada el 28-10-2026.** Quedaron: Mis pedidos y Detalle de pedido (7.1), invitado → cuenta (7.2), correos de confirmación, despacho y anulación (7.3), administración de pedidos y alertas (7.4), Direcciones, Favoritos y Datos personales (7.5), reseñas (7.6), *Los más vendidos* (7.7) y el código HTTP real de la cuenta con la limpieza de invitados (7.8). Migraciones M8 a M13. Decisiones D-025 a D-033. 318 tests.
+
+**Lo que queda del dueño (⏳) para producción** ([pendientes del dueño](pendientes-del-dueno-fase-7.md)):
+
+| # | Qué | Bloquea |
+|---|---|---|
+| T8 | Buzón real para las respuestas de los correos (el cliente con una transferencia anulada envía ahí sus datos bancarios); hoy `hola@almacen.cl` es de ejemplo | Producción (🔴 junto con el contacto real del bloque 4) |
+| T9 | Quitarle el rol `admin` a `prueba.fase5@almacen.cl` (dijiste *todavía no*; se va igual al borrar los usuarios de prueba) | Producción |
+| T10 | Revisar los textos propuestos de la 7.4 (administración y correo de transferencia anulada) | — (quedan así si no dices nada) |
+| T11 | Confirmar que el cron diario corre con 200 (27-10 sin rastro; 28-10 y 29-10 por revisar) | Producción (el vencimiento de pedidos y la limpieza dependen de él) |
+| T12 | Revisar los textos y las propuestas de la 7.5. Recomendado: *Secure password change* en Supabase Auth | — |
+| T14 | Revisar los textos y las propuestas de la 7.6 | — |
+| T17 | Al lanzar, `BEST_SELLERS_SINCE` en Vercel (Production) y revisar las propuestas de la 7.7 | Lanzamiento (sin ella, *Destacados*) |
+| T18 | Autorizar el commit de la 7.8 y activar `ANON_CLEANUP_ENABLED=true` cuando te parezca | — (sin ella solo cuenta) |
+| 7c | Suscripción del footer: dejarla deshabilitada hasta tener proveedor de newsletter | — |
+
+T13, T16 y T19 son informativas (contraseñas de prueba cambiadas, dadas en el chat). T15 ✅.
+
+**Fuera de la fase 7 y antes de publicar** ([pendientes antes de producción](pendientes-antes-de-produccion.md)): páginas legales y de ayuda (hoy 404), datos reales de la tienda y del catálogo, Transbank y Flow de producción, boleta electrónica (D-012), Redis de producción, borrar los usuarios y pedidos de prueba (1001–1048, sin el 1037), *Leaked password protection*, respaldos y la verificación final con compras reales.
