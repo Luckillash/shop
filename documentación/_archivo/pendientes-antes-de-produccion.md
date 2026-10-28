@@ -27,7 +27,7 @@ Las tareas del dueño que dejó la fase 6, con sus pasos, están en [pendientes-
 | [4. Datos y decisiones del negocio](#4-datos-y-decisiones-del-negocio) | 4 (✅ 2) | 2 (✅ 1) | 1 |
 | [5. Proveedores y cuentas](#5-proveedores-y-cuentas) | 3 (✅ 1) | 0 (✅ 1) | 1 |
 | [6. Supabase](#6-supabase) | 3 (✅ 2) | 3 (✅ 2) | 0 |
-| [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 5 (✅ 2) | 4 | 1 |
+| [7. Infraestructura y despliegue](#7-infraestructura-y-despliegue) | 4 (✅ 3) | 4 | 1 |
 | [8. Verificación final](#8-verificación-final) | 7 | 2 | 0 |
 
 **Ruta mínima para publicar:** ~~fase 6 completa (bloque 1)~~ ✅ → páginas legales y de ayuda (3) → datos reales (4) → proveedores en producción (5) → Supabase y servidor de producción (6 y 7) → verificación con una compra real (8).
@@ -124,7 +124,7 @@ Guías: [pagos-webpay-plus.md](../06-implementacion/pagos-webpay-plus.md), [pago
 ## 7. Infraestructura y despliegue
 
 - [x] 🔴 👥 ✅ 25-10-2026 · **Hosting:** Vercel, proyecto `shop` vinculado a `Luckillash/shop` (cada push a `main` despliega). Plan **Hobby** (ver el cron).
-- [ ] 🔴 👤 **El sitio está deshabilitado:** el 28-10-2026 (04:06 UTC) `audazia.dev` responde 402 `DEPLOYMENT_DISABLED` y el proyecto figura `live: false` (T15 de la [fase 7](pendientes-del-dueno-fase-7.md)). Revisar el uso del plan Hobby o si el proyecto quedó pausado.
+- [x] 🔴 👤 ✅ 28-10-2026: redesplegado por el dueño (commit `33c67a1`, verificado). **El sitio estaba deshabilitado:** el 28-10-2026 (04:06 UTC) `audazia.dev` responde 402 `DEPLOYMENT_DISABLED` y el proyecto figura `live: false` (T15 de la [fase 7](pendientes-del-dueno-fase-7.md)). Revisar el uso del plan Hobby o si el proyecto quedó pausado.
 - [ ] 🔴 👥 **Variables de entorno de producción** (ver [variables-de-entorno.md](../07-referencia/variables-de-entorno.md)): ✅ cargadas en Vercel el 25-10-2026 (19, con `NEXT_PUBLIC_SITE_URL=https://audazia.dev` y un `CRON_SECRET` nuevo). Faltan `REDIS_URL`, las credenciales de producción de Webpay y Flow y la llave `almacen-produccion` de Resend (hoy la local). Tareas 1, 3 y 4 de [despliegue](pendientes-del-despliegue.md).
 - [ ] 🔴 👥 **Redis en producción** (por ejemplo Upstash o Redis Cloud). Sin Redis, el rate limiting del login, el cupón, los invitados, los pedidos y los reintentos **deja pasar todo** (fail-open, D-005). Los locks de pago siguen protegidos por el lock de la BD.
 - [x] 🔴 👥 **HTTPS** en todo el sitio ✅ (certificado de Vercel, 25-10-2026) y `urlConfirmation` de Flow alcanzable desde internet, **probada con una compra en sandbox** ✅ (25-10-2026, pedido 1036 pagado solo por el aviso del servidor, tarea 8 de [despliegue](pendientes-del-despliegue.md)). Repetirla con las credenciales de producción.

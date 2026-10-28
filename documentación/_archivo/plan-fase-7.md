@@ -98,7 +98,7 @@ Cada subetapa termina con tests de Vitest, `npm run lint` y `npm run build` sin 
 | Subetapa | Pendiente | Dónde |
 |---|---|---|
 | Dueño | Revisar los textos y las propuestas de la 7.6 (T14): invitado, sin pedido entregado, editar la propia, *Tu nombre*, firma fija, sin opiniones, sin *Ver las N opiniones* en móvil | [pendientes del dueño](pendientes-del-dueno-fase-7.md) |
-| Dueño | `audazia.dev` responde **402 `DEPLOYMENT_DISABLED`** (28-10-2026, 04:06 UTC; el proyecto figura `live: false` con el último deploy `READY`). Puede explicar que el cron del 27-10 no aparezca (T11). Revisarlo en Vercel (uso del plan Hobby o proyecto pausado) | Vercel (T15) |
+| Dueño | `audazia.dev` responde **402 `DEPLOYMENT_DISABLED`** (28-10-2026, 04:06 UTC; el proyecto figura `live: false` con el último deploy `READY`). Puede explicar que el cron del 27-10 no aparezca (T11). Revisarlo en Vercel (uso del plan Hobby o proyecto pausado) . ✅ Redesplegado por el dueño el 28-10-2026 (commit `33c67a1`) y verificado | Vercel (T15) |
 | 7.7 | `getReviews` ya lee `product_catalog` (promedio y total). *Los más vendidos* puede seguir la misma idea: una función que devuelva solo los ids, con el tag `products` | `src/lib/catalog/queries.ts` |
 | 7.8 | La limpieza de anónimos no toca `reviews`: un anónimo no puede opinar (M11) | cron |
 | Más adelante | Ocultar o borrar una opinión: hoy se hace en Supabase (`is_published = false`, el admin con `service_role`), e invalidar `reviews:<productId>` y `products`. *Ver todas las opiniones* (paginación) cuando haya más de 10 por producto. Responder una opinión no está en el diseño | D-031 |
