@@ -84,6 +84,24 @@ export async function getFeaturedProducts(limit = 4): Promise<CatalogItem[]> {
   return withVariants(data);
 }
 
+/**
+ * Productos por id, en el mismo orden de `ids` (Favoritos, 7.5). Cacheada con el tag del catálogo:
+ * los favoritos de cada cliente se leen aparte, con su sesión. Los que ya no están en el catálogo
+ * (inactivos o borrados) no vuelven.
+ */
+export async function getProductsByIds(ids: string[]): Promise<CatalogItem[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
+  if (ids.length === 0) return [];
+
+  const { data, error } = await createSupabasePublic().from("product_catalog").select("*").in("id", ids);
+  if (error) throw error;
+  const items = await withVariants(data);
+  const position = new Map(ids.map((id, index) => [id, index]));
+  return items.sort((a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0));
+}
+
 export async function getNewProducts(limit = 4): Promise<CatalogItem[]> {
   "use cache";
   cacheLife("hours");
@@ -269,19 +287,32 @@ export async function getVariantStock(productId: string): Promise<Record<string,
   return Object.fromEntries(data.map((v) => [v.id, v.stock]));
 }
 
+/**
+ * Las 10 opiniones publicadas más recientes, con su firma (author_name, author_commune: M11), y el
+ * promedio y el total de todas (product_catalog). Se invalida al publicar (updateTag, 7.6).
+ */
 export async function getReviews(productId: string) {
   "use cache";
   cacheLife("hours");
   cacheTag(`reviews:${productId}`);
 
-  const { data, error } = await createSupabasePublic()
-    .from("reviews")
-    .select("id, rating, title, body, created_at")
-    .eq("product_id", productId)
-    .eq("is_published", true)
-    .order("created_at", { ascending: false })
-    .limit(10);
+  const supabase = createSupabasePublic();
+  const [list, summary] = await Promise.all([
+    supabase
+      .from("reviews")
+      .select("id, rating, title, body, author_name, author_commune, created_at")
+      .eq("product_id", productId)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase.from("product_catalog").select("avg_rating, review_count").eq("id", productId).maybeSingle(),
+  ]);
 
-  if (error) throw error;
-  return data;
+  if (list.error) throw list.error;
+  if (summary.error) throw summary.error;
+  const count = summary.data?.review_count ?? list.data.length;
+  const average = summary.data?.avg_rating != null ? Number(summary.data.avg_rating) : null;
+  return { items: list.data, count, average: count > 0 ? average : null };
 }
+
+export type ProductReview = Awaited<ReturnType<typeof getReviews>>["items"][number];

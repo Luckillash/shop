@@ -73,6 +73,19 @@ Efectos: suma el stock de vuelta (`inventory_movements` con `cancellation`), bor
 
 Uso típico: el cron de vencimiento ([06-implementacion/pago-transferencia.md](../06-implementacion/pago-transferencia.md)) la llama con el cliente admin.
 
+## Acciones de la administración (M9, fase 7.4, D-029)
+
+Todas `security definer`, `search_path = ''` y **solo `service_role`**: las llaman las Server Actions de `src/lib/admin/actions.ts` después de `getAdminUser()` y `canTransition()`. Reciben el id del admin y lo validan otra vez (`profiles.role = 'admin'`); lo fijan con `set_config('shop.actor_id', …, true)` en la misma transacción, así `log_order_event` registra al admin como actor. Errores con `hint`: `forbidden` (no es admin), `not_found`, `stale` (el pedido ya no está en el estado que vio la página) y `transition`.
+
+| Función | Qué hace |
+|---|---|
+| `admin_act_as(p_admin_id)` | La comprobación y el `set_config` que usan las demás |
+| `admin_confirm_transfer(p_order_id, p_admin_id, p_operation = null) → order_status` | Exige `pending` con `payment_method = 'transfer'` y un intento de transferencia `pending`; llama `settle_payment(…, 'paid', …)` (el trigger pasa el pedido a `paid`) y guarda `confirmed_by`, `confirmed_at` y `operation_number` en el intento y el N.º de operación en el evento `paid` |
+| `admin_advance_order(p_order_id, p_admin_id, p_from, p_to, p_carrier, p_tracking)` | Solo `paid → processing`, `processing → shipped` (con transportista y código) y `shipped → delivered`; el pedido tiene que seguir en `p_from` |
+| `admin_cancel_order(p_order_id, p_admin_id, p_from, p_note)` | Los intentos `pending` pasan a `failed` y llama `cancel_order(p_order_id, 'tienda', p_note)`. **No reembolsa**: lo hace la acción con la pasarela |
+| `admin_mark_refunded(p_order_id, p_admin_id, p_manual)` | `cancelled → refunded` de un pedido cobrado. `p_manual`: la transferencia que el admin devolvió a mano (el intento pasa a `refunded` y queda el evento `refund`). Si no, exige que no quede ningún pago `paid` y que haya uno `refunded` |
+| `admin_resolve_alert(p_alert_id, p_admin_id) → boolean` | `resolved_at = now()` y el evento `alert_resolved` en el pedido. `false` si ya estaba resuelta |
+
 ## `is_admin() → boolean`
 
 `security definer`, `stable`. Devuelve true si `profiles.role = 'admin'` para `auth.uid()`. Se usa en todas las políticas de RLS. Úsala también en la app si necesitas saber si el usuario es admin: `rpc('is_admin')`. Así lo hacen `getAdminUser()` y `requireAdmin()` (`src/lib/auth/session.ts`, fase 7).
@@ -115,10 +128,12 @@ Las tres son `security definer`, `search_path = ''` y **solo `service_role`** (l
 | Trigger | Tabla y evento | Efecto |
 |---|---|---|
 | `set_updated_at` | `before update` en 12 tablas | `updated_at = now()` |
-| `on_auth_user_created` → `handle_new_user()` | `after insert` en `auth.users` | Crea `profiles` (con `full_name` y `avatar_url` de la metadata) y `carts`. También se ejecuta con usuarios **anónimos** |
+| `on_auth_user_created` → `handle_new_user()` | `after insert` en `auth.users` | Crea `profiles` (con `full_name` y `avatar_url` de la metadata y, desde M10, `newsletter_opt_in_at = now()` si la metadata trae `newsletter: true`, que es como Crear cuenta manda *Recibir novedades*) y `carts`. También se ejecuta con usuarios **anónimos** |
 | `protect_profile_role` | `before update` en `profiles` | Un no admin con sesión no puede cambiar `role` → *No tienes permiso para cambiar el rol* |
+| `stamp_newsletter_opt_in` (M10) | `before update of newsletter_opt_in_at` en `profiles` | Con `auth.uid()` (un cliente): activar pone `now()`, una fecha ya puesta se conserva y `null` la vacía; nadie puede escribir una fecha inventada. Sin `auth.uid()` (migraciones, `service_role`) respeta el valor |
 | `ensure_single_default_address` | `before insert/update of is_default` en `addresses` | Desmarca las demás direcciones por defecto del usuario |
 | `set_order_status_timestamps` | `before update of status` en `orders` | Llena `paid_at`, `shipped_at`, `delivered_at` o `cancelled_at` (si estaban vacíos). **No** hay columna para `processing` ni `refunded` |
-| `log_order_event` (M8) | `after insert` y `after update of status` en `orders` | Escribe en `order_events`: `placed` al crear el pedido (con `payment_method`) y el nuevo estado en cada cambio (`paid` con `provider` y `reference` del pago, `shipped` con `carrier` y `tracking_number`, `cancelled` con `reason` y `note`). Actor: el de `set_config('shop.actor_id', …, true)` si se definió en la transacción, si no `auth.uid()`; `admin` o `customer` según `profiles.role`, `system` sin usuario (cron, pasarelas). Acepta cualquier estado, incluso `pending`: nunca impide un cambio de estado. Sin `EXECUTE` para los clientes |
+| `log_order_event` (M8) | `after insert` y `after update of status` en `orders` | Escribe en `order_events` (el backend agrega además `email`, `refund` y `alert_resolved`, M9): `placed` al crear el pedido (con `payment_method`) y el nuevo estado en cada cambio (`paid` con `provider` y `reference` del pago, `shipped` con `carrier` y `tracking_number`, `cancelled` con `reason` y `note`). Actor: el de `set_config('shop.actor_id', …, true)` si se definió en la transacción, si no `auth.uid()`; `admin` o `customer` según `profiles.role`, `system` sin usuario (cron, pasarelas). Acepta cualquier estado, incluso `pending`: nunca impide un cambio de estado. Sin `EXECUTE` para los clientes |
 | `sync_order_on_payment` | `after insert/update of status` en `payments` | Si el pago pasa a `paid`, el pedido `pending` pasa a `paid`. Si el pedido ya está `cancelled`, **no cambia** (ver la trampa en [ciclo de vida](../05-dominio/ciclo-de-vida-del-pedido.md)) |
 | `guard_review_publication` | `before insert/update` en `reviews` | Un cliente no controla `is_published` |
+| `set_review_author` (M11) | `before insert` en `reviews` | `security definer`. Rechaza una segunda reseña del mismo usuario y producto con un mensaje claro (`23505`). Pone la firma: `author_name` con la regla de `greetingName` y `author_commune` del pedido entregado más reciente con el producto (`null` en el retiro en tienda). Desde un cliente siempre la calcula; sin nombre lanza `review_author_name_missing`. Sin `auth.uid()` (`service_role`) respeta una firma que venga escrita. Sin `EXECUTE` para los clientes |

@@ -132,6 +132,9 @@ Base de conocimiento del proyecto **Shop**, una tienda en línea chilena con el 
 | Confirmación, Pago rechazado, Flow no completado | [estados-y-mensajes](04-diseno/estados-y-mensajes.md) | [pagos-webpay-plus](06-implementacion/pagos-webpay-plus.md), [pagos-flow](06-implementacion/pagos-flow.md) |
 | Transferencia pendiente | [estados-y-mensajes](04-diseno/estados-y-mensajes.md#transferencia-pendiente) | [pago-transferencia](06-implementacion/pago-transferencia.md) |
 | Ingresar, Mis pedidos, Detalle de pedido | [templates](04-diseno/templates.md#cuenta) | [autenticacion](02-arquitectura/autenticacion-y-autorizacion.md), [ciclo de vida](05-dominio/ciclo-de-vida-del-pedido.md#cómo-se-muestra-ui) |
+| Direcciones, Favoritos, Datos personales | [templates](04-diseno/templates.md#cuenta) | [D-030](02-arquitectura/decisiones.md), [rutas](02-arquitectura/rutas-y-paginas.md#cuenta), [tablas](03-base-de-datos/tablas-usuarios-y-carrito.md) (M10) |
+| Reseñas (Ficha, Escribe tu opinión) | [templates](04-diseno/templates.md#flujo-de-compra) | [D-031](02-arquitectura/decisiones.md), [tablas](03-base-de-datos/tablas-catalogo.md) (M11), [RLS](03-base-de-datos/seguridad-rls.md) |
+| Administración (pedidos, anular, alertas) | [templates](04-diseno/templates.md#administración) | [D-029](02-arquitectura/decisiones.md), [rutas](02-arquitectura/rutas-y-paginas.md#administración-74-d-029), [funciones M9](03-base-de-datos/funciones-y-triggers.md) |
 
 ---
 
@@ -152,7 +155,7 @@ documentación/
 │   ├── renderizado-y-cache.md         use cache, tags, invalidación, rol de Redis
 │   ├── estado-del-cliente.md          carro en Zustand y sincronización con la BD
 │   ├── autenticacion-y-autorizacion.md  clientes de Supabase, proxy, roles, invitados
-│   └── decisiones.md                  registro D-001…D-019
+│   └── decisiones.md                  registro D-001…D-031
 ├── 03-base-de-datos/                  ← Supabase / PostgreSQL
 │   ├── modelo-de-datos.md             tablas por dominio, relaciones, enums, vista
 │   ├── tablas-catalogo.md

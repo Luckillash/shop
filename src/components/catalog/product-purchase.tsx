@@ -22,6 +22,7 @@ import { MAX_QUANTITY } from "@/lib/cart/totals";
 import { useCartStore } from "@/store/cart-store";
 import { useCartUi } from "@/store/cart-ui-store";
 import styles from "./product.module.css";
+import { useWishlist } from "./use-wishlist";
 
 type ProductPurchaseProps = {
   productId: string;
@@ -51,7 +52,7 @@ export function ProductPurchase({
     () => defaultVariant(variants, stock)?.attributes ?? {},
   );
   const [quantity, setQuantity] = useState(1);
-  const [wishlisted, setWishlisted] = useState(false);
+  const wishlist = useWishlist(productId);
   const addItem = useCartStore((s) => s.addItem);
   const showDrawer = useCartUi((s) => s.show);
 
@@ -136,12 +137,12 @@ export function ProductPurchase({
         >
           {units == null ? "Revisando stock" : soldOut ? "Sin stock" : "Agregar al carro"}
         </Button>
-        {/* Favoritos: se guardan en wishlist_items cuando exista la cuenta (fase 5, B23) */}
+        {/* Favoritos (7.5): se leen después de hidratar; sin cuenta, lleva a Ingresar (B23) */}
         <IconButton
           icon="heart"
-          label={wishlisted ? "Quitar de favoritos" : "Guardar en favoritos"}
-          pressed={wishlisted}
-          onClick={() => setWishlisted(!wishlisted)}
+          label={wishlist.wishlisted ? "Quitar de favoritos" : "Guardar en favoritos"}
+          pressed={wishlist.wishlisted}
+          onClick={() => void wishlist.toggle()}
         />
       </div>
     </div>

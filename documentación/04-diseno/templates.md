@@ -57,8 +57,16 @@ Los enlaces apuntan a las rutas de [02-arquitectura/rutas-y-paginas.md](../02-ar
 | **Direcciones** | `Direcciones` / `DireccionesMovil` | Menú de cuenta · *Agregar dirección* · tarjetas en 2 columnas (nombre *Casa*/*Oficina*, `Badge new` *Principal*, destinatario, dirección, comuna, teléfono; *Editar*, *Usar como principal*, *Eliminar*) · formulario con los campos del checkout (nombre de la dirección, teléfono, nombre, apellido, región, comuna, calle y número, depto.) y *Usar como dirección principal* · *Guardar dirección* (primary) |
 | **Favoritos** | `Favoritos` / `FavoritosMovil` | Menú de cuenta · *N productos guardados* · grilla de `ProductCard` con `wishlisted` (3 columnas; 2 en móvil), agotados con *Sin stock* · vacío (tweak `vacio`): ícono, *Todavía no guardas favoritos*, *Explorar la tienda* |
 | **Datos personales** | `DatosPersonales` / `DatosPersonalesMovil` | Menú de cuenta · *Tus datos* (nombre, apellido, teléfono, RUT opcional; correo fijo en `surface-sunken`), *Guardar cambios* (primary) y `Notice success` *Guardamos tus cambios* · *Contraseña* (nueva, mínimo 8) · *Correos de la tienda* (novedades) · nota para eliminar la cuenta |
-| **Escribe tu opinión** | `EscribirResena` | Modal sobre la Ficha: producto comprado y fecha · 5 estrellas de 44px con la calificación en palabras (*4 de 5 · Muy buena*) · título opcional · texto (mínimo 20 caracteres) · *Se publica con tu nombre y comuna* · *Publicar opinión* → `Notice success` *Gracias, publicamos tu opinión* (B36) |
+| **Escribe tu opinión** | `EscribirResena` | Modal sobre la Ficha: producto comprado y fecha · 5 estrellas de 44px con la calificación en palabras (*4 de 5 · Muy buena*) · título opcional · texto (mínimo 20 caracteres) · *Se publica con tu nombre y comuna* · *Publicar opinión* → `Notice success` *Gracias, publicamos tu opinión* (B36). ✅ Implementado en la 7.6 (D-031): `src/components/catalog/review-dialog.tsx`. Diferencias: la elegibilidad se pregunta al abrirlo (sin sesión → Ingresar; invitado → *Para opinar, crea tu cuenta*; sin pedido entregado → *Puedes opinar cuando recibas este producto*); si ya opinó, el mismo modal es *Edita tu opinión* con *Guardar cambios*; si la cuenta no tiene nombre, pide *Tu nombre*; la pista dice la firma real (*Se publica con tu nombre: María.* en el retiro). Ninguna estrella viene marcada (el artboard muestra 4 como ejemplo) |
 | **Confirmación · invitado crea su cuenta** | `ConfirmacionCrearCuenta` | La Confirmación con el aviso en fondo `promo`: correo fijo, contraseña, novedades, *Crear cuenta* (secondary) → `Notice success` *Listo, creamos tu cuenta* (D-008, D-024, B38) |
+
+✅ Direcciones, Favoritos y Datos personales implementados en la 7.5 (`src/app/(tienda)/cuenta/`, `src/components/account/`, D-030). Diferencias con los artboards (las de texto son propuestas, T12 de los pendientes del dueño):
+
+- **Menú:** las cuatro secciones; en móvil el chip de la sección actual se desplaza a la vista.
+- **Direcciones:** *Usar como principal* (el artboard; la documentación decía *predeterminada*). *Agregar dirección* no se muestra sin direcciones ni con 10 guardadas (tope propuesto); el formulario siempre está debajo. *Editar* llena el formulario y cambia el título a *Editar <nombre>*. *Eliminar* pide confirmar en la tarjeta. Sin nombre de la dirección (las del checkout), la tarjeta se titula con la comuna. La casilla *Usar como dirección principal* queda marcada y fija en la primera dirección y en la principal, con una nota. Estado vacío sin diseño: una línea de texto y el formulario.
+- **Favoritos:** el subtítulo es solo *N productos guardados* (sin *Te avisamos por aquí si alguno baja de precio o se agota*: ese aviso no existe). Quitar un favorito lo saca de la grilla con un aviso y *Deshacer*. La tarjeta es la del catálogo (`CatalogProductCard`), con *Agregar al carro* o *Ver opciones*.
+- **Datos personales:** la nota del correo usa `STORE.contactEmail`. *Correos de la tienda* tiene título también en móvil y se guarda al marcar o desmarcar, con un aviso *Listo: …*. Después de cambiar la contraseña: *Cambiamos tu contraseña. Cerramos tu sesión en los demás dispositivos.* El móvil también muestra la nota para eliminar la cuenta.
+- **Ingresar** con `?favorito=`: aviso *Ingresa o crea tu cuenta para guardar tus favoritos. Lo que elegiste se guarda al ingresar.*
 
 ## Contenido y estados vacíos
 
@@ -96,6 +104,14 @@ Sin el header ni el footer de la tienda: usa `AdminHeader` (*Almacén* + `Badge`
 
 Etiquetas de estado para la administración: `pending` *Transferencia por confirmar* (o *Pago pendiente*), `paid` *Por preparar*, `processing` *En preparación*; el resto igual que en Mis pedidos.
 
+✅ Implementados en la 7.4 (`src/app/admin/`, `src/components/admin/`, D-029). Diferencias con los artboards (las de texto son propuestas, T10 de los pendientes del dueño):
+
+- **AdminPedidos:** *Necesitan una acción* incluye los pedidos anulados con un pago sin devolver (botón *Devolver el pago*). La lista va del más antiguo al más nuevo en ese filtro y del más nuevo al más antiguo en los demás; 20 por página. La fecha de cada fila es concreta (*Dom 25 oct · 10:12*), sin *Hoy* ni *Ayer*. Con una búsqueda se buscan todos los estados. El `Notice` de alertas resume por tipo (*1 reembolso fallido y 2 pagos después de anular.*). Estado vacío: *No hay pedidos en este filtro.*
+- **AdminPedido:** además de los 5 estados del tweak: *Esperando el pago* (tarjeta o Flow pendientes, sin acción), *Devuelve el pago* (anulado con el pago sin devolver: *Reembolsar $X en Flow*), *Devuélvele $X por transferencia* con *Ya devolví el dinero* (decisión 5), *Nada pendiente* con el `Notice success` del entregado, y el retiro en tienda (*Avisa que está listo para retirar*, *Confirma el retiro*). El cliente dice *Con cuenta* / *Compró como invitado* y *Primer pedido* / *N pedidos anteriores*. Los intentos llevan su referencia; un pago por devolver dice *Por devolver*. *Siguiente paso* muestra el resultado de la acción (*Listo: …*) arriba de la tarjeta.
+- **AdminAnularPedido:** las opciones del motivo son frases para el cliente (*Nos quedamos sin stock de un producto del pedido.*), más *Otro motivo* (texto) y *Sin motivo*; la ayuda dice qué leerá el cliente. El aviso y el botón cambian con el dinero: *Anular y reembolsar* (pasarela), *Devuélvele $X por transferencia* o *No hay nada que devolver*.
+- **AdminAlertas:** la tarjeta agrega la respuesta de la pasarela cuando la hay (*Respuesta de Flow: …*); *Resueltas* muestra las tarjetas sin *Qué hacer*. Tipo sin artboard: *Monto distinto* (`amount_mismatch`).
+- **AdminPedidoMovil** es AdminPedido en una columna: el monto, el mensaje y el vencimiento de la transferencia pasan a una lista; las migas cambian por *‹ Pedidos*.
+
 ## Correos
 
 640px de artboard, tarjeta de 560px, fuentes del sistema y colores en hex (los clientes de correo no cargan variables ni Google Fonts).
@@ -122,7 +138,7 @@ Etiquetas de estado para la administración: `pending` *Transferencia por confir
 
 - **Toast de producto agregado:** el token `z-toast` existe, pero ninguna pantalla lo usa (el drawer cumple ese rol).
 - **Pago no completado en Flow, móvil:** `PagoRechazadoMovil` admite ambos casos, pero solo el escritorio tiene un artboard de Flow.
-- **Opiniones publicadas en la Ficha:** siguen con placeholders (el formulario sí tiene diseño).
+- ~~**Opiniones publicadas en la Ficha:** siguen con placeholders~~ ✅ 7.6 (D-031): resumen (promedio grande, estrellas, *Basado en N opiniones*, *Escribir una opinión*) y tarjetas con *Compra verificada* y la firma *Nombre · Comuna · fecha* (sin comuna en el retiro). Sin opiniones: *Todavía no hay opiniones de este producto. Las publican quienes ya lo recibieron.* (propuesta). En móvil no hay *Ver las N opiniones*: se muestran las 10 más recientes (propuesta).
 - **Pago abortado en Webpay** (`TBK_TOKEN`): no tiene un artboard propio; sus textos están en [estados-y-mensajes.md](estados-y-mensajes.md) (B14).
 - **Administración del catálogo** (productos, stock, cupones) y la versión móvil de la lista de pedidos.
-- **Escribe tu opinión** y **Crear cuenta del invitado** en móvil.
+- **Escribe tu opinión** y **Crear cuenta del invitado** en móvil. La 7.6 usa el mismo modal a todo el ancho con 16 px de margen y desplazamiento interno (propuesta).

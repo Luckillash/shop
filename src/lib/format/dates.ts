@@ -39,6 +39,13 @@ const longDate = new Intl.DateTimeFormat("es-CL", {
 
 const weekday = new Intl.DateTimeFormat("es-CL", { weekday: "long", timeZone: BUSINESS_TIME_ZONE });
 
+const dayMonth = new Intl.DateTimeFormat("es-CL", { day: "numeric", month: "long", timeZone: BUSINESS_TIME_ZONE });
+
+// "16 de octubre" (Escribe tu opinión: *La compraste el …*)
+export function formatDayMonth(date: Date): string {
+  return dayMonth.format(date);
+}
+
 // "25 de octubre de 2026" (Mis pedidos: *Comprado el …*)
 export function formatLongDate(date: Date): string {
   return longDate.format(date);
@@ -47,4 +54,19 @@ export function formatLongDate(date: Date): string {
 // "domingo 25 de octubre de 2026" (Detalle de pedido)
 export function formatFullDate(date: Date): string {
   return `${weekday.format(date)} ${longDate.format(date)}`;
+}
+
+const shortParts = new Intl.DateTimeFormat("es-CL", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: BUSINESS_TIME_ZONE,
+});
+
+// "Dom 25 oct · 10:12" (historial y lista de la administración)
+export function formatShortDateTime(date: Date): string {
+  const parts = Object.fromEntries(shortParts.formatToParts(date).map((p) => [p.type, p.value]));
+  const weekdayName = (parts.weekday ?? "").replace(".", "");
+  const monthName = (parts.month ?? "").replace(".", "");
+  return `${weekdayName.charAt(0).toUpperCase()}${weekdayName.slice(1)} ${parts.day} ${monthName} · ${formatTime(date)}`;
 }

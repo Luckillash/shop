@@ -19,7 +19,7 @@ L = lectura · E = escritura (insert/update/delete) · "propio" = `user_id = aut
 
 | Tabla | `anon` | `customer` | `admin` | Notas |
 |---|---|---|---|---|
-| `profiles` | — | L/update propio | L/update todos | No hay `insert` (lo hace el trigger) |
+| `profiles` | — | L/update propio | L/update todos | No hay `insert` (lo hace el trigger). Desde M10 (7.5) el `update` de `authenticated` está limitado por columna: `full_name`, `first_name`, `last_name`, `phone`, `rut`, `avatar_url`, `newsletter_opt_in_at` (no `role`, `id` ni fechas); el rol se cambia con SQL |
 | `addresses` | — | L/E propias | L todas | |
 | `categories` | L activas | L activas | L/E todas | |
 | `brands` | L | L | L/E | |
@@ -35,9 +35,9 @@ L = lectura · E = escritura (insert/update/delete) · "propio" = `user_id = aut
 | `orders` | — | L propios | L/update | **Nadie inserta directamente**: solo `place_order` |
 | `order_items` | — | L de sus pedidos | L | |
 | `payments` | — | L de sus pedidos | L/E | El backend escribe con `service_role` (`start_payment_attempt`, `settle_payment`) |
-| `payment_alerts` | — | — | L / actualiza (`resolved_at`) | Fase 6. El backend inserta con `service_role` |
-| `order_events` | — | — | L | M8 (fase 7). Escribe el trigger `log_order_event` (`security definer`) o el backend con `service_role`. Verificado con la sesión de `prueba.fase5`: 0 filas |
-| `reviews` | L publicadas | L publicadas + propias · insert si compró · update/delete propias | todo | `guard_review_publication` protege `is_published` |
+| `payment_alerts` | — | — | L / actualiza (`resolved_at`) | Fase 6. El backend inserta con `service_role`. La 7.4 la resuelve con `admin_resolve_alert` (M9), que además deja el evento en el pedido |
+| `order_events` | — | — | L | M8 (fase 7). Escribe el trigger `log_order_event` (`security definer`) o el backend con `service_role`. Verificado con la sesión de `prueba.fase5` antes de ser admin: 0 filas. Desde la 7.4 la administración lo lee con la sesión del admin |
+| `reviews` | L publicadas | L publicadas + propias · insert con un pedido `delivered` del producto y sin sesión anónima (M11) · update/delete propias | todo | `guard_review_publication` protege `is_published`. Grant por columna (M11): insert de `product_id`, `rating`, `title`, `body`; update de `rating`, `title`, `body`. La firma la pone `set_review_author` |
 
 `service_role` salta RLS en todas las tablas.
 
@@ -82,5 +82,5 @@ Con los inicios anónimos activados, los invitados usan el rol `authenticated` (
 
 - Políticas de dueño (`addresses`, `carts`, `cart_items`, `orders`, `order_items`, `payments`, `profiles`, `wishlist_items`): las necesita el invitado para comprar y ver su pedido.
 - Políticas de admin: usan `is_admin()`; un anónimo no es admin.
-- ⏳ **`reviews`**: hoy un invitado que compró podría escribir una reseña. **Decidido el 27-10-2026** (decisiones 3a y 3c del dueño): la política `reviews: compradores crean` exigirá `(auth.jwt() ->> 'is_anonymous')::boolean is not true` y un pedido `delivered` con el producto (hoy acepta `paid`, `processing`, `shipped` y `delivered`). Se aplica en la 7.6.
+- ✅ **`reviews`** (M11, 28-10-2026): la política `reviews: compradores crean` exige `(auth.jwt() ->> 'is_anonymous')::boolean is not true` y un pedido `delivered` con el producto (decisiones 3a y 3c; antes aceptaba `paid`, `processing`, `shipped` y `delivered`). Probado simulando cada rol en una transacción revertida: `anon` → *permission denied*; invitado y cuenta sin pedido entregado → *new row violates row-level security policy*; escribir `author_name`, `author_commune`, `is_published` o un `user_id` ajeno → *permission denied*; otra cuenta que edita una ajena → 0 filas; segunda reseña → *Ya publicaste una opinión de este producto. Puedes editarla desde su ficha.*; `anon` lee la firma y no ve `profiles`. Las políticas de `update`/`delete` propias no cambian: un anónimo no puede tener reseñas.
 

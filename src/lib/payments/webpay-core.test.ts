@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isApproved, matchesAttempt, parseWebpayReturn, webpayCardLabel, webpayOutcome, type WebpayResult } from "./webpay-core";
+import { isApproved, isFullyRefunded, matchesAttempt, parseWebpayReturn, webpayCardLabel, webpayOutcome, type WebpayResult } from "./webpay-core";
 
 const ORDER_ID = "6f1c2ada-9906-48b3-8f91-c8dca4cb5b55";
 const expected = { amount: 43960, reference: "1007-1", orderId: ORDER_ID };
@@ -83,5 +83,14 @@ describe("webpayCardLabel", () => {
     expect(webpayCardLabel("VP")).toBe("tarjeta de prepago");
     expect(webpayCardLabel("NC", 3)).toBe("tarjeta de crédito en 3 cuotas");
     expect(webpayCardLabel(undefined)).toBe("tarjeta");
+  });
+});
+
+describe("isFullyRefunded", () => {
+  it("anulada sin saldo o reversada = devuelta (reembolso que no respondió a tiempo)", () => {
+    expect(isFullyRefunded({ status: "NULLIFIED", balance: 0 })).toBe(true);
+    expect(isFullyRefunded({ status: "REVERSED" })).toBe(true);
+    expect(isFullyRefunded({ status: "NULLIFIED", balance: 5000 })).toBe(false);
+    expect(isFullyRefunded({ status: "AUTHORIZED", balance: 0 })).toBe(false);
   });
 });

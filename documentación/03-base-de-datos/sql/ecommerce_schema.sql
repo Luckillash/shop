@@ -37,11 +37,22 @@ end $$;
 create table if not exists public.profiles (
   id          uuid primary key references auth.users (id) on delete cascade,
   full_name   text,
-  phone       text,
+  first_name  text,          -- M10 (7.5): Datos personales separa nombre y apellido
+  last_name   text,
+  phone       text,          -- "+56912345678"
+  rut         text,          -- M10: opcional, "12345678-5" (decisión 7a); el DV lo valida la app
   avatar_url  text,
   role        public.user_role not null default 'customer',
+  newsletter_opt_in_at timestamptz,  -- M10: desde cuándo acepta novedades; vacía = no (decisión 7b)
   created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
+  updated_at  timestamptz not null default now(),
+  constraint profiles_rut_format check (rut is null or rut ~ '^[1-9][0-9]{0,8}-[0-9K]$'),
+  constraint profiles_phone_format check (phone is null or phone ~ '^\+569[0-9]{8}$'),
+  constraint profiles_name_length check (
+    coalesce(char_length(first_name), 0) <= 80
+    and coalesce(char_length(last_name), 0) <= 80
+    and coalesce(char_length(full_name), 0) <= 161
+  )
 );
 
 create table if not exists public.addresses (
@@ -370,7 +381,9 @@ create table if not exists public.order_events (
 alter table public.order_events drop constraint if exists order_events_kind_check;
 alter table public.order_events add constraint order_events_kind_check
   check (kind in ('placed', 'pending', 'paid', 'processing', 'shipped', 'delivered',
-                  'cancelled', 'refunded', 'email'));
+                  'cancelled', 'refunded', 'email',
+                  -- M9 (7.4): un pago devuelto y una alerta de pago resuelta
+                  'refund', 'alert_resolved'));
 create index if not exists order_events_order_id_idx on public.order_events (order_id, created_at);
 create index if not exists order_events_actor_id_idx on public.order_events (actor_id);
 
@@ -392,14 +405,21 @@ create index if not exists coupon_redemptions_user_id_idx on public.coupon_redem
 create table if not exists public.reviews (
   id            uuid primary key default gen_random_uuid(),
   product_id    uuid not null references public.products (id) on delete cascade,
-  user_id       uuid not null references public.profiles (id) on delete cascade,
+  user_id       uuid not null default auth.uid() references public.profiles (id) on delete cascade,  -- M11: default
   rating        smallint not null check (rating between 1 and 5),
   title         text,
   body          text,
   is_published  boolean not null default true,    -- un admin puede ocultarla
+  author_name   text,          -- M11 (7.6): firma *Nombre · Comuna*, la pone set_review_author
+  author_commune text,         -- M11: null en el retiro en tienda
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
-  unique (product_id, user_id)
+  unique (product_id, user_id),
+  constraint reviews_title_length check (title is null or char_length(btrim(title)) between 1 and 80),
+  constraint reviews_body_length check (body is not null and char_length(btrim(body)) between 20 and 2000),
+  constraint reviews_author_length check (
+    coalesce(char_length(author_name), 0) <= 80 and coalesce(char_length(author_commune), 0) <= 80
+  )
 );
 create index if not exists reviews_product_id_idx on public.reviews (product_id) where is_published;
 create index if not exists reviews_user_id_idx    on public.reviews (user_id);
@@ -432,14 +452,16 @@ begin
   end loop;
 end $$;
 
--- Al registrarse un usuario: crear perfil y carrito
+-- Al registrarse un usuario: crear perfil y carrito. *Recibir novedades* de Crear cuenta viaja en
+-- los metadatos (no hay sesión hasta confirmar el correo) y se copia a newsletter_opt_in_at (M10)
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url)
+  insert into public.profiles (id, full_name, avatar_url, newsletter_opt_in_at)
   values (new.id,
           new.raw_user_meta_data ->> 'full_name',
-          new.raw_user_meta_data ->> 'avatar_url')
+          new.raw_user_meta_data ->> 'avatar_url',
+          case when new.raw_user_meta_data ->> 'newsletter' = 'true' then now() end)
   on conflict (id) do nothing;
 
   insert into public.carts (user_id) values (new.id)
@@ -468,6 +490,28 @@ drop trigger if exists protect_profile_role on public.profiles;
 create trigger protect_profile_role
   before update on public.profiles
   for each row execute function public.protect_profile_role();
+
+-- M10: la fecha de las novedades la pone la BD cuando escribe un cliente (now() al activar; se
+-- conserva mientras siga activa). Sin auth.uid() (migraciones, service_role) se respeta el valor.
+create or replace function public.stamp_newsletter_opt_in()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+  if (select auth.uid()) is not null then
+    if new.newsletter_opt_in_at is null then
+      return new;
+    elsif tg_op = 'UPDATE' and old.newsletter_opt_in_at is not null then
+      new.newsletter_opt_in_at := old.newsletter_opt_in_at;
+    else
+      new.newsletter_opt_in_at := now();
+    end if;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists stamp_newsletter_opt_in on public.profiles;
+create trigger stamp_newsletter_opt_in
+  before update of newsletter_opt_in_at on public.profiles
+  for each row execute function public.stamp_newsletter_opt_in();
 
 -- Solo una dirección por defecto por usuario
 create or replace function public.ensure_single_default_address()
@@ -599,6 +643,66 @@ drop trigger if exists guard_review_publication on public.reviews;
 create trigger guard_review_publication
   before insert or update on public.reviews
   for each row execute function public.guard_review_publication();
+
+-- M11 (7.6, D-031): firma de la reseña. security definer: lee profiles y orders del autor sin depender del RLS.
+-- Desde un cliente (auth.uid() no nulo) siempre la calcula la BD; sin nombre, no se publica
+-- (el modal lo pide antes). Con service_role (SQL, sin auth.uid()) respeta lo que venga.
+create or replace function public.set_review_author()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_name text;
+  v_commune text;
+begin
+  -- Una por usuario y producto (unique): con un mensaje claro en vez del de la restricción
+  if exists (select 1 from public.reviews r where r.user_id = new.user_id and r.product_id = new.product_id) then
+    raise exception 'Ya publicaste una opinión de este producto. Puedes editarla desde su ficha.'
+      using errcode = '23505', constraint = 'reviews_product_id_user_id_key';
+  end if;
+
+  if (select auth.uid()) is null and new.author_name is not null then
+    return new;
+  end if;
+
+  select (regexp_split_to_array(btrim(coalesce(nullif(btrim(p.first_name), ''), p.full_name, '')), '\s+'))[1]
+    into v_name
+    from public.profiles p
+   where p.id = new.user_id;
+  v_name := nullif(v_name, '');
+
+  if v_name is null and (select auth.uid()) is not null then
+    raise exception 'review_author_name_missing'
+      using errcode = 'P0001', hint = 'Guarda tu nombre en Datos personales antes de publicar';
+  end if;
+
+  select case
+           when o.shipping_method = 'pickup' or o.shipping_address ->> 'type' = 'pickup' then null
+           else nullif(btrim(o.shipping_address ->> 'city'), '')
+         end
+    into v_commune
+    from public.orders o
+    join public.order_items oi on oi.order_id = o.id
+   where o.user_id = new.user_id
+     and oi.product_id = new.product_id
+     and o.status = 'delivered'
+   order by coalesce(o.delivered_at, o.placed_at) desc, o.placed_at desc
+   limit 1;
+
+  new.author_name := left(v_name, 80);
+  new.author_commune := left(v_commune, 80);
+  return new;
+end $$;
+
+revoke execute on function public.set_review_author() from public, anon, authenticated;
+
+drop trigger if exists set_review_author on public.reviews;
+create trigger set_review_author
+  before insert on public.reviews
+  for each row execute function public.set_review_author();
+
 
 -- ---------------------------------------------------------------------
 -- 11. CHECKOUT (RPC)
@@ -891,7 +995,6 @@ begin
          cancel_note = nullif(btrim(p_note), '')
    where id = p_order_id;
 end $$;
-end $$;
 
 revoke execute on function public.place_order(text, text, text, text, uuid, text, text, text, jsonb, text, text) from public, anon;
 revoke execute on function public.cancel_order(uuid, text, text) from public, anon;
@@ -916,7 +1019,7 @@ revoke execute on function public.sync_order_on_payment() from public, anon, aut
 create or replace function public.start_payment_attempt(p_order_id uuid, p_provider text)
 returns table (payment_id uuid, reference text, attempt int, amount numeric, order_number bigint,
                contact_email text, expires_at timestamptz)
-language plpgsql security definer set search_path = '' as $
+language plpgsql security definer set search_path = '' as $$
 declare
   v_order   public.orders%rowtype;
   v_attempt int;
@@ -966,19 +1069,19 @@ begin
   returning id into v_id;
 
   return query select v_id, v_ref, v_attempt, v_order.total, v_order.order_number, v_order.contact_email, v_expires;
-end $;
+end $$;
 
 -- Toma el lock de confirmación de un intento pending (D-005, respaldo del lock de Redis).
 -- true = este proceso confirma; false = ya no está pending o alguien lo está confirmando.
 create or replace function public.claim_payment(p_payment_id uuid, p_seconds int default 60)
-returns boolean language plpgsql security definer set search_path = '' as $
+returns boolean language plpgsql security definer set search_path = '' as $$
 begin
   update public.payments p
      set confirming_until = now() + make_interval(secs => greatest(p_seconds, 1))
    where p.id = p_payment_id and p.status = 'pending'
      and (p.confirming_until is null or p.confirming_until < now());
   return found;
-end $;
+end $$;
 
 -- Registra el resultado de un intento (idempotente). Transiciones:
 --   pending → paid | failed  ·  failed → paid (Flow puede cobrar un intento reemplazado)
@@ -988,7 +1091,7 @@ end $;
 create or replace function public.settle_payment(p_payment_id uuid, p_status public.payment_status, p_raw jsonb)
 returns table (changed boolean, payment_state public.payment_status, order_state public.order_status,
                other_paid boolean)
-language plpgsql security definer set search_path = '' as $
+language plpgsql security definer set search_path = '' as $$
 declare
   v_pay     public.payments%rowtype;
   v_changed boolean := false;
@@ -1017,7 +1120,7 @@ begin
            exists (select 1 from public.payments x
                     where x.order_id = o.id and x.status = 'paid' and x.id <> p_payment_id)
       from public.orders o where o.id = v_pay.order_id;
-end $;
+end $$;
 
 revoke execute on function public.start_payment_attempt(uuid, text) from public, anon, authenticated;
 revoke execute on function public.claim_payment(uuid, int) from public, anon, authenticated;
@@ -1088,6 +1191,241 @@ $$;
 
 revoke execute on function public.validate_coupon(text, numeric, uuid) from public, anon, authenticated;
 grant  execute on function public.validate_coupon(text, numeric, uuid) to service_role;
+
+-- ---------------------------------------------------------------------
+-- Acciones de la administración (M9, fase 7.4, D-029): una función por acción, solo service_role.
+-- La Server Action ya verificó la sesión y la transición; aquí se vuelve a comprobar el admin, el
+-- estado esperado y la transición, y se indica al admin como actor (shop.actor_id) en la misma
+-- transacción para el historial.
+-- ---------------------------------------------------------------------
+-- ----- Comprobar que quien actúa es admin y dejarlo como actor del historial -----
+create or replace function public.admin_act_as(p_admin_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_admin_id is null or not exists (
+    select 1 from public.profiles where id = p_admin_id and role = 'admin'
+  ) then
+    raise exception 'No tienes permiso para administrar pedidos' using hint = 'forbidden';
+  end if;
+  perform set_config('shop.actor_id', p_admin_id::text, true);
+end $$;
+
+-- ----- Confirmar una transferencia: settle_payment(…, 'paid', …) sobre su intento pendiente -----
+create or replace function public.admin_confirm_transfer(p_order_id uuid, p_admin_id uuid, p_operation text default null)
+returns public.order_status
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_order     public.orders%rowtype;
+  v_pay       public.payments%rowtype;
+  v_operation text := nullif(btrim(p_operation), '');
+  v_state     public.order_status;
+begin
+  perform public.admin_act_as(p_admin_id);
+
+  select * into v_order from public.orders where id = p_order_id for update;
+  if not found then
+    raise exception 'Pedido no encontrado' using hint = 'not_found';
+  end if;
+  if v_order.status <> 'pending' or v_order.payment_method is distinct from 'transfer' then
+    raise exception 'El pedido no tiene una transferencia por confirmar' using hint = 'stale';
+  end if;
+
+  select * into v_pay from public.payments
+   where order_id = p_order_id and provider = 'transfer' and status = 'pending'
+   order by attempt desc
+   limit 1
+   for update;
+  if not found then
+    raise exception 'El pedido no tiene una transferencia pendiente' using hint = 'stale';
+  end if;
+
+  select s.order_state into v_state
+    from public.settle_payment(
+      v_pay.id,
+      'paid',
+      coalesce(v_pay.raw_response, '{}'::jsonb)
+        || jsonb_build_object('confirmed_by', p_admin_id, 'confirmed_at', now(), 'operation_number', v_operation)
+    ) s;
+
+  -- El N.º de operación también en el evento `paid` que acaba de escribir el trigger
+  if v_operation is not null then
+    update public.order_events
+       set data = data || jsonb_build_object('operation_number', v_operation)
+     where id = (select id from public.order_events
+                  where order_id = p_order_id and kind = 'paid'
+                  order by created_at desc limit 1);
+  end if;
+  return v_state;
+end $$;
+
+-- ----- Empezar a preparar, marcar como enviado y marcar como entregado -----
+create or replace function public.admin_advance_order(
+  p_order_id uuid,
+  p_admin_id uuid,
+  p_from public.order_status,
+  p_to public.order_status,
+  p_carrier text default null,
+  p_tracking text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_order public.orders%rowtype;
+begin
+  perform public.admin_act_as(p_admin_id);
+
+  if not ((p_from = 'paid' and p_to = 'processing')
+       or (p_from = 'processing' and p_to = 'shipped')
+       or (p_from = 'shipped' and p_to = 'delivered')) then
+    raise exception 'Cambio de estado no permitido: % → %', p_from, p_to using hint = 'transition';
+  end if;
+
+  select * into v_order from public.orders where id = p_order_id for update;
+  if not found then
+    raise exception 'Pedido no encontrado' using hint = 'not_found';
+  end if;
+  if v_order.status <> p_from then
+    raise exception 'El pedido ya está en %', v_order.status using hint = 'stale';
+  end if;
+
+  if p_to = 'shipped' then
+    update public.orders
+       set status = 'shipped', carrier = nullif(btrim(p_carrier), ''), tracking_number = nullif(btrim(p_tracking), '')
+     where id = p_order_id;
+  else
+    update public.orders set status = p_to where id = p_order_id;
+  end if;
+end $$;
+
+-- ----- Anular desde la tienda: los intentos pendientes quedan failed y cancel_order('tienda') -----
+create or replace function public.admin_cancel_order(p_order_id uuid, p_admin_id uuid, p_from public.order_status, p_note text default null)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_status public.order_status;
+begin
+  perform public.admin_act_as(p_admin_id);
+
+  select status into v_status from public.orders where id = p_order_id for update;
+  if not found then
+    raise exception 'Pedido no encontrado' using hint = 'not_found';
+  end if;
+  if v_status <> p_from then
+    raise exception 'El pedido ya está en %', v_status using hint = 'stale';
+  end if;
+
+  update public.payments
+     set status = 'failed', raw_response = coalesce(raw_response, '{}'::jsonb) || '{"shop_reason": "cancelled"}'::jsonb
+   where order_id = p_order_id and status = 'pending';
+
+  -- service_role: auth.uid() es null, cancel_order lo trata como staff (pending, paid o processing)
+  perform public.cancel_order(p_order_id, 'tienda', p_note);
+end $$;
+
+-- ----- Anulado → Reembolsado -----
+-- p_manual = true: la transferencia que el admin devolvió a mano (decisión 5 del dueño): el intento
+-- paid pasa a refunded. false: el reembolso ya se hizo en la pasarela y no queda ningún pago sin devolver.
+create or replace function public.admin_mark_refunded(p_order_id uuid, p_admin_id uuid, p_manual boolean)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_order public.orders%rowtype;
+  v_pay   public.payments%rowtype;
+begin
+  perform public.admin_act_as(p_admin_id);
+
+  select * into v_order from public.orders where id = p_order_id for update;
+  if not found then
+    raise exception 'Pedido no encontrado' using hint = 'not_found';
+  end if;
+  if v_order.status <> 'cancelled' or v_order.paid_at is null then
+    raise exception 'El pedido no está anulado con un pago' using hint = 'stale';
+  end if;
+
+  if p_manual then
+    select * into v_pay from public.payments
+     where order_id = p_order_id and provider = 'transfer' and status = 'paid'
+     order by attempt desc limit 1
+     for update;
+    if not found then
+      raise exception 'El pedido no tiene una transferencia pagada' using hint = 'stale';
+    end if;
+    update public.payments
+       set status = 'refunded',
+           raw_response = coalesce(raw_response, '{}'::jsonb)
+             || jsonb_build_object('refund', jsonb_build_object('manual', true, 'by', p_admin_id, 'at', now()))
+     where id = v_pay.id;
+    insert into public.order_events (order_id, kind, actor, actor_id, data)
+    values (p_order_id, 'refund', 'admin', p_admin_id,
+            jsonb_build_object('provider', 'transfer', 'amount', v_pay.amount, 'reference', v_pay.reference, 'manual', true));
+  else
+    if exists (select 1 from public.payments where order_id = p_order_id and status = 'paid') then
+      raise exception 'Todavía hay un pago sin devolver' using hint = 'stale';
+    end if;
+    if not exists (select 1 from public.payments where order_id = p_order_id and status = 'refunded') then
+      raise exception 'El pedido no tiene un pago devuelto' using hint = 'stale';
+    end if;
+  end if;
+
+  update public.orders set status = 'refunded' where id = p_order_id;
+end $$;
+
+-- ----- Marcar una alerta de pago como resuelta (queda en el historial del pedido) -----
+create or replace function public.admin_resolve_alert(p_alert_id uuid, p_admin_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_alert public.payment_alerts%rowtype;
+begin
+  perform public.admin_act_as(p_admin_id);
+
+  update public.payment_alerts set resolved_at = now()
+   where id = p_alert_id and resolved_at is null
+  returning * into v_alert;
+  if not found then
+    return false;
+  end if;
+
+  if v_alert.order_id is not null then
+    insert into public.order_events (order_id, kind, actor, actor_id, data)
+    values (v_alert.order_id, 'alert_resolved', 'admin', p_admin_id,
+            jsonb_build_object('alert_id', v_alert.id, 'alert_kind', v_alert.kind));
+  end if;
+  return true;
+end $$;
+
+-- Solo el backend (service_role); ni anon ni authenticated las pueden llamar como RPC
+revoke all on function public.admin_act_as(uuid) from public, anon, authenticated;
+revoke all on function public.admin_confirm_transfer(uuid, uuid, text) from public, anon, authenticated;
+revoke all on function public.admin_advance_order(uuid, uuid, public.order_status, public.order_status, text, text) from public, anon, authenticated;
+revoke all on function public.admin_cancel_order(uuid, uuid, public.order_status, text) from public, anon, authenticated;
+revoke all on function public.admin_mark_refunded(uuid, uuid, boolean) from public, anon, authenticated;
+revoke all on function public.admin_resolve_alert(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.admin_act_as(uuid) to service_role;
+grant execute on function public.admin_confirm_transfer(uuid, uuid, text) to service_role;
+grant execute on function public.admin_advance_order(uuid, uuid, public.order_status, public.order_status, text, text) to service_role;
+grant execute on function public.admin_cancel_order(uuid, uuid, public.order_status, text) to service_role;
+grant execute on function public.admin_mark_refunded(uuid, uuid, boolean) to service_role;
+grant execute on function public.admin_resolve_alert(uuid, uuid) to service_role;
 
 -- ---------------------------------------------------------------------
 -- 12. VISTA DE CATÁLOGO (respeta RLS del usuario que consulta)
@@ -1215,6 +1553,19 @@ create policy "profiles: editar el propio o admin" on public.profiles
   for update to authenticated
   using (id = (select auth.uid()) or (select public.is_admin()))
   with check (id = (select auth.uid()) or (select public.is_admin()));
+
+-- M10: el cliente solo actualiza las columnas editables (no role, id ni fechas). El rol se cambia
+-- con SQL (service_role); protect_profile_role queda como segunda barrera.
+revoke update on public.profiles from anon, authenticated;
+grant update (full_name, first_name, last_name, phone, rut, avatar_url, newsletter_opt_in_at)
+  on public.profiles to authenticated;
+
+-- M11: el cliente escribe solo la calificación y el texto de su reseña (user_id sale de auth.uid();
+-- la firma la pone set_review_author; is_published lo protege guard_review_publication)
+revoke insert, update on public.reviews from anon, authenticated;
+revoke delete on public.reviews from anon;
+grant insert (product_id, rating, title, body) on public.reviews to authenticated;
+grant update (rating, title, body) on public.reviews to authenticated;
 
 -- Direcciones: una sola política de lectura (dueño o admin) y escritura solo del dueño.
 -- (Una política FOR ALL + otra de lectura se evaluaban las dos en cada SELECT.)
@@ -1382,14 +1733,16 @@ create policy "reviews: lectura pública" on public.reviews
 drop policy if exists "reviews: compradores crean" on public.reviews;
 create policy "reviews: compradores crean" on public.reviews
   for insert to authenticated
+  -- M11 (decisiones 3a y 3c): pedido entregado con el producto y sin sesión anónima
   with check (
     user_id = (select auth.uid())
+    and ((select auth.jwt()) ->> 'is_anonymous')::boolean is not true
     and exists (
       select 1 from public.order_items oi
       join public.orders o on o.id = oi.order_id
       where oi.product_id = reviews.product_id
         and o.user_id = (select auth.uid())
-        and o.status in ('paid', 'processing', 'shipped', 'delivered')
+        and o.status = 'delivered'
     )
   );
 

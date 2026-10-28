@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { AuthState } from "@/lib/auth/actions";
 import { toCartLines } from "@/lib/cart/totals";
 import { useCartStore } from "@/store/cart-store";
+import { useWishlistStore } from "@/store/wishlist-store";
 
 const IDLE: AuthState = { status: "idle" };
 
@@ -20,6 +21,8 @@ export function useAuthAction(action: (prev: AuthState, formData: FormData) => P
     if (next.status === "signed-in") {
       // Si la fusión falló, el servidor devuelve [] y se conserva el carro local
       if (next.items.length > 0) useCartStore.getState().replaceItems(next.items);
+      // Otra sesión: los corazones vuelven a preguntar por los favoritos (7.5)
+      useWishlistStore.getState().reset();
       router.replace(next.next);
       router.refresh();
     }

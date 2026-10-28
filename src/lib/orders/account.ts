@@ -1,4 +1,5 @@
 import "server-only";
+import { greetingName } from "@/lib/account/profile";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 // Pedidos de la cuenta (/cuenta/pedidos). Con el cliente del usuario: el RLS de orders solo deja ver
@@ -51,10 +52,10 @@ export function itemImage(item: AccountOrderItem): { url: string; alt: string } 
   return image ? { url: image.url, alt: image.alt ?? item.product_name } : null;
 }
 
-/** El nombre de pila para *Hola, Camila* (profiles.full_name). null sin nombre */
+/** El nombre de pila para *Hola, Camila* (first_name o, si no está, full_name; 7.5). null sin nombre */
 export async function getFirstName(userId: string): Promise<string | null> {
   const supabase = await createSupabaseServer();
-  const { data, error } = await supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle();
+  const { data, error } = await supabase.from("profiles").select("first_name, full_name").eq("id", userId).maybeSingle();
   if (error) throw error;
-  return data?.full_name?.trim().split(/\s+/)[0] || null;
+  return greetingName(data);
 }

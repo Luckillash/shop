@@ -88,3 +88,11 @@
   color: var(--ink-muted);
   pointer-events: none;
 }
+
+/* TextArea: el mismo campo, con alto por filas (Escribe tu opinión, 7.6) */
+.textarea {
+  height: auto;
+  padding: 10px var(--space-3);
+  line-height: 22px;
+  resize: vertical;
+}

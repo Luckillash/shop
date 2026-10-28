@@ -108,3 +108,12 @@ export function webpayCardLabel(paymentTypeCode: string | undefined, installment
       return "tarjeta";
   }
 }
+
+/**
+ * ¿La transacción ya está devuelta completa? (status después de un reembolso que no respondió a
+ * tiempo: Transbank puede procesarlo igual, 7.4). Anulada sin saldo o reversada.
+ */
+export function isFullyRefunded(result: Pick<WebpayResult, "status" | "balance">): boolean {
+  if (result.status === "REVERSED") return true;
+  return result.status === "NULLIFIED" && (result.balance ?? 0) === 0;
+}

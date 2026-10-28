@@ -1,12 +1,17 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./account.module.css";
 
-// Direcciones, Favoritos y Datos personales se agregan con sus páginas en la 7.5 (D-026): hasta
-// entonces no se muestran, para no enlazar a un 404.
-const LINKS = [{ href: "/cuenta/pedidos", label: "Mis pedidos" }];
+// Secciones de la cuenta (MisPedidos): Mis pedidos (7.1) y Direcciones, Favoritos y Datos personales (7.5)
+const LINKS = [
+  { href: "/cuenta/pedidos", label: "Mis pedidos" },
+  { href: "/cuenta/direcciones", label: "Direcciones" },
+  { href: "/cuenta/favoritos", label: "Favoritos" },
+  { href: "/cuenta/datos", label: "Datos personales" },
+];
 
 /** Enlaces del menú. pathname null = respaldo del <Suspense> (sin sección marcada) */
 export function MenuLinks({ pathname }: { pathname: string | null }) {
@@ -27,7 +32,24 @@ export function MenuLinks({ pathname }: { pathname: string | null }) {
   });
 }
 
-/** Con la ruta actual: usePathname() en una ruta dinámica necesita su propio <Suspense> */
+/**
+ * Con la ruta actual: usePathname() en una ruta dinámica necesita su propio <Suspense>. En móvil
+ * los chips se desplazan a lo ancho: el de la sección actual se lleva a la vista (Datos personales
+ * queda fuera a 390 px).
+ */
 export function CurrentMenuLinks() {
-  return <MenuLinks pathname={usePathname()} />;
+  const pathname = usePathname();
+  const marker = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    const current = marker.current?.closest("ul")?.querySelector<HTMLElement>("[aria-current]");
+    const scroller = current?.closest("nav");
+    if (!current || !scroller || scroller.scrollWidth <= scroller.clientWidth) return;
+    scroller.scrollTo({ left: current.offsetLeft - scroller.clientWidth / 2 + current.offsetWidth / 2 });
+  }, [pathname]);
+  return (
+    <>
+      <MenuLinks pathname={pathname} />
+      <li ref={marker} hidden />
+    </>
+  );
 }

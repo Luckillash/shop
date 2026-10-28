@@ -28,7 +28,7 @@ estado: "propuesta"
 | Listado por categoría y filtros | `listProducts({ category, filters, sort, page })` | `minutes` | `products`, `category:<slug>` | Los argumentos forman la clave. Normaliza el orden de los filtros para no fragmentar la caché |
 | Ficha de producto | `getProductBySlug(slug)` | `hours` | `products`, `product:<slug>` | Sin stock. El stock se lee aparte |
 | Stock de las variantes | `getVariantStock(productId)` | `seconds` o sin caché | `stock:<productId>` | Es lo que más cambia. Va en su propio `<Suspense>` |
-| Reseñas publicadas | `getReviews(productId)` | `hours` | `reviews:<productId>` | |
+| Reseñas publicadas | `getReviews(productId)` | `hours` | `reviews:<productId>` | Las 10 más recientes con su firma (M11) y el promedio y total de `product_catalog` (7.6) |
 | Búsqueda | `searchProducts(q)` | `minutes` | `products` | No pongas datos personales en la clave |
 | Carro, pedidos, direcciones, perfil | — | **No se cachean en el servidor** | — | Dependen de la sesión. Si hace falta, `'use cache: private'` |
 
@@ -39,7 +39,7 @@ estado: "propuesta"
 | Un admin edita un producto o una variante | `revalidateTag('product:<slug>', 'max')` + `revalidateTag('products', 'max')` | Server Action de administración (no existe) |
 | Se crea un pedido (baja el stock) | `revalidateTag('stock:<productId>', 'max')` por cada producto del pedido | Acción de checkout, después de `place_order` |
 | Se anula un pedido (vuelve el stock) | Lo mismo | Cron de expiración / `cancel_order` |
-| El usuario publica una reseña y debe verla de inmediato | `updateTag('reviews:<productId>')` | Server Action (`updateTag` **solo** funciona ahí) |
+| El usuario publica o edita una reseña y debe verla de inmediato | `updateTag('reviews:<productId>')` + `refresh()`, y `revalidateTag('products', 'max')` para el promedio de los listados (D-031) | `publishReview` (`src/lib/reviews/actions.ts`; `updateTag` **solo** funciona en una Server Action) |
 | Cambio masivo del catálogo (seed, importación) | `revalidateTag('products', 'max')` y `revalidateTag('categories', 'max')` | Route Handler protegido o script |
 
 Reglas:

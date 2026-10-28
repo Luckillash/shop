@@ -767,3 +767,229 @@ a.itemName:hover {
     padding: var(--space-6);
   }
 }
+
+/* ----- 7.5 · Direcciones, Favoritos y Datos personales ----- */
+
+.headingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Tarjetas blancas con un formulario o una sección (Direcciones, Datos personales) */
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.boxTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.boxHeading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.fieldGrid fieldset,
+.fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+.check[aria-disabled="true"] {
+  cursor: default;
+}
+
+.checkHint {
+  display: block;
+  color: var(--ink-muted);
+}
+
+.formActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Direcciones */
+.addresses {
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.addressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.addressTitle {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.addressText {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.addressActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+
+.confirmText {
+  flex: 1 1 100%;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* Correo fijo de Datos personales */
+.readonly {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.readonlyLabel {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.readonlyValue {
+  font-size: 15px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.note a {
+  color: var(--link);
+}
+
+/* Favoritos: 2 columnas en móvil, 3 en escritorio (Favoritos / FavoritosMovil) */
+.favorites {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.favorite {
+  display: flex;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .box {
+    padding: var(--space-6);
+  }
+
+  .fieldGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .addresses {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .address {
+    gap: var(--space-3);
+    padding: var(--space-5);
+  }
+
+  .addressActions {
+    padding-top: var(--space-3);
+  }
+
+  .readonly {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .favorites {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* Datos personales: columna de hasta 720px (artboard) */
+  .narrow {
+    max-width: 720px;
+  }
+}

@@ -85,12 +85,12 @@ Se hacen cuando se cumple su condición. Ninguno bloquea la compra.
 ## Fase 7 · Postcompra y operación
 | Tarea | Notas |
 |---|---|
-| Mis pedidos, Detalle de pedido | Templates de Cuenta |
-| Direcciones, Favoritos, Datos personales | Sin diseño: reutiliza los componentes |
-| Reseñas | RLS ya restringe a compradores |
+| ✅ Mis pedidos, Detalle de pedido | 7.1 (D-026) |
+| ✅ Direcciones, Favoritos, Datos personales | 7.5 (D-030, M10): artboards de Cuenta; `profiles.rut` y `newsletter_opt_in_at`. Falta: textos propuestos (T12) y el código HTTP de `/cuenta/*` (7.8) |
+| ✅ Reseñas | 7.6 (D-031, M11, B36): *Escribe tu opinión* con pedido entregado y sin invitados, firma *Nombre · Comuna* puesta por la BD, la propia se edita. Falta: textos propuestos (T14) |
 | *Los más vendidos* en el Inicio (hoy *Destacados*) | Función con el ranking de pedidos pagados + respaldo a *Destacados* si hay menos de 4. Detalle en B34 ([brechas](../07-referencia/brechas-diseno-vs-datos.md)) |
-| Correos transaccionales: despacho y anulación | Resend (D-022). Los de confirmación, transferencia y pago devuelto ya existen (fase 6) y se envían desde `mail.audazia.dev` |
+| ✅ Correos transaccionales: despacho y anulación (7.3, D-028) | Resend (D-022). Los de confirmación, transferencia y pago devuelto ya existen (fase 6) y se envían desde `mail.audazia.dev` |
 | Boleta/factura electrónica | **Sin proveedor definido** (D-012) |
-| Administración (catálogo, pedidos, confirmar transferencias, alertas de pago) | **Sin diseño**. Confirmar una transferencia = `settle_payment(…, 'paid', …)`; las alertas están en `payment_alerts` |
-| Convertir al invitado en cuenta desde la Confirmación; *Ver estado del pedido* | D-008, D-024, B38 |
+| Administración: ✅ pedidos, confirmar transferencias y alertas de pago (7.4, D-029); catálogo pendiente | El catálogo no tiene diseño. Confirmar una transferencia = `settle_payment(…, 'paid', …)`; las alertas están en `payment_alerts` |
+| ✅ Convertir al invitado en cuenta desde la Confirmación; *Ver estado del pedido* | 7.2 (D-027, B38) |
 | Pasar a producción | [07-referencia/checklist-produccion.md](../07-referencia/checklist-produccion.md) |

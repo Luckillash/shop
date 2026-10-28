@@ -6,13 +6,17 @@ import type { CatalogItem } from "@/lib/catalog/mappers";
 import { MAX_QUANTITY } from "@/lib/cart/totals";
 import { useCartStore } from "@/store/cart-store";
 import { useCartUi } from "@/store/cart-ui-store";
+import { useWishlist } from "./use-wishlist";
 
 // ProductCard con datos del catálogo. Con una sola variante agrega directo al carro y abre
-// el drawer; con varias, el botón lleva a la Ficha para elegir la opción (D-017).
-export function CatalogProductCard({ item }: { item: CatalogItem }) {
+// el drawer; con varias, el botón lleva a la Ficha para elegir la opción (D-017). El corazón guarda
+// el producto en favoritos (7.5).
+// En /cuenta/favoritos (`onUnfavorite`) el corazón siempre está marcado y lo quita la lista.
+export function CatalogProductCard({ item, onUnfavorite }: { item: CatalogItem; onUnfavorite?: () => void }) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const showDrawer = useCartUi((s) => s.show);
+  const wishlist = useWishlist(item.id);
   const href = `/productos/${item.slug}`;
 
   function handleAdd() {
@@ -48,6 +52,8 @@ export function CatalogProductCard({ item }: { item: CatalogItem }) {
       rating={item.rating}
       reviewCount={item.reviewCount}
       soldOut={item.soldOut}
+      wishlisted={onUnfavorite ? true : wishlist.wishlisted}
+      onWishlistChange={onUnfavorite ?? (() => void wishlist.toggle())}
       onAdd={handleAdd}
       addLabel={item.singleVariantId ? "Agregar al carro" : "Ver opciones"}
     />

@@ -15,6 +15,7 @@ estado: "propuesta"
 - [ ] `SUPABASE_SECRET_KEY`, `WEBPAY_API_KEY`, `FLOW_SECRET_KEY`, `CRON_SECRET` y `RESEND_API_KEY` solo en el servidor, nunca con `NEXT_PUBLIC_`.
 - [ ] `get_advisors` (security y performance) de Supabase sin errores.
 - [ ] Activar *Leaked password protection* en Supabase Auth (advisor `auth_leaked_password_protection`).
+- [ ] Activar *Secure password change* en Supabase Auth (cambiar la contraseña desde Datos personales no pide la actual; D-030).
 - [ ] Todas las tablas nuevas tienen RLS y políticas.
 - [ ] Rate limiting en login, sesión anónima, cupón, creación de pedidos y reintentos de pago (✅ en el código desde las fases 5 y 6; necesita Redis en producción: sin Redis, deja pasar).
 - [x] Confirmación de correo probada con un correo real (enlace → `/auth/confirm` → sesión iniciada). *Site URL* y *Redirect URLs* de Supabase con el dominio real. ✅ 25-10-2026 en `audazia.dev`, junto con *¿Olvidaste tu contraseña?*.
@@ -39,7 +40,7 @@ estado: "propuesta"
 - [ ] `NEXT_PUBLIC_SITE_URL` = el dominio real (queda fija en el build). `urlConfirmation` de Flow alcanzable y probada de verdad: ✅ en sandbox desde `audazia.dev` (25-10-2026, pedido 1036); repetir con las credenciales de producción.
 - [x] Probados en integración/sandbox los casos aprobado, rechazado, abortado, timeout (simulado), recarga del retorno, retornos simultáneos, navegador cerrado después de pagar y pago tardío sobre un pedido vencido (25-10-2026). Repetirlos en producción.
 - [ ] Plan de Vercel que permite el cron cada 10 min (**Pro**, D-021). La cuenta sigue en **Hobby**, con el cron diario (`0 9 * * *`); el dueño planea pasar a Pro (26-10-2026). Después, volver a `*/10 * * * *` en `vercel.json`.
-- [x] Cron de vencimiento funcionando en producción: `CRON_SECRET` de producción distinto del local y cargado en Vercel (25-10-2026); la primera ejecución corrió el 26-10-2026 a las 09:00:47 UTC con `{ checked: 0, cancelled: 0, recovered: 0, skipped: 0 }` (200). Hoy es diario (plan Hobby).
+- [x] Cron de vencimiento funcionando en producción: `CRON_SECRET` de producción distinto del local y cargado en Vercel (25-10-2026); la primera ejecución corrió el 26-10-2026 a las 09:00:47 UTC con `{ checked: 0, cancelled: 0, recovered: 0, skipped: 0 }` (200). Hoy es diario (plan Hobby). ⚠️ La del 27-10-2026 no aparece en los logs (T11): confirmarlo en Vercel → *Cron Jobs*.
 - [x] Datos bancarios reales de la transferencia en `BANK_*` de `.env.local` (25-10-2026, D-024).
 - [x] Las seis variables `BANK_*` cargadas también en Vercel (Production y Preview, desde el primer despliegue; verificado el 26-10-2026).
 - [x] Datos reales del retiro en tienda (25-10-2026): Local Tajamar, Tajamar 223, Departamento 302, Las Condes, en `src/lib/store.ts` y en `place_order` (`store.test.ts` vigila que coincidan).

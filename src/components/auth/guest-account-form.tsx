@@ -28,9 +28,12 @@ type Props = {
   email: string;
   /** Correo que ya pidió y no confirma (al recargar la página) */
   pendingEmail: string | null;
+  /** Título y texto de otro lugar (Escribe tu opinión, 7.6); por defecto, los de la Confirmación */
+  title?: string;
+  lead?: string;
 };
 
-export function GuestAccountForm({ orderId, orderNumber, email, pendingEmail }: Props) {
+export function GuestAccountForm({ orderId, orderNumber, email, pendingEmail, title, lead }: Props) {
   const [state, dispatch, pending] = useActionState(createGuestAccount, IDLE);
   const [newsletter, setNewsletter] = useState(false);
 
@@ -69,9 +72,9 @@ export function GuestAccountForm({ orderId, orderNumber, email, pendingEmail }: 
     >
       <div className={styles.guestHead}>
         <h2 id="crear-cuenta" className={styles.guestTitle}>
-          Guarda tus datos para la próxima compra
+          {title ?? "Guarda tus datos para la próxima compra"}
         </h2>
-        <p>Solo falta una contraseña. El pedido N.º {orderNumber} y tu dirección quedan en tu cuenta.</p>
+        <p>{lead ?? `Solo falta una contraseña. El pedido N.º ${orderNumber} y tu dirección quedan en tu cuenta.`}</p>
       </div>
       {state.status === "error" && state.message && <Notice tone="danger">{state.message}</Notice>}
       <input type="hidden" name="order" value={orderId} />

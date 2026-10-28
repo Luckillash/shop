@@ -892,34 +892,48 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
+          newsletter_opt_in_at: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
+          rut: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           id: string
+          last_name?: string | null
+          newsletter_opt_in_at?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          rut?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
+          newsletter_opt_in_at?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          rut?: string | null
           updated_at?: string
         }
         Relationships: []
       }
       reviews: {
         Row: {
+          author_commune: string | null
+          author_name: string | null
           body: string | null
           created_at: string
           id: string
@@ -931,6 +945,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          author_commune?: string | null
+          author_name?: string | null
           body?: string | null
           created_at?: string
           id?: string
@@ -939,9 +955,11 @@ export type Database = {
           rating: number
           title?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string
         }
         Update: {
+          author_commune?: string | null
+          author_name?: string | null
           body?: string | null
           created_at?: string
           id?: string
@@ -1051,6 +1069,39 @@ export type Database = {
       }
     }
     Functions: {
+      admin_act_as: { Args: { p_admin_id: string }; Returns: undefined }
+      admin_advance_order: {
+        Args: {
+          p_admin_id: string
+          p_carrier?: string
+          p_from: Database["public"]["Enums"]["order_status"]
+          p_order_id: string
+          p_to: Database["public"]["Enums"]["order_status"]
+          p_tracking?: string
+        }
+        Returns: undefined
+      }
+      admin_cancel_order: {
+        Args: {
+          p_admin_id: string
+          p_from: Database["public"]["Enums"]["order_status"]
+          p_note?: string
+          p_order_id: string
+        }
+        Returns: undefined
+      }
+      admin_confirm_transfer: {
+        Args: { p_admin_id: string; p_operation?: string; p_order_id: string }
+        Returns: Database["public"]["Enums"]["order_status"]
+      }
+      admin_mark_refunded: {
+        Args: { p_admin_id: string; p_manual: boolean; p_order_id: string }
+        Returns: undefined
+      }
+      admin_resolve_alert: {
+        Args: { p_admin_id: string; p_alert_id: string }
+        Returns: boolean
+      }
       cancel_order: {
         Args: { p_note?: string; p_order_id: string; p_reason?: string }
         Returns: undefined

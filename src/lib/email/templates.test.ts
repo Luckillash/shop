@@ -208,6 +208,29 @@ describe("CorreoAnulacion", () => {
     expect(email.text).toContain("Te vamos a devolver $43.960\nLo devolvemos por el mismo medio con el que pagaste.");
   });
 
+  it("transferencia pagada sin devolver: le pide sus datos bancarios (decisión 5)", () => {
+    const email = orderCancelledEmail(
+      cancelled({
+        cancel_reason: "tienda",
+        payment_method: "transfer",
+        paid_at: "2026-10-25T19:52:56Z",
+        payments: [{ ...order().payments[0], provider: "transfer", raw_response: {} }],
+      }),
+      LINKS,
+    );
+    expect(email.text).toContain(
+      "Te vamos a devolver $43.960\nTe lo devolvemos por transferencia. Escríbenos a hola@almacen.cl con tu banco, el tipo de cuenta, el número de cuenta y tu RUT.",
+    );
+  });
+
+  it("transferencia ya devuelta", () => {
+    const email = orderCancelledEmail(
+      cancelled({ cancel_reason: "tienda", payment_method: "transfer", payments: [{ ...order().payments[0], provider: "transfer", status: "refunded" }] }),
+      LINKS,
+    );
+    expect(email.text).toContain("Te devolvimos $43.960\nTe lo devolvimos por transferencia bancaria.");
+  });
+
   it("cliente: como nos pediste, devuelto en Flow", () => {
     const email = orderCancelledEmail(
       cancelled({ cancel_reason: "cliente", payments: [{ ...order().payments[0], provider: "flow", status: "refunded" }] }),

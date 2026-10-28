@@ -98,9 +98,11 @@ Es el libro de movimientos del stock. Solo lo usa el admin (RLS).
 
 | Columna | Notas |
 |---|---|
-| `product_id`, `user_id` | **unique** juntos: una reseña por usuario y producto |
+| `product_id`, `user_id` | **unique** juntos: una reseña por usuario y producto (el trigger `set_review_author` lo dice antes con *Ya publicaste una opinión de este producto…*). `user_id` tiene default `auth.uid()` (M11): el cliente no lo escribe |
 | `rating` | smallint 1–5 |
-| `title`, `body` | |
+| `title` | Opcional, de 1 a 80 caracteres (check `reviews_title_length`, M11) |
+| `body` | Obligatorio, de 20 a 2000 caracteres sin los espacios de los bordes (check `reviews_body_length`, M11) |
+| `author_name`, `author_commune` | M11 (7.6, D-031): la firma *Nombre · Comuna*. Las llena el trigger `set_review_author` al insertar (nombre como `greetingName`; comuna del pedido entregado más reciente con el producto, `null` en el retiro). El cliente no puede escribirlas. Quedan las del momento de publicar |
 | `is_published` | true por defecto. El trigger `guard_review_publication` impide que un cliente la cambie: solo el admin puede ocultarla |
 
-RLS: solo puede crearla quien compró el producto en un pedido `paid`, `processing`, `shipped` o `delivered`. El diseño de la Ficha todavía tiene placeholders en las opiniones.
+RLS (M11): solo puede crearla una cuenta no anónima con un pedido **`delivered`** que tenga el producto (decisiones 3a y 3c). Grant por columna: el cliente inserta solo `product_id`, `rating`, `title` y `body`, y actualiza solo `rating`, `title` y `body`. La Ficha muestra las 10 más recientes con su firma (`getReviews`) y el promedio y total de `product_catalog`.

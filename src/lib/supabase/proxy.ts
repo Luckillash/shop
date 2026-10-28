@@ -33,8 +33,45 @@ export async function updateSession(request: NextRequest) {
   if (orderNumber !== undefined && !request.headers.has("rsc")) {
     return guardOrderDetail(request, response, supabase, data?.claims, orderNumber);
   }
+  if (ADMIN.test(request.nextUrl.pathname) && !request.headers.has("rsc")) {
+    return guardAdmin(request, response, supabase, data?.claims);
+  }
 
   return response;
+}
+
+const ADMIN = /^\/admin(\/|$)/;
+
+/** La sesión refrescada (cookies y su Cache-Control) también va en el redirect o el 404 */
+function withSession(response: NextResponse, next: NextResponse) {
+  response.cookies.getAll().forEach((cookie) => next.cookies.set(cookie));
+  const cacheControl = response.headers.get("cache-control");
+  if (cacheControl) next.headers.set("cache-control", cacheControl);
+  return next;
+}
+
+function loginRedirect(request: NextRequest) {
+  const login = new URL("/ingresar", request.url);
+  login.searchParams.set("volver", request.nextUrl.pathname);
+  return NextResponse.redirect(login);
+}
+
+/**
+ * /admin con el código HTTP correcto (las páginas son de prerender parcial, trampa 75): sin sesión no
+ * anónima → Ingresar; sin el rol → 404, para no revelar que la administración existe (D-025). Es
+ * optimista: el layout, cada página (requireAdmin) y cada Server Action (getAdminUser) vuelven a verificar.
+ */
+async function guardAdmin(
+  request: NextRequest,
+  response: NextResponse,
+  supabase: ReturnType<typeof createServerClient<Database>>,
+  claims: { sub?: string; is_anonymous?: boolean } | undefined,
+) {
+  if (!claims?.sub || claims.is_anonymous === true) return withSession(response, loginRedirect(request));
+  const { data, error } = await supabase.rpc("is_admin");
+  // Si la consulta falla, decide la página
+  if (error || data === true) return response;
+  return withSession(response, NextResponse.rewrite(new URL("/admin-no-encontrada", request.url)));
 }
 
 const ORDER_DETAIL = /^\/cuenta\/pedidos\/([^/]+)\/?$/;

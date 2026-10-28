@@ -24,7 +24,7 @@ Las URL están en español. Existen `/api/health` y, desde la fase 3 (2026-10-24
 | `/productos/[slug]` | Ficha de producto | `products`, `product_variants`, `product_images`, `reviews`, relacionados | No (los favoritos sí) | Producto cacheado con tag `product:<slug>`. El stock puede ir en un `<Suspense>` aparte con vida corta |
 | `/carro` | Carro / Carro vacío | Zustand, validado con `refreshCart` (precios y stock de la BD, sin caché). Cupón con `applyCoupon` | No | ✅ Estática (○): `CartView` es de cliente; los recomendados (`getFeaturedProducts`, `getNewProducts`) están cacheados. `noindex` |
 | (drawer) | Carro · drawer | Zustand | No | ✅ `CartDrawer` (`<dialog>`) en el layout `(tienda)`. Lo abre *Agregar al carro* |
-| `/ingresar` | Ingresar o crear cuenta | Supabase Auth | No | ✅ Formularios con Server Actions; `?volver=` (solo rutas internas, `safeNext`) |
+| `/ingresar` | Ingresar o crear cuenta | Supabase Auth | No | ✅ Formularios con Server Actions; `?volver=` (solo rutas internas, `safeNext`); `?favorito=<id>` (7.5): aviso y el producto se guarda al ingresar |
 | `/ingresar/recuperar` | (sin template) *¿Olvidaste tu contraseña?* | Supabase Auth | No | ✅ Pide el correo; `?error=enlace` si el enlace venció |
 | `/ingresar/nueva-contrasena` | (sin template) Contraseña nueva | Supabase Auth | Sí (sesión de recuperación) | ✅ Destino del enlace del correo, después de `/auth/confirm` |
 | `/ayuda/[slug]` | Página de contenido | Contenido estático (MDX o TS) | No | Estático |
@@ -56,15 +56,27 @@ Detalle en [06-implementacion/pagos-webpay-plus.md](../06-implementacion/pagos-w
 
 | URL | Template | Datos |
 |---|---|---|
-| `/cuenta` | ✅ 7.1: redirige a `/cuenta/pedidos` (layout con el menú: *Hola, <nombre>*, *Mis pedidos*, *Cerrar sesión*; el resto llega en la 7.5, D-026) | — |
+| `/cuenta` | ✅ 7.1: redirige a `/cuenta/pedidos` (layout con el menú: *Hola, <nombre>*, *Mis pedidos*, *Direcciones*, *Favoritos*, *Datos personales*, *Cerrar sesión*; las tres del medio desde la 7.5, D-030) | — |
 | `/auth/confirm` | (Route Handler) enlace de confirmación del correo → `?volver=` o `/ingresar?error=confirmacion` | Supabase Auth |
 | `/cuenta/pedidos` | ✅ 7.1 · Mis pedidos (+ estado vacío sin diseño) | `orders` del usuario (`user_id`, `placed_at desc`, hasta 50) + ítems con la foto del producto + intentos de pago. Contenido en `<Suspense>`; sin sesión no anónima → Ingresar |
 | `/cuenta/pedidos/[orderNumber]` | ✅ 7.1 · Detalle de pedido | `orders` por `order_number` y `user_id`, `order_items`, `payments`. El proxy da el código HTTP en la carga directa: sin sesión → redirect a Ingresar, pedido ajeno o inexistente → **404** (trampa 75) |
-| `/cuenta/direcciones` | ⏳ 7.5 · Direcciones | `addresses` |
-| `/cuenta/favoritos` | ⏳ 7.5 · Favoritos (el corazón del header ya enlaza aquí: 404 hasta entonces) | `wishlist_items` + `product_catalog` |
-| `/cuenta/datos` | ⏳ 7.5 · Datos personales | `profiles` |
+| `/cuenta/direcciones` | ✅ 7.5 · Direcciones (D-030): tarjetas con la principal primero, *Agregar dirección*, *Editar*, *Usar como principal*, *Eliminar* (con confirmación) y el formulario con los campos del checkout; estado vacío propuesto | `addresses` del usuario (`user_id`). Acciones `saveAddress`, `setDefaultAddress`, `deleteAddress` + `refresh()`. Contenido en `<Suspense>`; sin sesión no anónima → Ingresar |
+| `/cuenta/favoritos` | ✅ 7.5 · Favoritos (D-030): *N productos guardados*, grilla de `ProductCard` con el corazón marcado (quitar con *Deshacer*), estado vacío *Todavía no guardas favoritos*. El corazón del header y *Ver mis favoritos* del Carro vacío enlazan aquí | `wishlist_items` (ids, con la sesión) + `getProductsByIds` (catálogo cacheado, tag `products`). Sin sesión no anónima → Ingresar |
+| `/cuenta/datos` | ✅ 7.5 · Datos personales (D-030): *Tus datos* (nombre, apellido, teléfono, RUT opcional, correo fijo), *Contraseña* (nueva, cierra las demás sesiones), *Correos de la tienda* (`newsletter_opt_in_at`) y la nota para eliminar la cuenta | `profiles` (M10). Acciones `saveProfile`, `changePassword`, `setNewsletter`. Sin sesión no anónima → Ingresar |
 
-Todas requieren sesión **no anónima** (un invitado va a Ingresar, D-026). Cada página verifica la sesión; en el Detalle, además, el proxy lo comprueba antes del render para que el código HTTP sea real (D-026). La redirección optimista de todo `/cuenta/*` en el proxy sigue como opcional (7.8).
+Todas requieren sesión **no anónima** (un invitado va a Ingresar, D-026). Cada página verifica la sesión; en el Detalle, además, el proxy lo comprueba antes del render para que el código HTTP sea real (D-026). La redirección optimista de todo `/cuenta/*` en el proxy sigue como opcional (7.8): en la carga directa sin sesión, Direcciones, Favoritos y Datos personales responden 200 con el shell y redirigen desde el cliente (trampa 75).
+
+**Corazón de favoritos en el catálogo (7.5, D-030):** la Ficha, los listados, la búsqueda y el Inicio siguen estáticos; el corazón lee los favoritos en el navegador después de hidratar (`getWishlistState`). Sin cuenta lleva a `/ingresar?volver=…&favorito=<id>` y el producto se guarda al ingresar.
+
+## Administración (7.4, D-029)
+
+Layout propio (`src/app/admin/layout.tsx`, `AdminHeader`), sin el header ni el footer de la tienda. Todo con `noindex`. Acceso: el proxy da el código HTTP en la carga directa (sin sesión → Ingresar, sin rol → **404**), y el layout, cada página (`requireAdmin`) y cada Server Action (`getAdminUser`) lo vuelven a verificar.
+
+| URL | Template | Datos |
+|---|---|---|
+| `/admin` | ✅ AdminPedidos (`?estado=…&q=…&mostrar=…`) | Todos los pedidos (campos mínimos + intentos) con la sesión del admin; filtros, conteos y búsqueda en `order-list.ts`; alertas sin resolver |
+| `/admin/pedidos/[orderNumber]` | ✅ AdminPedido (tweak `estado`) y AdminPedidoMovil; el modal AdminAnularPedido | `orders` por número + `order_items` (SKU, foto) + `payments` + `order_events`; `auth.users.is_anonymous` con la llave secreta |
+| `/admin/alertas` | ✅ AdminAlertas (`?ver=resueltas`) | `payment_alerts` con su pedido y su intento |
 
 ## Errores
 

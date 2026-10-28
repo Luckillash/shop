@@ -38,6 +38,7 @@ describe("Notice", () => {
 describe("textos accesibles", () => {
   test("valoración", () => {
     expect(ratingLabel(4.6, 128)).toBe("4,6 de 5 estrellas, 128 opiniones");
+    expect(ratingLabel(4, 1)).toBe("4,0 de 5 estrellas, 1 opinión");
   });
 
   test("carro del header", () => {

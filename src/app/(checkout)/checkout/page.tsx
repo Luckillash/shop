@@ -4,7 +4,7 @@ import { CheckoutGate } from "@/components/checkout/checkout-gate";
 import { CheckoutView } from "@/components/checkout/checkout-view";
 import styles from "@/components/checkout/checkout.module.css";
 import { getSessionUser } from "@/lib/auth/session";
-import { EMPTY_SHIPPING, type ShippingDefaults } from "@/lib/checkout/defaults";
+import { shippingDefaultsFrom, type ShippingDefaults } from "@/lib/checkout/defaults";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
@@ -25,33 +25,29 @@ export default function CheckoutPage() {
 async function Checkout() {
   const user = await getSessionUser();
   if (!user) return <CheckoutGate />;
-  return <CheckoutView email={user.email} defaults={await savedAddress(user.id)} />;
+  return <CheckoutView email={user.email} defaults={await savedDefaults(user.id)} />;
 }
 
-// La dirección por defecto (o la última) precarga el paso Despacho. addresses no guarda el RUT
-async function savedAddress(userId: string): Promise<ShippingDefaults> {
+// La dirección principal (o la última) y el perfil precargan el paso Despacho: el RUT sale de
+// Datos personales (decisión 7a) y el checkout no lo escribe en el perfil
+async function savedDefaults(userId: string): Promise<ShippingDefaults> {
   const supabase = await createSupabaseServer();
-  const { data, error } = await supabase
-    .from("addresses")
-    .select("id, recipient_name, phone, line1, line2, city, region")
-    .eq("user_id", userId)
-    .order("is_default", { ascending: false })
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return EMPTY_SHIPPING;
-
-  const [firstName, ...rest] = data.recipient_name.split(" ");
-  return {
-    ...EMPTY_SHIPPING,
-    addressId: data.id,
-    firstName,
-    lastName: rest.join(" "),
-    phone: data.phone ?? "",
-    region: data.region ?? "",
-    commune: data.city,
-    street: data.line1,
-    apartment: data.line2 ?? "",
-  };
+  const [address, profile] = await Promise.all([
+    supabase
+      .from("addresses")
+      .select("id, recipient_name, phone, line1, line2, city, region")
+      .eq("user_id", userId)
+      .order("is_default", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("first_name, last_name, full_name, phone, rut")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
+  if (address.error) throw address.error;
+  if (profile.error) throw profile.error;
+  return shippingDefaultsFrom(address.data, profile.data);
 }

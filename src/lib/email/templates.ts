@@ -358,7 +358,16 @@ function cancelMoney(order: EmailOrder): { title: string; text: string } {
   }
   const paid = order.payments.find((p) => p.status === "paid");
   if (paid || order.paid_at) {
-    return { title: `Te vamos a devolver ${clp(paid?.amount ?? order.total)}`, text: "Lo devolvemos por el mismo medio con el que pagaste." };
+    const title = `Te vamos a devolver ${clp(paid?.amount ?? order.total)}`;
+    // Transferencia (decisión 5 del dueño): la tienda no guarda datos bancarios del cliente; se los
+    // pide por correo. *Escríbenos a …*: el remitente no recibe respuestas (T8). Propuesta
+    if ((paid?.provider ?? order.payment_method) === "transfer") {
+      return {
+        title,
+        text: `Te lo devolvemos por transferencia. Escríbenos a ${STORE.contactEmail} con tu banco, el tipo de cuenta, el número de cuenta y tu RUT.`,
+      };
+    }
+    return { title, text: "Lo devolvemos por el mismo medio con el que pagaste." };
   }
   return {
     title: "No hicimos ningún cargo",

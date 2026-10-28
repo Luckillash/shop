@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { formatDeadline, formatDeliveryDay, formatFullDate, formatLongDate, formatTime } from "./dates";
+import { formatDayMonth, formatDeadline, formatDeliveryDay, formatFullDate, formatLongDate, formatShortDateTime, formatTime } from "./dates";
 
 // Las fechas se fijan en UTC; las funciones las muestran en hora de Chile
 describe("fechas en America/Santiago", () => {
@@ -27,4 +27,16 @@ describe("fechas en America/Santiago", () => {
     expect(formatLongDate(date)).toBe("31 de diciembre de 2026");
     expect(formatFullDate(date)).toBe("jueves 31 de diciembre de 2026");
   });
+});
+
+describe("fecha corta de la administración", () => {
+  test("día de la semana y mes abreviados, con la hora de Chile", () => {
+    // 13:12 UTC del domingo 25 de octubre = 10:12 en Chile
+    expect(formatShortDateTime(new Date("2026-10-25T13:12:00Z"))).toBe("Dom 25 oct · 10:12");
+  });
+});
+
+test("formatDayMonth: día y mes en hora de Chile (Escribe tu opinión)", () => {
+  expect(formatDayMonth(new Date("2026-10-16T15:00:00Z"))).toBe("16 de octubre");
+  expect(formatDayMonth(new Date("2026-10-17T00:30:00Z"))).toBe("16 de octubre");
 });

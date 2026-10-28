@@ -227,8 +227,42 @@
   letter-spacing: 0.02em;
 }
 
+/* Opiniones (7.6): resumen a la izquierda y tarjetas a la derecha; en móvil, una columna */
+.opinions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-12);
+}
+
+.opinionsSummary {
+  flex: 0 1 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.average {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+.averageOf {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
 .reviews {
+  flex: 999 1 480px;
+  min-width: 0;
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  align-content: start;
   gap: var(--space-4);
   list-style: none;
 }
@@ -236,14 +270,36 @@
 .review {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-5);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.reviewHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
 .reviewTitle {
   font-weight: 600;
+}
+
+.reviewBody {
+  font-size: 15px;
+  line-height: 22px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.reviewByline {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 18px;
 }
 
 @media (min-width: 768px) {

@@ -31,6 +31,7 @@ En el artifact, los componentes son de React 18 y se exponen en `window.Almacen`
 | `free-shipping-bar.tsx` | `FreeShippingBar` | Server | Umbral: `STORE.freeShippingThreshold` (`src/lib/store.ts`) |
 | `order-summary.tsx` | `OrderSummary`, `orderTotal` | Client | Agrega `ctaHref` para que *Ir a pagar* sea un enlace. Solo muestra: el total real lo calcula `place_order` |
 | `text-field.tsx` | `TextField` | Client (`useId`) | |
+| `text-area.tsx` | **`TextArea`** (nuevo, 7.6) | Client (`useId`) | No existe en el design system. Misma API que `TextField` para un `<textarea>` (`rows` = 5 por defecto); estilos `.input` + `.textarea` de `field.module.css`. Lo usa *Escribe tu opinión* |
 | `select.tsx` | **`Select`** (nuevo) | Client (`useId`) | No existe en el design system. Misma API que `TextField` + `options` y `placeholder` (opción vacía deshabilitada) |
 | `notice.tsx` | `Notice` | Server | |
 | `field.module.css` | — | — | Estilos de campo compartidos: `TextField`, `Select`, buscador del header y newsletter del footer |

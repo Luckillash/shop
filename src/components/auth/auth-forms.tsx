@@ -21,7 +21,8 @@ function formDataOf(event: FormEvent<HTMLFormElement>): FormData {
   return new FormData(event.currentTarget);
 }
 
-export function LoginForm({ next }: { next: string }) {
+/** `favorite`: producto que se quiso guardar sin cuenta; la acción lo guarda al ingresar (7.5) */
+export function LoginForm({ next, favorite = null }: { next: string; favorite?: string | null }) {
   const { state, submit, pending } = useAuthAction(signIn);
   const errors = state.status === "error" ? state.errors : {};
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ export function LoginForm({ next }: { next: string }) {
     <form className={styles.form} onSubmit={(e) => submit(formDataOf(e))} noValidate aria-busy={pending || undefined}>
       {state.status === "error" && state.message && <Notice tone="danger">{state.message}</Notice>}
       <input type="hidden" name="next" value={next} />
+      {favorite && <input type="hidden" name="favorite" value={favorite} />}
       <TextField id="login-email" name="email" label="Correo" type="email" autoComplete="email" inputMode="email"
         spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={pending} />
       <TextField id="login-password" name="password" label="Contraseña" type="password" autoComplete="current-password"
@@ -44,7 +46,7 @@ export function LoginForm({ next }: { next: string }) {
   );
 }
 
-export function SignupForm({ next }: { next: string }) {
+export function SignupForm({ next, favorite = null }: { next: string; favorite?: string | null }) {
   const { state, submit, pending } = useAuthAction(signUp);
   const errors = state.status === "error" ? state.errors : {};
   const [values, setValues] = useState({ name: "", email: "" });
@@ -62,6 +64,7 @@ export function SignupForm({ next }: { next: string }) {
     <form className={styles.form} onSubmit={(e) => submit(formDataOf(e))} noValidate aria-busy={pending || undefined}>
       {state.status === "error" && state.message && <Notice tone="danger">{state.message}</Notice>}
       <input type="hidden" name="next" value={next} />
+      {favorite && <input type="hidden" name="favorite" value={favorite} />}
       <TextField id="signup-name" name="name" label="Nombre" autoComplete="given-name" value={values.name}
         onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))} error={errors.name} disabled={pending} />
       <TextField id="signup-email" name="email" label="Correo" type="email" autoComplete="email" inputMode="email"

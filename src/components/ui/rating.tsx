@@ -13,7 +13,8 @@ export type RatingProps = {
 
 export function ratingLabel(value: number, count?: number): string {
   const shown = value.toFixed(1).replace(".", ",");
-  return `${shown} de 5 estrellas${count !== undefined ? `, ${count} opiniones` : ""}`;
+  const opinions = count === undefined ? "" : count === 1 ? ", 1 opinión" : `, ${count} opiniones`;
+  return `${shown} de 5 estrellas${opinions}`;
 }
 
 // Siempre con conteo. Sin opiniones, no se muestra el componente (lo decide quien lo usa).

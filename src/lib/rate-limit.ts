@@ -39,6 +39,12 @@ export const ORDER_RATE_LIMIT: RateLimitRule = { action: "order", limit: 10, win
 /** Reintentar el pago o cambiar de medio (cada intento llama a la pasarela): 20 por hora por usuario */
 export const PAYMENT_RATE_LIMIT: RateLimitRule = { action: "payment", limit: 20, windowSeconds: 3600 };
 
+/** Cambiar la contraseña desde Datos personales: 5 intentos por hora por usuario (7.5) */
+export const PASSWORD_RATE_LIMIT: RateLimitRule = { action: "password", limit: 5, windowSeconds: 3600 };
+
+/** Publicar o editar una opinión (7.6): 10 por hora por usuario */
+export const REVIEW_RATE_LIMIT: RateLimitRule = { action: "review", limit: 10, windowSeconds: 3600 };
+
 const REDIS_TIMEOUT_MS = 500;
 
 export function rateLimitKey(rule: RateLimitRule, id: string): string {

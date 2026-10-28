@@ -11,7 +11,7 @@ import { GatewayError } from "./gateway-error";
 import { createPaymentLock, type LockClient } from "./lock";
 import type { PaymentProvider } from "./labels";
 import * as webpay from "./webpay";
-import { webpayOutcome, type AttemptOutcome, type FailureReason, type WebpayResult } from "./webpay-core";
+import { isFullyRefunded, webpayOutcome, type AttemptOutcome, type FailureReason, type WebpayResult } from "./webpay-core";
 
 // Intentos de pago (06-implementacion/checkout-y-pedidos.md, pagos-webpay-plus.md, pagos-flow.md).
 // Todo con el cliente admin: payments solo lo escribe el backend. Quien llama ya verificó que el
@@ -172,6 +172,18 @@ async function orderContact(admin: Admin, orderId: string) {
 }
 
 async function alert(admin: Admin, payment: Payment, kind: string, detail: Record<string, unknown>) {
+  // Un reintento desde la administración (7.4) no suma otra alerta igual mientras siga abierta
+  const { data: open } = await admin
+    .from("payment_alerts")
+    .select("id")
+    .eq("payment_id", payment.id)
+    .eq("kind", kind)
+    .is("resolved_at", null)
+    .limit(1);
+  if (open && open.length > 0) {
+    console.error(`[payments] ALERTA ${kind} (ya abierta) · pedido ${payment.order_id} · intento ${payment.reference}`, detail);
+    return;
+  }
   const { error } = await admin
     .from("payment_alerts")
     .insert({ order_id: payment.order_id, payment_id: payment.id, kind, detail: detail as Json });
@@ -179,12 +191,23 @@ async function alert(admin: Admin, payment: Payment, kind: string, detail: Recor
   console.error(`[payments] ALERTA ${kind} · pedido ${payment.order_id} · intento ${payment.reference}`, detail);
 }
 
-/** Devuelve el pago en la pasarela y deja el intento refunded. Si falla, alerta refund_failed */
-async function refund(admin: Admin, payment: Payment, amount: number): Promise<boolean> {
+/**
+ * Devuelve el pago en la pasarela, deja el intento refunded y lo registra en el historial (evento
+ * `refund`, M9). Si falla, alerta refund_failed. `adminId`: quién lo pidió desde la administración
+ */
+async function refund(admin: Admin, payment: Payment, amount: number, adminId: string | null = null): Promise<boolean> {
   try {
     let response: unknown;
     if (payment.provider === "webpay") {
-      response = await webpay.refundTransaction(payment.provider_payment_id!, amount);
+      try {
+        response = await webpay.refundTransaction(payment.provider_payment_id!, amount);
+      } catch (error) {
+        // Transbank puede procesar el reembolso aunque no responda a tiempo (pedido 1029, 7.4), y un
+        // reintento chocaría con la transacción ya anulada: antes de dar el reembolso por fallido, status
+        const status = await webpay.getTransactionStatus(payment.provider_payment_id!).catch(() => null);
+        if (!status || !isFullyRefunded(status)) throw error;
+        response = { reconciled: status.status, balance: status.balance ?? 0, error: error instanceof Error ? error.message : String(error) };
+      }
     } else {
       const contact = await orderContact(admin, payment.order_id);
       response = await flow.createRefund({
@@ -200,11 +223,40 @@ async function refund(admin: Admin, payment: Payment, amount: number): Promise<b
       .update({ status: "refunded", raw_response: rawWith(payment, { refund: response }) })
       .eq("id", payment.id);
     if (error) throw error;
+    const { error: eventError } = await admin.from("order_events").insert({
+      order_id: payment.order_id,
+      kind: "refund",
+      actor: adminId ? "admin" : "system",
+      actor_id: adminId,
+      data: { provider: payment.provider, amount, reference: payment.reference },
+    });
+    if (eventError) console.error("[payments] No se registró el reembolso en order_events", eventError.message);
     return true;
   } catch (error) {
     await alert(admin, payment, "refund_failed", { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
+}
+
+/**
+ * Administración (7.4): devuelve en la pasarela el pago `paid` de un pedido que la tienda anuló, o
+ * el que quedó sin devolver (reembolso fallido, pedido 1042). El monto es el del intento, nunca
+ * uno que venga del formulario. true = devuelto; false = falló (queda la alerta refund_failed).
+ */
+export async function refundOrderPayment(orderId: string, adminId: string): Promise<boolean> {
+  const admin = createSupabaseAdmin();
+  const { data: payment, error } = await admin
+    .from("payments")
+    .select("*")
+    .eq("order_id", orderId)
+    .eq("status", "paid")
+    .in("provider", ["webpay", "flow"])
+    .order("attempt", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!payment?.provider_payment_id) return false;
+  return refund(admin, payment, Math.round(Number(payment.amount)), adminId);
 }
 
 /**

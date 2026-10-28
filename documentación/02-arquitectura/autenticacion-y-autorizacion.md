@@ -43,6 +43,8 @@ Reglas:
 
 `public.is_admin()` (`security definer`) es la única forma de comprobar si alguien es admin dentro de las políticas.
 
+**Administración (7.4, D-029):** `/admin/*` lo protege el proxy en la carga directa (sin sesión → Ingresar, sin rol → 404), `requireAdmin()` en el layout y cada página, y `getAdminUser()` en cada Server Action. Las lecturas van con la sesión del admin (RLS) y las escrituras con funciones `admin_*` (M9, solo `service_role`) que vuelven a comprobar que el id sea admin y lo registran como actor del historial.
+
 ## Implementado (fase 5, 2026-10-24)
 
 | Pieza | Archivo |
@@ -84,6 +86,13 @@ Requisitos:
 - En las políticas, `auth.jwt() ->> 'is_anonymous'` permite diferenciarlos si hace falta (por ejemplo, que un anónimo no pueda escribir reseñas).
 
 Alternativa descartada por ahora: crear el pedido con el cliente admin desde el servidor. Obligaría a reescribir `place_order`, que depende de `auth.uid()`.
+
+## Cuenta: Direcciones, Favoritos y Datos personales (7.5, D-030)
+
+- **Server Actions** (`src/lib/account/actions.ts`, `src/lib/wishlist/actions.ts`): `accountClient()` (`src/lib/wishlist/server.ts`) verifica con `getClaims()` una sesión **no anónima** y devuelve el cliente del usuario; cada consulta filtra además por `user_id` (el RLS de un admin deja ver las filas de todos). Sin la llave secreta.
+- **`profiles`**: el cliente solo puede actualizar las columnas editables (grant por columna, M10); `role` se cambia con SQL. `newsletter_opt_in_at` la fecha la pone la BD.
+- **Contraseña desde Datos personales:** `updateUser({ password })` con la sesión actual + `signOut({ scope: 'others' })`; rate limiting por usuario. Sin *Secure password change* no pide la contraseña actual (recomendación en T12). Las otras sesiones caen al renovar su token (trampa 86).
+- **Favoritos:** solo con cuenta. Un invitado o alguien sin sesión va a `/ingresar?volver=…&favorito=<id>`; `signIn` guarda el producto pendiente (B23).
 
 ## Checklist por acción
 

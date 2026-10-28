@@ -15,6 +15,7 @@ import {
   SIGNUP_RATE_LIMIT,
 } from "@/lib/rate-limit";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { writeWishlist } from "@/lib/wishlist/server";
 import type { CartItem } from "@/store/cart-store";
 import {
   canCreateAccountFrom,
@@ -86,6 +87,19 @@ async function signedIn(
   }
 }
 
+/**
+ * El corazón que tocó un invitado o alguien sin sesión (B23) lo trae a Ingresar con ?favorito=:
+ * al ingresar se guarda solo (D-030). Si falla, se ingresa igual.
+ */
+async function savePendingFavorite(
+  supabase: Awaited<ReturnType<typeof createSupabaseServer>>,
+  userId: string,
+  formData: FormData,
+): Promise<void> {
+  const productId = formData.get("favorite");
+  if (productId) await writeWishlist(supabase, userId, productId, true);
+}
+
 /** Ingresar con correo y contraseña */
 export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get("email") ?? "");
@@ -113,6 +127,7 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
     };
   }
 
+  await savePendingFavorite(supabase, data.user.id, formData);
   return signedIn(supabase, data.user.id, formData, safeNext(formData.get("next")), true);
 }
 
@@ -140,6 +155,8 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
+      // Sin sesión hasta confirmar el correo: *Recibir novedades* viaja en los metadatos y
+      // handle_new_user lo copia a profiles.newsletter_opt_in_at (decisión 7b, M10)
       data: { full_name: parsed.data.name, newsletter: parsed.data.newsletter },
       emailRedirectTo: await confirmUrl(next),
     },
@@ -159,6 +176,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   // Sin sesión: hay que confirmar el correo. Supabase responde igual si el correo ya existía,
   // así que el mensaje no revela qué correos tienen cuenta
   if (!data.session || !data.user) return { status: "confirm-email", email: parsed.data.email };
+  await savePendingFavorite(supabase, data.user.id, formData);
   return signedIn(supabase, data.user.id, formData, next, true);
 }
 
@@ -313,7 +331,7 @@ export async function createGuestAccount(_prev: GuestAccountState, formData: For
   await rateLimiter.hit(SIGNUP_RATE_LIMIT, ip);
   const name = guestAccountName(asAddress(order.shipping_address));
   const { error } = await supabase.auth.updateUser(
-    { email, password: parsed.data.password, data: { full_name: name, newsletter: parsed.data.newsletter } },
+    { email, password: parsed.data.password, data: { full_name: name } },
     { emailRedirectTo: await guestAccountRedirect() },
   );
 
@@ -330,6 +348,14 @@ export async function createGuestAccount(_prev: GuestAccountState, formData: For
   if (name) {
     const { error: profileError } = await supabase.from("profiles").update({ full_name: name }).eq("id", userId).is("full_name", null);
     if (profileError) console.error("[auth] createGuestAccount: perfil", profileError);
+  }
+  // *Recibir novedades* (decisión 7b): la fecha la pone la BD (stamp_newsletter_opt_in)
+  if (parsed.data.newsletter) {
+    const { error: newsletterError } = await supabase
+      .from("profiles")
+      .update({ newsletter_opt_in_at: new Date().toISOString() })
+      .eq("id", userId);
+    if (newsletterError) console.error("[auth] createGuestAccount: novedades", newsletterError);
   }
   return { status: "sent", email };
 }

@@ -8,7 +8,9 @@ import { DeliveryInfo } from "@/components/catalog/delivery-info";
 import { ProductGallery } from "@/components/catalog/product-gallery";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { ProductPurchase } from "@/components/catalog/product-purchase";
+import { WriteReview } from "@/components/catalog/review-dialog";
 import styles from "@/components/catalog/product.module.css";
+import { Badge } from "@/components/ui/badge";
 import { Rating } from "@/components/ui/rating";
 import { productDetails } from "@/lib/catalog/mappers";
 import {
@@ -18,8 +20,11 @@ import {
   getReviews,
   getVariantStock,
   type ProductDetail,
+  type ProductReview,
 } from "@/lib/catalog/queries";
-import { formatDeliveryDay } from "@/lib/format/dates";
+import { attributeGroups } from "@/lib/catalog/variants";
+import { formatLongDate } from "@/lib/format/dates";
+import { formatAverage, reviewCountLabel, reviewSignature } from "@/lib/reviews/review";
 
 // El catálogo es chico: se prerenderizan todas las fichas. Las nuevas usan el App Shell
 // y se completan después de la primera visita (ISR con Cache Components).
@@ -59,9 +64,8 @@ async function ProductView({ params }: Pick<PageProps<"/productos/[slug]">, "par
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  // El rating viene de las reseñas publicadas (mismo cálculo que product_catalog)
+  // Promedio y total de product_catalog, con el tag del producto: cambian al publicar (7.6)
   const reviews = await getReviews(product.id);
-  const rating = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : null;
   const minPrice = Math.min(...product.variants.map((v) => v.price));
   const onSale = product.compareAt != null && product.compareAt > minPrice;
   const details = productDetails(product.metadata);
@@ -84,9 +88,9 @@ async function ProductView({ params }: Pick<PageProps<"/productos/[slug]">, "par
         <div className={styles.buy}>
           {product.brand && <p className={catalog.overline}>{product.brand}</p>}
           <h1 className={styles.name}>{product.name}</h1>
-          {rating != null && (
+          {reviews.average != null && (
             <a href="#opiniones" className={styles.ratingLink}>
-              <Rating value={Math.round(rating * 10) / 10} count={reviews.length} />
+              <Rating value={reviews.average} count={reviews.count} />
             </a>
           )}
 
@@ -133,23 +137,37 @@ async function ProductView({ params }: Pick<PageProps<"/productos/[slug]">, "par
         </section>
       </div>
 
-      <section className={catalog.section} aria-labelledby="opiniones-titulo" id="opiniones">
-        <h2 id="opiniones-titulo" className={catalog.sectionTitle}>
-          Opiniones
-        </h2>
-        {reviews.length === 0 ? (
-          <p className={catalog.muted}>
-            Todavía no hay opiniones de este producto. Las publican quienes ya lo compraron.
-          </p>
-        ) : (
+      {/* Template Ficha · Opiniones (7.6): resumen con *Escribir una opinión* y la firma Nombre · Comuna */}
+      <section className={styles.opinions} aria-labelledby="opiniones-titulo" id="opiniones">
+        <div className={styles.opinionsSummary}>
+          <h2 id="opiniones-titulo" className={catalog.sectionTitle}>
+            Opiniones
+          </h2>
+          {reviews.average != null ? (
+            <>
+              <p className={styles.average}>
+                {formatAverage(reviews.average)} <span className={styles.averageOf}>de 5</span>
+              </p>
+              <Rating value={reviews.average} size="lg" showValue={false} />
+              <p className={catalog.muted}>{reviewCountLabel(reviews.count)}</p>
+            </>
+          ) : (
+            <p className={catalog.muted}>
+              Todavía no hay opiniones de este producto. Las publican quienes ya lo recibieron.
+            </p>
+          )}
+          <WriteReview
+            productId={product.id}
+            productPath={`/productos/${product.slug}`}
+            productName={product.name}
+            image={product.images[0]?.url ?? null}
+            variantLabel={attributeGroups(product.variants)[0]?.label ?? null}
+          />
+        </div>
+        {reviews.items.length > 0 && (
           <ul className={styles.reviews}>
-            {reviews.map((r) => (
-              <li key={r.id} className={styles.review}>
-                <Rating value={r.rating} showValue={false} />
-                {r.title && <p className={styles.reviewTitle}>{r.title}</p>}
-                {r.body && <p className={styles.text}>{r.body}</p>}
-                <p className={catalog.muted}>{formatDeliveryDay(new Date(r.created_at))}</p>
-              </li>
+            {reviews.items.map((r) => (
+              <ReviewCard key={r.id} review={r} />
             ))}
           </ul>
         )}
@@ -157,6 +175,26 @@ async function ProductView({ params }: Pick<PageProps<"/productos/[slug]">, "par
 
       {product.category && <Related categoryId={product.category.id} productId={product.id} />}
     </>
+  );
+}
+
+// Una opinión: la firma la puso la BD al publicar (M11); sin comuna en el retiro en tienda
+function ReviewCard({ review }: { review: ProductReview }) {
+  const byline = [reviewSignature(review.author_name, review.author_commune), formatLongDate(new Date(review.created_at))]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <li className={styles.review}>
+      <div className={styles.reviewHead}>
+        <Rating value={review.rating} showValue={false} />
+        <Badge tone="success" icon="check">
+          Compra verificada
+        </Badge>
+      </div>
+      {review.title && <p className={styles.reviewTitle}>{review.title}</p>}
+      {review.body && <p className={styles.reviewBody}>{review.body}</p>}
+      <p className={styles.reviewByline}>{byline}</p>
+    </li>
   );
 }
 
